@@ -1,0 +1,193 @@
+{
+  "userId": "123456789",
+  "username": "test_creator_2024",
+  "exportTimestamp": 1743211639877,
+  "profile": {
+    "displayName": "Test Creator",
+    "biography": "Content creator 📸 | Travel enthusiast ✈️ | Coffee lover ☕",
+    "followerCount": 15420,
+    "followingCount": 890,
+    "postCount": 145,
+    "isVerified": false,
+    "isPrivate": false,
+    "profilePictureUrl": "https://example.com/profile.jpg",
+    "externalUrl": "https://testcreator.com",
+    "category": "creator"
+  },
+  "posts": [
+    {
+      "postId": "18123456789_987654321",
+      "caption": "Beautiful sunset at the beach 🌅 Perfect end to an amazing day! #sunset #beach #travel #photography #nature #peaceful",
+      "timestamp": 1743200000000,
+      "mediaType": "image",
+      "mediaUrls": ["https://example.com/sunset.jpg"],
+      "hashtags": ["#sunset", "#beach", "#travel", "#photography", "#nature", "#peaceful"],
+      "mentions": ["@beachresort", "@photographyclub"],
+      "likeCount": 1245,
+      "commentCount": 89,
+      "shareCount": 23,
+      "location": {
+        "name": "Malibu Beach, California",
+        "coordinates": {
+          "latitude": 34.0259,
+          "longitude": -118.7798
+        }
+      }
+    },
+    {
+      "postId": "18123456789_876543210",
+      "caption": "Coffee time! ☕ Working on some new content ideas. What would you like to see next? 💭 #coffee #creativity #contentcreator #monday",
+      "timestamp": 1742800000000,
+      "mediaType": "carousel",
+      "mediaUrls": [
+        "https://example.com/coffee1.jpg",
+        "https://example.com/coffee2.jpg",
+        "https://example.com/workspace.jpg"
+      ],
+      "hashtags": ["#coffee", "#creativity", "#contentcreator", "#monday"],
+      "mentions": [],
+      "likeCount": 892,
+      "commentCount": 67,
+      "shareCount": 15,
+      "location": {
+        "name": "Local Coffee Shop"
+      }
+    },
+    {
+      "postId": "18123456789_765432109",
+      "caption": "Behind the scenes of today's photoshoot 📷✨ Always fun creating new content!",
+      "timestamp": 1742400000000,
+      "mediaType": "video",
+      "mediaUrls": ["https://example.com/bts_video.mp4"],
+      "hashtags": ["#behindthescenes", "#photoshoot", "#content", "#creative"],
+      "mentions": ["@photographerstudio"],
+      "likeCount": 567,
+      "commentCount": 45,
+      "shareCount": 8
+    }
+  ],
+  "stories": [
+    {
+      "storyId": "story_123456789_001",
+      "timestamp": 1743150000000,
+      "mediaType": "image",
+      "mediaUrl": "https://example.com/story1.jpg",
+      "viewCount": 3420,
+      "impressions": 4567,
+      "stickers": ["location", "music", "poll"]
+    },
+    {
+      "storyId": "story_123456789_002",
+      "timestamp": 1743140000000,
+      "mediaType": "video",
+      "mediaUrl": "https://example.com/story2.mp4",
+      "viewCount": 2890,
+      "impressions": 3456,
+      "stickers": ["music", "hashtag"]
+    }
+  ],
+  "reels": [
+    {
+      "reelId": "reel_123456789_001",
+      "caption": "Quick coffee brewing tutorial ☕ Save this for later! #coffee #tutorial #howto #morning",
+      "timestamp": 1743000000000,
+      "mediaUrl": "https://example.com/coffee_reel.mp4",
+      "audioInfo": {
+        "trackName": "Chill Vibes",
+        "artistName": "Relaxing Music Co",
+        "isOriginal": false
+      },
+      "playCount": 12567,
+      "likeCount": 1890,
+      "commentCount": 234,
+      "shareCount": 445,
+      "effects": ["speed_ramp", "text_overlay", "color_filter"]
+    },
+    {
+      "reelId": "reel_123456789_002",
+      "caption": "Day in my life as a content creator 🎬 #dayinmylife #contentcreator #routine #productivity",
+      "timestamp": 1742600000000,
+      "mediaUrl": "https://example.com/day_reel.mp4",
+      "audioInfo": {
+        "trackName": "Original Audio",
+        "artistName": "test_creator_2024",
+        "isOriginal": true
+      },
+      "playCount": 8934,
+      "likeCount": 1234,
+      "commentCount": 156,
+      "shareCount": 287,
+      "effects": ["transition", "text_overlay"]
+    }
+  ],
+  "analytics": {
+    "accountInsights": {
+      "reach": 45678,
+      "impressions": 89012,
+      "engagementRate": 6.8,
+      "followerGrowth": {
+        "period": "last_30_days",
+        "growthCount": 420,
+        "growthPercentage": 2.8
+      }
+    },
+    "topPosts": [
+      {
+        "postId": "18123456789_987654321",
+        "engagementScore": 8.9,
+        "reach": 12456,
+        "impressions": 18923
+      },
+      {
+        "postId": "18123456789_876543210",
+        "engagementScore": 7.2,
+        "reach": 8934,
+        "impressions": 13567
+      }
+    ],
+    "audienceInsights": {
+      "demographics": {
+        "genderDistribution": {
+          "male": 35.6,
+          "female": 62.4,
+          "other": 2.0
+        },
+        "ageGroups": {
+          "18-24": 28.5,
+          "25-34": 42.1,
+          "35-44": 18.7,
+          "45-54": 8.2,
+          "55-64": 2.1,
+          "65+": 0.4
+        },
+        "topLocations": [
+          {
+            "country": "United States",
+            "percentage": 45.2
+          },
+          {
+            "country": "Canada",
+            "percentage": 12.8
+          },
+          {
+            "country": "United Kingdom",
+            "percentage": 8.9
+          }
+        ]
+      }
+    }
+  },
+  "metadata": {
+    "source": "instagram_official_export",
+    "exportMethod": "Data Download Request",
+    "dataVersion": "2024.1",
+    "exportDate": "2025-01-15T10:30:00.000Z",
+    "fileCount": 156,
+    "totalMediaSize": 523456789,
+    "privacySettings": {
+      "dataRetentionDays": 90,
+      "includesDeletedContent": false,
+      "includesDirectMessages": false
+    }
+  }
+} 
