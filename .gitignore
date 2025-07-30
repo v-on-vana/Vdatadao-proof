@@ -3,9 +3,9 @@
 __pycache__/
 *.pyc
 
-demo/*
-!demo/input/
+/input/account.json
+/input/activity.json
+
+/output/results.json
 
 .idea/
-
-.DS_Store

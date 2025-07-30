@@ -1,0 +1,21 @@
+{
+  "dlp_id": 41,
+  "valid": true,
+  "score": 0.6000000000000001,
+  "authenticity": 0.0,
+  "ownership": 0.0,
+  "quality": 1.0,
+  "uniqueness": 1.0,
+  "attributes": {
+    "data_type": "google",
+    "user_email": "test@opendatalabs.xyz",
+    "user_id": "111",
+    "profile_name": "test test",
+    "verified_with_oauth": false
+  },
+  "metadata": {
+    "schema_type": "google-profile.json",
+    "data_type": "google",
+    "processing_timestamp": "2025-07-29T22:49:20.556368"
+  }
+}
