@@ -1,0 +1,401 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Vana DataDAO Instagram Meta Export Schema",
+  "type": "object",
+  "description": "Schema for Instagram data contributions to Vana DataDAO ecosystem",
+  "properties": {
+    "contribution_id": {
+      "type": "string",
+      "pattern": "^meta_export_[0-9]+$",
+      "description": "Unique contribution identifier"
+    },
+    "contributor": {
+      "type": "object",
+      "properties": {
+        "wallet_address": {
+          "type": "string",
+          "description": "Contributor's wallet address"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Contributor's email address"
+        },
+        "name": {
+          "type": "string",
+          "description": "Contributor's display name"
+        },
+        "locale": {
+          "type": "string",
+          "default": "en",
+          "description": "User's locale/language preference"
+        }
+      },
+      "required": ["wallet_address", "email", "name"],
+      "additionalProperties": false
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "platform": {
+          "type": "string",
+          "enum": ["instagram"],
+          "description": "Social media platform"
+        },
+        "source_type": {
+          "type": "string",
+          "enum": ["meta_export"],
+          "description": "Data source type"
+        },
+        "extraction_method": {
+          "type": "string",
+          "enum": ["google_drive_api"],
+          "description": "Method used for data extraction"
+        },
+        "profile": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string",
+              "description": "Instagram username"
+            },
+            "display_name": {
+              "type": "string",
+              "description": "Display name on Instagram"
+            },
+            "email": {
+              "type": "string",
+              "format": "email",
+              "description": "Email associated with Instagram account"
+            },
+            "account_type": {
+              "type": "string",
+              "enum": ["Private", "Public"],
+              "description": "Account privacy setting"
+            },
+            "date_of_birth": {
+              "type": "string",
+              "format": "date",
+              "description": "User's date of birth"
+            },
+            "phone_confirmed": {
+              "type": "boolean",
+              "description": "Whether phone number is confirmed"
+            },
+            "private_account": {
+              "type": "boolean",
+              "description": "Whether account is set to private"
+            }
+          },
+          "required": ["username", "account_type"],
+          "additionalProperties": false
+        },
+        "metrics": {
+          "type": "object",
+          "properties": {
+            "posts_count": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Total number of posts created"
+            },
+            "following_count": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of accounts followed"
+            },
+            "follower_count": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of followers"
+            },
+            "likes_given_count": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Total likes given to other posts"
+            },
+            "comments_count": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Total comments made"
+            },
+            "account_age_days": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Account age in days"
+            },
+            "total_interactions": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Total interactions (likes + comments)"
+            },
+            "has_story_activity": {
+              "type": "boolean",
+              "description": "Whether user has story activity"
+            }
+          },
+          "required": [
+            "posts_count",
+            "following_count",
+            "likes_given_count",
+            "comments_count"
+          ],
+          "additionalProperties": false
+        },
+        "activities": {
+          "type": "object",
+          "properties": {
+            "following_list": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "description": "Username of followed account"
+                  },
+                  "followed_at": {
+                    "type": "integer",
+                    "description": "Unix timestamp when followed"
+                  }
+                },
+                "required": ["username"],
+                "additionalProperties": false
+              },
+              "description": "List of followed accounts"
+            },
+            "likes_given": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "target_username": {
+                    "type": "string",
+                    "description": "Username of liked account"
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Number of likes given to this account"
+                  },
+                  "last_activity": {
+                    "type": "integer",
+                    "description": "Unix timestamp of last like activity"
+                  }
+                },
+                "required": ["target_username", "count"],
+                "additionalProperties": false
+              },
+              "description": "Aggregated likes given per account"
+            },
+            "posts_created": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "creation_timestamp": {
+                    "type": "integer",
+                    "description": "Unix timestamp of post creation"
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "Post title/caption"
+                  },
+                  "source_app": {
+                    "type": "string",
+                    "enum": ["instagram", "FB"],
+                    "description": "App used to create post"
+                  },
+                  "has_photo": {
+                    "type": "boolean",
+                    "description": "Whether post contains photo"
+                  },
+                  "has_camera_metadata": {
+                    "type": "boolean",
+                    "description": "Whether photo has camera metadata"
+                  }
+                },
+                "required": ["creation_timestamp"],
+                "additionalProperties": false
+              },
+              "description": "List of created posts"
+            },
+            "comments_made": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "timestamp": {
+                    "type": "integer",
+                    "description": "Unix timestamp of comment"
+                  },
+                  "target_username": {
+                    "type": "string",
+                    "description": "Username of commented account"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "description": "List of comments made (content anonymized)"
+            }
+          },
+          "additionalProperties": false
+        },
+        "security": {
+          "type": "object",
+          "properties": {
+            "last_login": {
+              "type": "integer",
+              "description": "Unix timestamp of last login"
+            },
+            "contact_syncing": {
+              "type": "boolean",
+              "description": "Whether contact syncing is enabled"
+            },
+            "has_shared_live_video": {
+              "type": "boolean",
+              "description": "Whether user has shared live videos"
+            }
+          },
+          "additionalProperties": false
+        },
+        "raw_export_data": {
+          "type": "object",
+          "description": "Original Instagram export data (encrypted)",
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "platform",
+        "source_type",
+        "extraction_method",
+        "profile",
+        "metrics"
+      ],
+      "additionalProperties": false
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+          "description": "Schema version"
+        },
+        "schema_version": {
+          "type": "string",
+          "enum": ["vana_datadao_v1"],
+          "description": "Vana DataDAO schema version"
+        },
+        "source": {
+          "type": "string",
+          "description": "Data source description"
+        },
+        "collection_date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of data collection"
+        },
+        "data_type": {
+          "type": "string",
+          "enum": ["instagram_meta_export"],
+          "description": "Type of data being contributed"
+        },
+        "processing_timestamp": {
+          "type": "integer",
+          "description": "Unix timestamp of processing"
+        },
+        "extraction_completeness": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Percentage of expected data fields present"
+        },
+        "folder_structure": {
+          "type": "object",
+          "properties": {
+            "metaFolderId": {
+              "type": "string",
+              "description": "Google Drive Meta folder ID"
+            },
+            "instagramFolderId": {
+              "type": "string",
+              "description": "Google Drive Instagram folder ID"
+            },
+            "instagramFolderName": {
+              "type": "string",
+              "description": "Instagram folder name"
+            }
+          },
+          "additionalProperties": false
+        },
+        "privacy_settings": {
+          "type": "object",
+          "properties": {
+            "contains_pii": {
+              "type": "boolean",
+              "description": "Whether data contains personally identifiable information"
+            },
+            "anonymization_level": {
+              "type": "string",
+              "enum": ["none", "partial", "full"],
+              "description": "Level of data anonymization applied"
+            },
+            "retention_policy": {
+              "type": "string",
+              "enum": ["user_controlled", "platform_controlled"],
+              "description": "Data retention policy"
+            }
+          },
+          "required": [
+            "contains_pii",
+            "anonymization_level",
+            "retention_policy"
+          ],
+          "additionalProperties": false
+        },
+        "quality_score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Data quality score (0-100)"
+        },
+        "data_freshness": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Data freshness score based on recency of activities"
+        }
+      },
+      "required": [
+        "version",
+        "schema_version",
+        "source",
+        "collection_date",
+        "data_type",
+        "processing_timestamp",
+        "privacy_settings",
+        "quality_score"
+      ],
+      "additionalProperties": false
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of record creation"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of last update"
+    }
+  },
+  "required": [
+    "contribution_id",
+    "contributor",
+    "data",
+    "metadata",
+    "created_at",
+    "updated_at"
+  ],
+  "additionalProperties": false
+}
