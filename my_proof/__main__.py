@@ -4,56 +4,41 @@ import os
 import sys
 import traceback
 import zipfile
-from typing import Dict, Any
 
 from my_proof.proof import Proof
-
-INPUT_DIR, OUTPUT_DIR, SEALED_DIR = '/input', '/output', '/sealed'
+from my_proof.config import settings
 
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
-
-def load_config() -> Dict[str, Any]:
-    """Load proof configuration from environment variables."""
-    config = {
-        'dlp_id': 1234,  # Set your own DLP ID here
-        'use_sealing': os.path.isdir(SEALED_DIR),
-        'input_dir': INPUT_DIR,
-        'user_email': os.environ.get('USER_EMAIL', None),
-    }
-    logging.info(f"Using config: {json.dumps(config, indent=2)}")
-    return config
-
-
 def run() -> None:
     """Generate proofs for all input files."""
-    config = load_config()
-    input_files_exist = os.path.isdir(INPUT_DIR) and bool(os.listdir(INPUT_DIR))
+    # logging.info(f"Using config: {settings.model_dump_json(indent=2)}")
+    
+    settings.DLP_ID = 41 # TODO: Set your own DLP ID here
+
+    input_files_exist = os.path.isdir(settings.INPUT_DIR) and bool(os.listdir(settings.INPUT_DIR))
 
     if not input_files_exist:
-        raise FileNotFoundError(f"No input files found in {INPUT_DIR}")
+        raise FileNotFoundError(f"No input files found in {settings.INPUT_DIR}")
     extract_input()
 
-    proof = Proof(config)
+    proof = Proof()
     proof_response = proof.generate()
 
-    output_path = os.path.join(OUTPUT_DIR, "results.json")
+    output_path = os.path.join(settings.OUTPUT_DIR, "results.json")
     with open(output_path, 'w') as f:
-        json.dump(proof_response.dict(), f, indent=2)
+        json.dump(proof_response.model_dump(), f, indent=2)
     logging.info(f"Proof generation complete: {proof_response}")
 
 
 def extract_input() -> None:
-    """
-    If the input directory contains any zip files, extract them
-    :return:
-    """
-    for input_filename in os.listdir(INPUT_DIR):
-        input_file = os.path.join(INPUT_DIR, input_filename)
+    """If the input directory contains any zip files, extract them"""
+    for input_filename in os.listdir(settings.INPUT_DIR):
+        input_file = os.path.join(settings.INPUT_DIR, input_filename)
 
         if zipfile.is_zipfile(input_file):
             with zipfile.ZipFile(input_file, 'r') as zip_ref:
-                zip_ref.extractall(INPUT_DIR)
+                zip_ref.extractall(settings.INPUT_DIR)
 
 
 if __name__ == "__main__":
