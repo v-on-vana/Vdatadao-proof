@@ -20,10 +20,8 @@ def validate_schema(input_data: Dict[str, Any]) -> Tuple[str, bool]:
     schemas_to_try = []
     
     # Determine which schema to validate against based on data structure
-    if _is_instagram_data(input_data):
-        schemas_to_try = ['instagram-meta-export.json', 'google-profile.json']
-    else:
-        schemas_to_try = ['google-profile.json', 'instagram-meta-export.json']
+    # Only support Instagram meta export schema
+    schemas_to_try = ['instagram-meta-export.json']
     
     for schema_type in schemas_to_try:
         try:
