@@ -6,10 +6,10 @@ from typing import Optional
 class Settings(BaseSettings):
     """Global settings configuration using environment variables"""
 
-    DLP_ID: int = Field(default=41, description="Data Liquidity Pool ID")
+    DLP_ID: int = Field(default=143, description="Data Liquidity Pool ID")
 
     DLP_CONTRACT_ADDRESS: str = Field(
-        default="0x238CA43C9aaa98bc2C5C7672dc30125c30a805db",
+        default="0xaA45d51168BB94CC7b7402bb051159276b6279b2",
         description="Ethereum address of the DLP contract",
         pattern="^0x[a-fA-F0-9]{40}$",
     )
