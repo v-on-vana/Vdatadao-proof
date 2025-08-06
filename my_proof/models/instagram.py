@@ -85,11 +85,11 @@ class InstagramMetadata(BaseModel):
     collection_date: str = Field(..., description="ISO 8601 datetime string")
     data_type: str = Field(default="instagram_meta_export")
     processing_timestamp: int
-    extraction_completeness: int = Field(..., ge=0, le=100)
+    extraction_completeness: float = Field(..., ge=0, le=100)
     folder_structure: FolderStructure
     privacy_settings: PrivacySettings
-    quality_score: int = Field(..., ge=0, le=100)
-    data_freshness: int = Field(..., ge=0, le=100)
+    quality_score: float = Field(..., ge=0, le=100)
+    data_freshness: float = Field(..., ge=0, le=100)
 
 class InstagramContribution(BaseModel):
     contribution_id: str

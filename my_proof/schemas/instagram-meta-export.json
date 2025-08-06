@@ -305,7 +305,7 @@
           "description": "Unix timestamp of processing"
         },
         "extraction_completeness": {
-          "type": "integer",
+          "type": "number",
           "minimum": 0,
           "maximum": 100,
           "description": "Percentage of expected data fields present"
@@ -354,13 +354,13 @@
           "additionalProperties": false
         },
         "quality_score": {
-          "type": "integer",
+          "type": "number",
           "minimum": 0,
           "maximum": 100,
           "description": "Data quality score (0-100)"
         },
         "data_freshness": {
-          "type": "integer",
+          "type": "number",
           "minimum": 0,
           "maximum": 100,
           "description": "Data freshness score based on recency of activities"

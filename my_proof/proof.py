@@ -9,12 +9,14 @@ from my_proof.models.instagram import InstagramContribution
 from my_proof.utils.blockchain import BlockchainClient
 from my_proof.utils.google import get_google_user
 from my_proof.utils.schema import validate_schema
+from my_proof.utils.ai_detector import AIDetector
 from my_proof.config import settings
 
 
 class Proof:
     def __init__(self):
         self.proof_response = ProofResponse(dlp_id=settings.DLP_ID)
+        self.ai_detector = AIDetector()
         try:
             self.blockchain_client = BlockchainClient()
             self.blockchain_available = True
@@ -200,6 +202,13 @@ class Proof:
                 + ownership_score * 0.10
             )
 
+            # Run AI detection for additional attributes
+            ai_result = None
+            try:
+                ai_result = self.ai_detector.detect_ai_content(instagram_data.dict())
+            except Exception as e:
+                logging.error(f"AI detection for attributes failed: {str(e)}")
+
             # Additional attributes for Instagram data
             self.proof_response.attributes = {
                 "schema_type": "instagram-meta-export.json",
@@ -218,6 +227,17 @@ class Proof:
                 "phone_confirmed": instagram_data.data.profile.phone_confirmed,
                 "private_account": instagram_data.data.profile.private_account,
             }
+            
+            # Add AI detection results to attributes if available
+            if ai_result:
+                self.proof_response.attributes.update({
+                    "ai_detection": {
+                        "is_ai_generated": ai_result.get('is_ai_generated', False),
+                        "confidence": ai_result.get('confidence', 0.0),
+                        "indicators": ai_result.get('indicators', []),
+                        "authenticity_impact": max(0.0, 1.0 - ai_result.get('confidence', 0.0))
+                    }
+                })
 
         except Exception as e:
             errors.append("INSTAGRAM_DATA_PROCESSING_ERROR")
@@ -278,34 +298,55 @@ class Proof:
     def _calculate_instagram_authenticity_score(
         self, instagram_data: InstagramContribution, google_user
     ) -> float:
-        """Calculate authenticity score based on verification and data consistency."""
+        """Calculate authenticity score based on verification, consistency, and AI detection."""
         score = 0.0
 
-        # Google OAuth verification (40%)
+        # Google OAuth verification (25%)
         if google_user:
-            score += 0.4
+            score += 0.25
 
-        # Account verification indicators (30%)
+        # Account verification indicators (20%)
         if instagram_data.data.profile.phone_confirmed:
-            score += 0.15
+            score += 0.10
         if instagram_data.data.profile.email:
-            score += 0.15
+            score += 0.10
 
-        # Data consistency checks (20%)
+        # Data consistency checks (15%)
         metrics = instagram_data.data.metrics
         if metrics.total_interactions == (
             metrics.likes_given_count + metrics.comments_count
         ):
-            score += 0.1
+            score += 0.075
         if metrics.account_age_days > 0:
-            score += 0.1
+            score += 0.075
 
         # Source verification (10%)
         if (
             instagram_data.data.source_type == "meta_export"
             and instagram_data.data.extraction_method == "google_drive_api"
         ):
-            score += 0.1
+            score += 0.10
+
+        # AI Detection Analysis (30%)
+        try:
+            ai_result = self.ai_detector.detect_ai_content(instagram_data.dict())
+            ai_confidence = ai_result.get('confidence', 0.0)
+            
+            # Inverse relationship: higher AI confidence = lower authenticity
+            ai_authenticity_score = max(0.0, 1.0 - ai_confidence)
+            score += ai_authenticity_score * 0.30
+            
+            # Log AI detection results for debugging
+            if ai_result.get('is_ai_generated'):
+                logging.warning(f"AI-generated content detected with confidence: {ai_confidence:.2f}")
+                logging.warning(f"AI indicators: {ai_result.get('indicators', [])}")
+            else:
+                logging.info(f"Content appears authentic. AI confidence: {ai_confidence:.2f}")
+                
+        except Exception as e:
+            logging.error(f"AI detection failed: {str(e)}")
+            # If AI detection fails, don't penalize but don't add score either
+            pass
 
         return min(score, 1.0)
 
