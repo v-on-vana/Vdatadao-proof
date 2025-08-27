@@ -38,7 +38,6 @@ class Settings(BaseSettings):
         default="/output", description="Directory where output files will be written"
     )
 
-    # Google OAuth
     GOOGLE_TOKEN: Optional[str] = Field(
         default=None,
         description="Google OAuth2 access token for user authentication",
@@ -50,5 +49,4 @@ class Settings(BaseSettings):
         case_sensitive = True
 
 
-# Global settings instance
 settings = Settings()

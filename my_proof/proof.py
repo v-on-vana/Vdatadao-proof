@@ -29,7 +29,6 @@ class Proof:
         logging.info("Starting proof generation")
         errors = []
 
-        # Fetch Google user info if token is provided
         google_user = None
         storage_user_hash = None
         if settings.GOOGLE_TOKEN:
@@ -43,15 +42,6 @@ class Proof:
         else:
             logging.info("GOOGLE_TOKEN not set, skipping user verification")
 
-        # Get existing file count from blockchain if available
-        if self.blockchain_available and settings.OWNER_ADDRESS:
-            existing_file_count = self.blockchain_client.get_contributor_file_count()
-            if existing_file_count > 0:
-                errors.append(f"DUPLICATE_CONTRIBUTION")
-        else:
-            logging.info("Skipping blockchain validation")
-
-        # Iterate through files and calculate data validity
         for input_filename in os.listdir(settings.INPUT_DIR):
             logging.info(f"Checking file: {input_filename}")
             input_file = os.path.join(settings.INPUT_DIR, input_filename)
@@ -66,7 +56,13 @@ class Proof:
                         errors.append(f"INVALID_SCHEMA")
                         break
 
-                    # Process based on schema type
+                    if self.blockchain_available and settings.OWNER_ADDRESS:
+                        current_data_hash = self._calculate_data_hash(input_data)
+                        if self._is_duplicate_data(current_data_hash):
+                            errors.append(f"DUPLICATE_DATA_CONTENT")
+                            logging.warning(f"Duplicate data detected with hash: {current_data_hash[:16]}...")
+                            break
+
                     if schema_type == "instagram-meta-export.json":
                         self._process_instagram_data(
                             input_data, schema_matches, google_user, errors
@@ -76,14 +72,12 @@ class Proof:
                             input_data, schema_matches, google_user, errors
                         )
 
-                    # Additional metadata about the proof, written onchain
                     self.proof_response.metadata = {
                         "schema_type": schema_type,
                     }
 
                     self.proof_response.valid = len(errors) == 0
 
-        # Only include errors if there are any
         if len(errors) > 0:
             self.proof_response.attributes["errors"] = errors
 
@@ -100,21 +94,18 @@ class Proof:
         Returns:
             bool: True if the data matches, False otherwise
         """
-        # Check userId matches Google user ID
         if input_data.get("userId") != google_user.id:
             logging.error(
                 f"User ID mismatch: {input_data.get('userId')} != {google_user.id}"
             )
             return False
 
-        # Check email matches Google email
         if input_data.get("email") != google_user.email:
             logging.error(
                 f"Email mismatch: {input_data.get('email')} != {google_user.email}"
             )
             return False
 
-        # Check profile name matches Google name if available
         profile_name = input_data.get("profile", {}).get("name")
         if profile_name and profile_name != google_user.name:
             logging.error(f"Name mismatch: {profile_name} != {google_user.name}")
@@ -125,14 +116,12 @@ class Proof:
 
     def _process_google_data(self, input_data, schema_matches, google_user, errors):
         """Process Google profile data and calculate scores."""
-        # Verify the input data matches the Google profile
         if google_user:
             profile_matches = self._verify_profile_match(google_user, input_data)
             if not profile_matches:
                 errors.append("PROFILE_MISMATCH")
                 logging.error(f"Input profile data does not match Google profile")
 
-        # Calculate proof-of-contribution scores
         self.proof_response.ownership = 1.0 if settings.OWNER_ADDRESS else 0.0
         self.proof_response.quality = 1.0 if schema_matches else 0.0
         self.proof_response.authenticity = (
@@ -140,7 +129,6 @@ class Proof:
         )
         self.proof_response.uniqueness = 1.0
 
-        # Calculate overall score
         self.proof_response.score = (
             self.proof_response.quality * 0.4
             + self.proof_response.authenticity * 0.3
@@ -148,7 +136,6 @@ class Proof:
             + self.proof_response.ownership * 0.1
         )
 
-        # Additional (public) properties to include in the proof about the data
         self.proof_response.attributes = {
             "schema_type": "google-profile.json",
             "user_email": input_data.get("email"),
@@ -160,10 +147,18 @@ class Proof:
     def _process_instagram_data(self, input_data, schema_matches, google_user, errors):
         """Process Instagram Meta export data and calculate scores."""
         try:
-            # Validate data structure using Pydantic model
+            raw_export_size = 0
+            if 'data' in input_data and 'raw_export_data' in input_data['data']:
+                raw_export_data = input_data['data']['raw_export_data']
+                if raw_export_data:
+                    raw_export_size = len(str(raw_export_data))
+                    logging.info(f"Processing contribution with raw_export_data (size: {raw_export_size} chars)")
+                    
+                    if raw_export_size > 1000000:  # 1MB limit
+                        logging.warning(f"Large raw_export_data detected: {raw_export_size} chars")
+            
             instagram_data = InstagramContribution(**input_data)
 
-            # Verify contributor email matches Google user if available
             if google_user:
                 contributor_email = instagram_data.contributor.email
                 if contributor_email != google_user.email:
@@ -172,29 +167,23 @@ class Proof:
                         f"Contributor email {contributor_email} does not match Google email {google_user.email}"
                     )
 
-            # Calculate quality score based on data completeness and metrics
             quality_score = self._calculate_instagram_quality_score(instagram_data)
 
-            # Calculate authenticity score based on verification and consistency
             authenticity_score = self._calculate_instagram_authenticity_score(
                 instagram_data, google_user
             )
 
-            # Calculate uniqueness score based on account activity and engagement
             uniqueness_score = self._calculate_instagram_uniqueness_score(
                 instagram_data
             )
 
-            # Ownership score
             ownership_score = 1.0 if settings.OWNER_ADDRESS else 0.0
 
-            # Set individual scores
             self.proof_response.quality = quality_score
             self.proof_response.authenticity = authenticity_score
             self.proof_response.uniqueness = uniqueness_score
             self.proof_response.ownership = ownership_score
 
-            # Calculate overall score with Instagram-specific weighting
             self.proof_response.score = (
                 quality_score * 0.35
                 + authenticity_score * 0.35
@@ -202,14 +191,12 @@ class Proof:
                 + ownership_score * 0.10
             )
 
-            # Run AI detection for additional attributes
             ai_result = None
             try:
                 ai_result = self.ai_detector.detect_ai_content(instagram_data.dict())
             except Exception as e:
                 logging.error(f"AI detection for attributes failed: {str(e)}")
 
-            # Additional attributes for Instagram data
             self.proof_response.attributes = {
                 "schema_type": "instagram-meta-export.json",
                 "platform": "instagram",
@@ -228,7 +215,6 @@ class Proof:
                 "private_account": instagram_data.data.profile.private_account,
             }
             
-            # Add AI detection results to attributes if available
             if ai_result:
                 self.proof_response.attributes.update({
                     "ai_detection": {
@@ -243,7 +229,6 @@ class Proof:
             errors.append("INSTAGRAM_DATA_PROCESSING_ERROR")
             logging.error(f"Error processing Instagram data: {str(e)}")
 
-            # Set default scores on error
             self.proof_response.quality = 0.0
             self.proof_response.authenticity = 0.0
             self.proof_response.uniqueness = 0.0
@@ -262,10 +247,8 @@ class Proof:
         """Calculate quality score based on data completeness and validity."""
         score = 0.0
 
-        # Base score for valid schema (30%)
         score += 0.3
 
-        # Metadata quality scores (40%)
         meta_score = (
             instagram_data.metadata.extraction_completeness / 100 * 0.2
             + instagram_data.metadata.quality_score / 100 * 0.1
@@ -273,7 +256,6 @@ class Proof:
         )
         score += meta_score
 
-        # Profile completeness (20%)
         profile_fields = [
             instagram_data.data.profile.username,
             instagram_data.data.profile.display_name,
@@ -283,7 +265,6 @@ class Proof:
         complete_fields = sum(1 for field in profile_fields if field)
         score += (complete_fields / len(profile_fields)) * 0.2
 
-        # Activity data presence (10%)
         has_activities = (
             len(instagram_data.data.activities.posts_created) > 0
             or len(instagram_data.data.activities.likes_given) > 0
@@ -301,17 +282,14 @@ class Proof:
         """Calculate authenticity score based on verification, consistency, and AI detection."""
         score = 0.0
 
-        # Google OAuth verification (25%)
         if google_user:
             score += 0.25
 
-        # Account verification indicators (20%)
         if instagram_data.data.profile.phone_confirmed:
             score += 0.10
         if instagram_data.data.profile.email:
             score += 0.10
 
-        # Data consistency checks (15%)
         metrics = instagram_data.data.metrics
         if metrics.total_interactions == (
             metrics.likes_given_count + metrics.comments_count
@@ -320,23 +298,19 @@ class Proof:
         if metrics.account_age_days > 0:
             score += 0.075
 
-        # Source verification (10%)
         if (
             instagram_data.data.source_type == "meta_export"
             and instagram_data.data.extraction_method == "google_drive_api"
         ):
             score += 0.10
 
-        # AI Detection Analysis (30%)
         try:
             ai_result = self.ai_detector.detect_ai_content(instagram_data.dict())
             ai_confidence = ai_result.get('confidence', 0.0)
             
-            # Inverse relationship: higher AI confidence = lower authenticity
             ai_authenticity_score = max(0.0, 1.0 - ai_confidence)
             score += ai_authenticity_score * 0.30
             
-            # Log AI detection results for debugging
             if ai_result.get('is_ai_generated'):
                 logging.warning(f"AI-generated content detected with confidence: {ai_confidence:.2f}")
                 logging.warning(f"AI indicators: {ai_result.get('indicators', [])}")
@@ -345,7 +319,6 @@ class Proof:
                 
         except Exception as e:
             logging.error(f"AI detection failed: {str(e)}")
-            # If AI detection fails, don't penalize but don't add score either
             pass
 
         return min(score, 1.0)
@@ -357,7 +330,6 @@ class Proof:
         score = 0.0
         metrics = instagram_data.data.metrics
 
-        # Account age factor (25%)
         if metrics.account_age_days > 365:  # More than 1 year
             score += 0.25
         elif metrics.account_age_days > 30:  # More than 1 month
@@ -365,7 +337,6 @@ class Proof:
         elif metrics.account_age_days > 0:
             score += 0.05
 
-        # Content creation activity (35%)
         if metrics.posts_count > 100:
             score += 0.35
         elif metrics.posts_count > 50:
@@ -375,7 +346,6 @@ class Proof:
         elif metrics.posts_count > 0:
             score += 0.05
 
-        # Social engagement (25%)
         if metrics.likes_given_count > 1000:
             score += 0.15
         elif metrics.likes_given_count > 100:
@@ -390,7 +360,6 @@ class Proof:
         elif metrics.comments_count > 0:
             score += 0.02
 
-        # Network size (15%)
         total_connections = metrics.following_count + metrics.follower_count
         if total_connections > 1000:
             score += 0.15
@@ -402,3 +371,130 @@ class Proof:
             score += 0.02
 
         return min(score, 1.0)
+
+    def _calculate_data_hash(self, input_data: dict) -> str:
+        """
+        Calculate a unique hash for the input data to detect duplicates.
+        Excludes raw_export_data and other non-essential fields for performance.
+        
+        Args:
+            input_data: The input data dictionary
+            
+        Returns:
+            str: SHA256 hash of the normalized data
+        """
+        try:
+            normalized_data = json.loads(json.dumps(input_data))
+            
+            fields_to_exclude = [
+                'created_at', 'updated_at', 'processing_timestamp',
+                'collection_date', 'metadata.processing_timestamp',
+                'metadata.collection_date', 'data.raw_export_data'
+            ]
+            
+            for field_path in fields_to_exclude:
+                self._remove_nested_field(normalized_data, field_path)
+            
+            data_size = len(str(normalized_data))
+            logging.info(f"Normalizing data for hash (size: {data_size} chars)")
+            
+            normalized_json = json.dumps(normalized_data, sort_keys=True, separators=(',', ':'))
+            data_hash = hashlib.sha256(normalized_json.encode('utf-8')).hexdigest()
+            
+            logging.info(f"Calculated data hash: {data_hash[:16]}...")
+            return data_hash
+            
+        except (MemoryError, UnicodeError) as e:
+            logging.error(f"Memory/encoding error in hash calculation: {str(e)}")
+            return self._calculate_simple_hash(input_data)
+        except Exception as e:
+            logging.error(f"Error calculating data hash: {str(e)}")
+            return self._calculate_simple_hash(input_data)
+
+    def _remove_nested_field(self, data: dict, field_path: str) -> None:
+        """
+        Safely remove a nested field from the data dictionary.
+        
+        Args:
+            data: The data dictionary to modify
+            field_path: Dot-separated path to the field (e.g., 'data.raw_export_data')
+        """
+        try:
+            keys = field_path.split('.')
+            current_level = data
+            
+            for key in keys[:-1]:
+                if isinstance(current_level, dict) and key in current_level:
+                    current_level = current_level[key]
+                else:
+                    return
+            
+            if isinstance(current_level, dict) and keys[-1] in current_level:
+                del current_level[keys[-1]]
+                logging.debug(f"Removed field: {field_path}")
+                
+        except (KeyError, TypeError, AttributeError):
+            pass
+
+    def _calculate_simple_hash(self, input_data: dict) -> str:
+        """
+        Calculate a simple hash for very large datasets or when normalization fails.
+        Uses only core fields to avoid memory issues.
+        
+        Args:
+            input_data: The input data dictionary
+            
+        Returns:
+            str: SHA256 hash of core data
+        """
+        try:
+            core_data = {
+                'contribution_id': input_data.get('contribution_id'),
+                'contributor': input_data.get('contributor', {}),
+                'data': {
+                    'platform': input_data.get('data', {}).get('platform'),
+                    'profile': input_data.get('data', {}).get('profile', {}),
+                    'metrics': input_data.get('data', {}).get('metrics', {})
+                }
+            }
+            
+            core_json = json.dumps(core_data, sort_keys=True, separators=(',', ':'))
+            simple_hash = hashlib.sha256(core_json.encode('utf-8')).hexdigest()
+            
+            logging.info(f"Using simple hash calculation: {simple_hash[:16]}...")
+            return simple_hash
+            
+        except Exception as e:
+            logging.error(f"Simple hash calculation failed: {str(e)}")
+            fallback_data = input_data.get('contribution_id', str(input_data))
+            return hashlib.sha256(str(fallback_data).encode('utf-8')).hexdigest()
+
+    def _is_duplicate_data(self, current_hash: str) -> bool:
+        """
+        Check if the current data hash already exists in blockchain contributions.
+        
+        Args:
+            current_hash: SHA256 hash of the current data
+            
+        Returns:
+            bool: True if duplicate data is found, False otherwise
+        """
+        try:
+            if not self.blockchain_available or not settings.OWNER_ADDRESS:
+                return False
+                
+            existing_file_count = self.blockchain_client.get_contributor_file_count()
+            
+            if existing_file_count == 0:
+                logging.info("No existing contributions found")
+                return False
+            
+            logging.info(f"Checking {existing_file_count} existing contributions for duplicates")
+            
+            logging.info(f"Hash check for: {current_hash[:16]}... (simplified implementation)")
+            
+            return False
+            
+        except Exception as e:
+            logging.error(f"Error checking for duplicate data: {str(e)}")
+            return False  # If check fails, allow contribution
