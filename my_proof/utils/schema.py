@@ -19,13 +19,10 @@ def validate_schema(input_data: Dict[str, Any]) -> Tuple[str, bool]:
     """
     schemas_to_try = []
     
-    # Determine which schema to validate against based on data structure
-    # Only support Instagram meta export schema
     schemas_to_try = ['instagram-meta-export.json']
     
     for schema_type in schemas_to_try:
         try:
-            # Load the schema
             schema_path = os.path.join(os.path.dirname(__file__), '..', 'schemas', schema_type)
             
             if not os.path.exists(schema_path):
@@ -35,7 +32,6 @@ def validate_schema(input_data: Dict[str, Any]) -> Tuple[str, bool]:
             with open(schema_path, 'r') as f:
                 schema = json.load(f)
                 
-            # Validate against schema
             jsonschema.validate(instance=input_data, schema=schema)
             logging.info(f"Data successfully validated against {schema_type}")
             return schema_type, True
@@ -47,7 +43,6 @@ def validate_schema(input_data: Dict[str, Any]) -> Tuple[str, bool]:
             logging.error(f"Schema validation error for {schema_type}: {str(e)}")
             continue
     
-    # If no schema matched
     logging.error("Data did not match any available schema")
     return schemas_to_try[0] if schemas_to_try else 'unknown', False
 
@@ -61,7 +56,6 @@ def _is_instagram_data(input_data: Dict[str, Any]) -> bool:
     Returns:
         bool: True if it appears to be Instagram data
     """
-    # Check for Instagram-specific fields
     instagram_indicators = [
         'contribution_id',
         'contributor',

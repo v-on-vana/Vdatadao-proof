@@ -65,7 +65,55 @@
       "has_shared_live_video": false
     },
     "raw_export_data": {
-      "note": "Instagram Meta Export Data"
+      "note": "Instagram Meta Export Data",
+      "account_info": {
+        "username": "johndoe",
+        "creation_date": "2020-01-01",
+        "last_updated": "2023-12-01"
+      },
+      "media_data": {
+        "posts": [
+          {
+            "media_id": "123456789",
+            "creation_timestamp": 1638360000,
+            "caption": "Test post",
+            "likes_count": 25,
+            "comments_count": 3
+          }
+        ],
+        "stories": [
+          {
+            "story_id": "987654321",
+            "creation_timestamp": 1638360100,
+            "viewer_count": 89
+          }
+        ]
+      },
+      "activity_logs": {
+        "login_history": [
+          {"timestamp": 1638360000, "location": "Istanbul, Turkey"},
+          {"timestamp": 1638320000, "location": "Istanbul, Turkey"}
+        ],
+        "search_history": [
+          {"query": "travel photos", "timestamp": 1638360050},
+          {"query": "food recipes", "timestamp": 1638360080}
+        ]
+      },
+      "connections": {
+        "followers": [
+          {"username": "friend1", "follow_date": 1638300000},
+          {"username": "friend2", "follow_date": 1638310000}
+        ],
+        "following": [
+          {"username": "celebrity1", "follow_date": 1638290000}
+        ]
+      },
+      "metadata": {
+        "export_version": "2023.12.01",
+        "data_categories": ["profile", "media", "connections", "activity"],
+        "total_files": 54,
+        "compression": "gzip"
+      }
     }
   },
   "metadata": {

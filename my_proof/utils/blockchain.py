@@ -13,12 +13,10 @@ class BlockchainClient:
         try:
             self.w3 = Web3(Web3.HTTPProvider(settings.RPC_URL))
             
-            # Load the contract ABI
             contract_path = os.path.join(os.path.dirname(__file__), '..', 'contracts', 'dlp-contract.json')
             with open(contract_path, 'r') as f:
                 contract_abi = json.load(f)
                 
-            # Create contract instance
             self.contract = self.w3.eth.contract(
                 address=settings.DLP_CONTRACT_ADDRESS,
                 abi=contract_abi
