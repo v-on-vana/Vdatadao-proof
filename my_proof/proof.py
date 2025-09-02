@@ -56,12 +56,17 @@ class Proof:
                         errors.append(f"INVALID_SCHEMA")
                         break
 
-                    if self.blockchain_available and settings.OWNER_ADDRESS:
-                        current_data_hash = self._calculate_data_hash(input_data)
-                        if self._is_duplicate_data(current_data_hash):
-                            errors.append(f"DUPLICATE_DATA_CONTENT")
-                            logging.warning(f"Duplicate data detected with hash: {current_data_hash[:16]}...")
+                    contributor = input_data.get('contributor', {})
+                    wallet_address = contributor.get('wallet_address')
+                    contributor_email = contributor.get('email')
+                    
+                    if self.blockchain_available and wallet_address and contributor_email:
+                        if self._check_for_duplicate_data(input_data, wallet_address, contributor_email):
+                            errors.append("DUPLICATE_DATA_DETECTED")
+                            logging.warning(f"Duplicate data detected for wallet: {wallet_address[:10]}...")
                             break
+
+
 
                     if schema_type == "instagram-meta-export.json":
                         self._process_instagram_data(
@@ -498,3 +503,112 @@ class Proof:
         except Exception as e:
             logging.error(f"Error checking for duplicate data: {str(e)}")
             return False  # If check fails, allow contribution
+
+    def _check_for_duplicate_data(self, input_data: dict, wallet_address: str, contributor_email: str) -> bool:
+        """
+        Check if the same data has been submitted before by any wallet address.
+        This prevents both wallet switching and partial data deletion attacks.
+        
+        Args:
+            input_data: The input data to check
+            wallet_address: Current wallet address
+            contributor_email: Contributor email
+            
+        Returns:
+            bool: True if duplicate data is found
+        """
+        try:
+            if not self.blockchain_available:
+                return False
+                
+            core_data_fingerprint = self._generate_core_data_fingerprint(input_data)
+            
+            all_contributors = self.blockchain_client.get_all_contributors()
+            
+            for contributor_addr in all_contributors:
+                if contributor_addr.lower() == wallet_address.lower():
+                    continue
+                    
+                existing_files = self.blockchain_client.get_contributor_files(contributor_addr)
+                
+                for file_hash in existing_files:
+                    similarity_score = self._calculate_data_similarity(core_data_fingerprint, file_hash)
+                    
+                    if similarity_score > 0.85:
+                        logging.warning(f"High similarity detected: {similarity_score:.2f} with {contributor_addr[:10]}...")
+                        return True
+                        
+            return False
+            
+        except Exception as e:
+            logging.error(f"Error checking for duplicate data: {str(e)}")
+            return False
+
+    def _generate_core_data_fingerprint(self, input_data: dict) -> str:
+        """
+        Generate a fingerprint of core data elements that should remain consistent
+        even if peripheral data is modified.
+        
+        Args:
+            input_data: The input data dictionary
+            
+        Returns:
+            str: Core data fingerprint hash
+        """
+        try:
+            profile = input_data.get('data', {}).get('profile', {})
+            metrics = input_data.get('data', {}).get('metrics', {})
+            activities = input_data.get('data', {}).get('activities', {})
+            
+            core_fingerprint = {
+                'username': profile.get('username'),
+                'email': profile.get('email'),
+                'account_type': profile.get('account_type'),
+                'posts_count': metrics.get('posts_count'),
+                'follower_count': metrics.get('follower_count'),
+                'following_count': metrics.get('following_count'),
+                'account_age_days': metrics.get('account_age_days'),
+                'platform': input_data.get('data', {}).get('platform'),
+                'posts_sample': activities.get('posts_created', [])[:3] if activities.get('posts_created') else [],
+                'following_sample': activities.get('following_list', [])[:5] if activities.get('following_list') else []
+            }
+            
+            fingerprint_json = json.dumps(core_fingerprint, sort_keys=True, separators=(',', ':'))
+            return hashlib.sha256(fingerprint_json.encode('utf-8')).hexdigest()
+            
+        except Exception as e:
+            logging.error(f"Error generating core data fingerprint: {str(e)}")
+            return ""
+
+    def _calculate_data_similarity(self, current_fingerprint: str, existing_hash: str) -> float:
+        """
+        Calculate similarity between current data fingerprint and existing contribution.
+        Uses both exact matching and fuzzy similarity.
+        
+        Args:
+            current_fingerprint: Current data fingerprint
+            existing_hash: Existing contribution hash from blockchain
+            
+        Returns:
+            float: Similarity score between 0 and 1
+        """
+        try:
+            if current_fingerprint == existing_hash:
+                return 1.0
+                
+            current_bytes = bytes.fromhex(current_fingerprint) if len(current_fingerprint) == 64 else current_fingerprint.encode()
+            existing_bytes = bytes.fromhex(existing_hash) if len(existing_hash) == 64 else existing_hash.encode()
+            
+            matching_bits = sum(a == b for a, b in zip(current_bytes, existing_bytes))
+            total_bits = max(len(current_bytes), len(existing_bytes))
+            
+            similarity = matching_bits / total_bits if total_bits > 0 else 0.0
+            
+            if similarity > 0.7:
+                logging.info(f"Data similarity detected: {similarity:.2f}")
+                
+            return similarity
+            
+        except Exception as e:
+            logging.error(f"Error calculating data similarity: {str(e)}")
+            return 0.0
