@@ -46,3 +46,63 @@ class BlockchainClient:
         except Exception as e:
             logging.error(f"Error getting contributor file count: {str(e)}")
             return 0
+
+    def get_contributor_files(self, wallet_address: str) -> list:
+        """
+        Get all file hashes contributed by a specific wallet address.
+        
+        Args:
+            wallet_address: The wallet address to check
+            
+        Returns:
+            list: List of file hashes contributed by the address
+        """
+        try:
+            contributor_info = self.contract.functions.contributorInfo(
+                Web3.to_checksum_address(wallet_address)
+            ).call()
+            
+            file_count = contributor_info[1]
+            file_hashes = []
+            
+            for i in range(file_count):
+                try:
+                    file_hash = self.contract.functions.contributorFiles(
+                        Web3.to_checksum_address(wallet_address), i
+                    ).call()
+                    if file_hash:
+                        file_hashes.append(file_hash)
+                except:
+                    continue
+                    
+            return file_hashes
+            
+        except Exception as e:
+            logging.error(f"Error getting contributor files: {str(e)}")
+            return []
+
+    def get_all_contributors(self) -> list:
+        """
+        Get list of all contributor addresses that have made contributions.
+        
+        Returns:
+            list: List of contributor wallet addresses
+        """
+        try:
+            contributors = []
+            
+            contributor_count = self.contract.functions.contributorsCount().call()
+            
+            for i in range(contributor_count):
+                try:
+                    contributor_address = self.contract.functions.contributors(i).call()
+                    if contributor_address:
+                        contributors.append(contributor_address)
+                except:
+                    continue
+                    
+            return contributors
+            
+        except Exception as e:
+            logging.error(f"Error getting all contributors: {str(e)}")
+            return []
