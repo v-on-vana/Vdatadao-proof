@@ -1,142 +1,3627 @@
 {
-  "contribution_id": "meta_export_1638360000000",
+  "contribution_id": "meta_export_1756779040308",
   "contributor": {
-    "wallet_address": "0x742d35cc6af26532c7e6ea8e80c3de7c9c2c6e6e",
-    "email": "user@example.com",
-    "name": "John Doe",
-    "locale": "en"
+    "wallet_address": "0x0AeA6B11278f30A5c326F85892cFF86f588480ec",
+    "email": "vdatadao@gmail.com",
+    "name": "test test",
+    "locale": "tr-TR"
   },
   "data": {
     "platform": "instagram",
     "source_type": "meta_export",
     "extraction_method": "google_drive_api",
     "profile": {
-      "username": "johndoe",
-      "display_name": "Selami Doe",
-      "email": "user@example.com",
-      "account_type": "Private",
-      "date_of_birth": "1990-01-01",
-      "phone_confirmed": true,
-      "private_account": true
+      "username": "vdatadao",
+      "display_name": "Vdatadao Datadao",
+      "email": "vdatadao@gmail.com",
+      "account_type": "Public",
+      "date_of_birth": "1995-07-05",
+      "phone_confirmed": false,
+      "private_account": false
     },
     "metrics": {
       "posts_count": 1,
-      "following_count": 3,
-      "follower_count": 289,
-      "likes_given_count": 3,
-      "comments_count": 89,
-      "account_age_days": 1,
-      "total_interactions": 3,
-      "has_story_activity": true
+      "following_count": 6,
+      "follower_count": 0,
+      "likes_given_count": 2,
+      "comments_count": 0,
+      "account_age_days": 11017,
+      "total_interactions": 2,
+      "has_story_activity": false
     },
     "activities": {
       "following_list": [
         {
-          "username": "example_user",
-          "followed_at": 1638360000
+          "username": "g.dsara",
+          "followed_at": 1753462592
+        },
+        {
+          "username": "fotottarena",
+          "followed_at": 1753462591
+        },
+        {
+          "username": "aslan0fficiall",
+          "followed_at": 1753462589
+        },
+        {
+          "username": "gnygvnc23",
+          "followed_at": 1753462589
+        },
+        {
+          "username": "rolandsallai",
+          "followed_at": 1753462588
+        },
+        {
+          "username": "forzacimbomcom",
+          "followed_at": 1753462585
         }
       ],
       "likes_given": [
         {
-          "target_username": "example_user",
-          "count": 5,
-          "last_activity": 1638360000
+          "target_username": "vdatadao",
+          "count": 1,
+          "last_activity": 1753462684
+        },
+        {
+          "target_username": "forzacimbomcom",
+          "count": 1,
+          "last_activity": 1753462603
         }
       ],
       "posts_created": [
         {
-          "creation_timestamp": 1638360000,
-          "title": "My vacation photo",
-          "source_app": "instagram",
+          "creation_timestamp": 1753462669,
+          "title": "nice",
+          "source_app": "FB",
           "has_photo": true,
           "has_camera_metadata": false
         }
       ],
-      "comments_made": [
-        {
-          "timestamp": 1638360000,
-          "target_username": "example_user"
-        }
-      ]
+      "comments_made": []
     },
     "security": {
-      "last_login": 1638360000,
+      "last_login": 1753462551,
       "contact_syncing": false,
       "has_shared_live_video": false
     },
     "raw_export_data": {
-      "note": "Instagram Meta Export Data",
-      "account_info": {
-        "username": "johndoe",
-        "creation_date": "2020-01-01",
-        "last_updated": "2023-12-01"
+      "conn_following": {
+        "filename": "following.json",
+        "category": "connections",
+        "path": "connections/followers_and_following/following.json",
+        "content": {
+          "relationships_following": [
+            {
+              "title": "",
+              "media_list_data": [],
+              "string_list_data": [
+                {
+                  "href": "https://www.instagram.com/g.dsara",
+                  "value": "g.dsara",
+                  "timestamp": 1753462592
+                }
+              ]
+            },
+            {
+              "title": "",
+              "media_list_data": [],
+              "string_list_data": [
+                {
+                  "href": "https://www.instagram.com/fotottarena",
+                  "value": "fotottarena",
+                  "timestamp": 1753462591
+                }
+              ]
+            },
+            {
+              "title": "",
+              "media_list_data": [],
+              "string_list_data": [
+                {
+                  "href": "https://www.instagram.com/aslan0fficiall",
+                  "value": "aslan0fficiall",
+                  "timestamp": 1753462589
+                }
+              ]
+            },
+            {
+              "title": "",
+              "media_list_data": [],
+              "string_list_data": [
+                {
+                  "href": "https://www.instagram.com/gnygvnc23",
+                  "value": "gnygvnc23",
+                  "timestamp": 1753462589
+                }
+              ]
+            },
+            {
+              "title": "",
+              "media_list_data": [],
+              "string_list_data": [
+                {
+                  "href": "https://www.instagram.com/rolandsallai",
+                  "value": "rolandsallai",
+                  "timestamp": 1753462588
+                }
+              ]
+            },
+            {
+              "title": "",
+              "media_list_data": [],
+              "string_list_data": [
+                {
+                  "href": "https://www.instagram.com/forzacimbomcom",
+                  "value": "forzacimbomcom",
+                  "timestamp": 1753462585
+                }
+              ]
+            }
+          ]
+        },
+        "size": 925
       },
-      "media_data": {
-        "posts": [
+      "following": {
+        "relationships_following": [
           {
-            "media_id": "123456789",
-            "creation_timestamp": 1638360000,
-            "caption": "Test post",
-            "likes_count": 25,
-            "comments_count": 3
+            "title": "",
+            "media_list_data": [],
+            "string_list_data": [
+              {
+                "href": "https://www.instagram.com/g.dsara",
+                "value": "g.dsara",
+                "timestamp": 1753462592
+              }
+            ]
+          },
+          {
+            "title": "",
+            "media_list_data": [],
+            "string_list_data": [
+              {
+                "href": "https://www.instagram.com/fotottarena",
+                "value": "fotottarena",
+                "timestamp": 1753462591
+              }
+            ]
+          },
+          {
+            "title": "",
+            "media_list_data": [],
+            "string_list_data": [
+              {
+                "href": "https://www.instagram.com/aslan0fficiall",
+                "value": "aslan0fficiall",
+                "timestamp": 1753462589
+              }
+            ]
+          },
+          {
+            "title": "",
+            "media_list_data": [],
+            "string_list_data": [
+              {
+                "href": "https://www.instagram.com/gnygvnc23",
+                "value": "gnygvnc23",
+                "timestamp": 1753462589
+              }
+            ]
+          },
+          {
+            "title": "",
+            "media_list_data": [],
+            "string_list_data": [
+              {
+                "href": "https://www.instagram.com/rolandsallai",
+                "value": "rolandsallai",
+                "timestamp": 1753462588
+              }
+            ]
+          },
+          {
+            "title": "",
+            "media_list_data": [],
+            "string_list_data": [
+              {
+                "href": "https://www.instagram.com/forzacimbomcom",
+                "value": "forzacimbomcom",
+                "timestamp": 1753462585
+              }
+            ]
+          }
+        ]
+      },
+      "misc_other_categories_used_to_reach_you": {
+        "filename": "other_categories_used_to_reach_you.json",
+        "category": "other",
+        "path": "ads_information/instagram_ads_and_businesses/other_categories_used_to_reach_you.json",
+        "content": {
+          "media": [],
+          "label_values": [
+            {
+              "label": "Name",
+              "vec": [
+                {
+                  "value": "Facebook eriÅimi (mobil): AkÄ±llÄ± telefonlar ve tabletler"
+                },
+                {
+                  "value": "Facebook eriÅimi (mobil): Android cihazlar"
+                },
+                {
+                  "value": "Instagram Business Profili YÃ¶neticileri"
+                }
+              ]
+            }
+          ],
+          "fbid": "17841475447205649"
+        },
+        "size": 262
+      },
+      "misc_advertisers_using_your_activity_or_information": {
+        "filename": "advertisers_using_your_activity_or_information.json",
+        "category": "other",
+        "path": "ads_information/instagram_ads_and_businesses/advertisers_using_your_activity_or_information.json",
+        "content": {
+          "ig_custom_audiences_all_types": [
+            {
+              "advertiser_name": "Typeform",
+              "has_data_file_custom_audience": true,
+              "has_remarketing_custom_audience": false,
+              "has_in_person_store_visit": false
+            }
+          ]
+        },
+        "size": 177
+      },
+      "misc_ads_about_meta": {
+        "filename": "ads_about_meta.json",
+        "category": "other",
+        "path": "ads_information/instagram_ads_and_businesses/ads_about_meta.json",
+        "content": {
+          "media": [],
+          "label_values": [
+            {
+              "label": "Is opted out of ads about Meta",
+              "value": "False"
+            },
+            {
+              "label": "When you last opted out of ads about Meta",
+              "timestamp_value": 1751744665
+            }
+          ],
+          "fbid": "741507988383090"
+        },
+        "size": 196
+      },
+      "misc_content_interactions": {
+        "filename": "content_interactions.json",
+        "category": "other",
+        "path": "logged_information/past_instagram_insights/content_interactions.json",
+        "content": {
+          "organic_insights_interactions": [
+            {
+              "title": "",
+              "media_map_data": {},
+              "string_map_data": {
+                "Date Range": {
+                  "href": "",
+                  "value": "May 1 - Jul 29",
+                  "timestamp": 0
+                },
+                "Content Interactions": {
+                  "href": "",
+                  "value": "1",
+                  "timestamp": 0
+                },
+                "Content Interactions Delta": {
+                  "href": "",
+                  "value": "-- vs Jan 31 - Apr 30",
+                  "timestamp": 0
+                },
+                "Post Interactions": {
+                  "href": "",
+                  "value": "1",
+                  "timestamp": 0
+                },
+                "Post Interactions Delta": {
+                  "href": "",
+                  "value": "-- vs Jan 31 - Apr 30",
+                  "timestamp": 0
+                },
+                "Post Likes": {
+                  "href": "",
+                  "value": "1",
+                  "timestamp": 0
+                },
+                "Story Interactions": {
+                  "href": "",
+                  "value": "0",
+                  "timestamp": 0
+                },
+                "Story Interactions Delta": {
+                  "href": "",
+                  "value": "0% vs Jan 31 - Apr 30",
+                  "timestamp": 0
+                },
+                "Video Interactions": {
+                  "href": "",
+                  "value": "0",
+                  "timestamp": 0
+                },
+                "Video Interactions Delta": {
+                  "href": "",
+                  "value": "0% vs Jan 31 - Apr 30",
+                  "timestamp": 0
+                },
+                "Reels Interactions": {
+                  "href": "",
+                  "value": "0",
+                  "timestamp": 0
+                },
+                "Reels Interactions Delta": {
+                  "href": "",
+                  "value": "0% vs Jan 31 - Apr 30",
+                  "timestamp": 0
+                },
+                "Live Video Interactions": {
+                  "href": "",
+                  "value": "0",
+                  "timestamp": 0
+                },
+                "Live Video Interactions Delta": {
+                  "href": "",
+                  "value": "0% vs Jan 31 - Apr 30",
+                  "timestamp": 0
+                },
+                "Accounts engaged": {
+                  "href": "",
+                  "value": "1",
+                  "timestamp": 0
+                },
+                "Accounts Engaged Delta": {
+                  "href": "",
+                  "value": "-- vs Jan 31 - Apr 30",
+                  "timestamp": 0
+                },
+                "Engaged Account By Follow Type": {
+                  "href": "",
+                  "value": "Followers: 0%, Non-followers: 100%",
+                  "timestamp": 0
+                },
+                "You engaged delta% more accounts that werenât following you compared to previous period": {
+                  "href": "",
+                  "value": "-- vs Jan 31 - Apr 30",
+                  "timestamp": 0
+                }
+              }
+            }
+          ]
+        },
+        "size": 1473
+      },
+      "misc_posts": {
+        "filename": "posts.json",
+        "category": "other",
+        "path": "logged_information/past_instagram_insights/posts.json",
+        "content": {
+          "organic_insights_posts": [
+            {
+              "title": "",
+              "media_map_data": {
+                "Media Thumbnail": {
+                  "uri": "media/posts/202507/524347731_17849603232514907_7840945425828300735_n_18048974198234953.jpg",
+                  "creation_timestamp": 1753462669,
+                  "media_metadata": {
+                    "photo_metadata": {
+                      "exif_data": [
+                        {
+                          "source_type": "library"
+                        }
+                      ]
+                    },
+                    "camera_metadata": {
+                      "has_camera_metadata": false
+                    }
+                  },
+                  "title": "nice",
+                  "cross_post_source": {
+                    "source_app": "FB"
+                  }
+                }
+              },
+              "string_map_data": {
+                "Creation Timestamp": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 1753462669
+                },
+                "Profile visits": {
+                  "href": "",
+                  "value": "0",
+                  "timestamp": 0
+                },
+                "Impressions": {
+                  "href": "",
+                  "value": "--",
+                  "timestamp": 0
+                },
+                "Follows": {
+                  "href": "",
+                  "value": "0",
+                  "timestamp": 0
+                },
+                "Accounts reached": {
+                  "href": "",
+                  "value": "--",
+                  "timestamp": 0
+                },
+                "Saves": {
+                  "href": "",
+                  "value": "0",
+                  "timestamp": 0
+                },
+                "Likes": {
+                  "href": "",
+                  "value": "1",
+                  "timestamp": 0
+                },
+                "Comments": {
+                  "href": "",
+                  "value": "0",
+                  "timestamp": 0
+                },
+                "Shares": {
+                  "href": "",
+                  "value": "0",
+                  "timestamp": 0
+                }
+              }
+            }
+          ]
+        },
+        "size": 881
+      },
+      "misc_audience_insights": {
+        "filename": "audience_insights.json",
+        "category": "other",
+        "path": "logged_information/past_instagram_insights/audience_insights.json",
+        "content": {
+          "organic_insights_audience": [
+            {
+              "title": "",
+              "media_map_data": {},
+              "string_map_data": {
+                "Date Range": {
+                  "href": "",
+                  "value": "May 1 - Jul 29",
+                  "timestamp": 0
+                },
+                "Followers": {
+                  "href": "",
+                  "value": "0",
+                  "timestamp": 0
+                }
+              }
+            }
+          ]
+        },
+        "size": 198
+      },
+      "misc_profiles_reached": {
+        "filename": "profiles_reached.json",
+        "category": "other",
+        "path": "logged_information/past_instagram_insights/profiles_reached.json",
+        "content": {
+          "organic_insights_reach": [
+            {
+              "title": "",
+              "media_map_data": {},
+              "string_map_data": {
+                "Date Range": {
+                  "href": "",
+                  "value": "May 1 - Jul 29",
+                  "timestamp": 0
+                },
+                "Accounts Reached": {
+                  "href": "",
+                  "value": "0",
+                  "timestamp": 0
+                },
+                "Followers": {
+                  "href": "",
+                  "value": "0",
+                  "timestamp": 0
+                },
+                "Non-Followers": {
+                  "href": "",
+                  "value": "0",
+                  "timestamp": 0
+                },
+                "Impressions": {
+                  "href": "",
+                  "value": "0",
+                  "timestamp": 0
+                },
+                "Profile visits": {
+                  "href": "",
+                  "value": "0",
+                  "timestamp": 0
+                }
+              }
+            }
+          ]
+        },
+        "size": 413
+      },
+      "security_password_change_activity": {
+        "filename": "password_change_activity.json",
+        "category": "security",
+        "path": "security_and_login_information/login_and_profile_creation/password_change_activity.json",
+        "content": {
+          "account_history_password_change_history": [
+            {
+              "title": "",
+              "media_map_data": {},
+              "string_map_data": {
+                "Time": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 1752167681
+                }
+              }
+            }
+          ]
+        },
+        "size": 151
+      },
+      "security_signup_details": {
+        "filename": "signup_details.json",
+        "category": "security",
+        "path": "security_and_login_information/login_and_profile_creation/signup_details.json",
+        "content": {
+          "account_history_registration_info": [
+            {
+              "title": "",
+              "media_map_data": {},
+              "string_map_data": {
+                "Username": {
+                  "href": "",
+                  "value": "Vdatadao Datadao",
+                  "timestamp": 0
+                },
+                "IP Address": {
+                  "href": "",
+                  "value": "178.246.25.184",
+                  "timestamp": 0
+                },
+                "Time": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 1751745564
+                },
+                "Email": {
+                  "href": "",
+                  "value": "vdatadao@gmail.com",
+                  "timestamp": 0
+                },
+                "Phone Number": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 0
+                },
+                "Device": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 0
+                }
+              }
+            }
+          ]
+        },
+        "size": 434
+      },
+      "security_login_activity": {
+        "filename": "login_activity.json",
+        "category": "security",
+        "path": "security_and_login_information/login_and_profile_creation/login_activity.json",
+        "content": {
+          "account_history_login_history": [
+            {
+              "title": "2025-07-25T16:55:51+00:00",
+              "media_map_data": {},
+              "string_map_data": {
+                "Cookie Name": {
+                  "href": "",
+                  "value": "*************************vqv",
+                  "timestamp": 0
+                },
+                "IP Address": {
+                  "href": "",
+                  "value": "176.240.66.64",
+                  "timestamp": 0
+                },
+                "Port": {
+                  "href": "",
+                  "value": "52636",
+                  "timestamp": 0
+                },
+                "Language Code": {
+                  "href": "",
+                  "value": "en",
+                  "timestamp": 0
+                },
+                "Time": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 1753462551
+                },
+                "User Agent": {
+                  "href": "",
+                  "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+                  "timestamp": 0
+                }
+              }
+            },
+            {
+              "title": "2025-07-05T20:16:46+00:00",
+              "media_map_data": {},
+              "string_map_data": {
+                "Cookie Name": {
+                  "href": "",
+                  "value": "*************************Cxp",
+                  "timestamp": 0
+                },
+                "IP Address": {
+                  "href": "",
+                  "value": "178.246.25.184",
+                  "timestamp": 0
+                },
+                "Port": {
+                  "href": "",
+                  "value": "51200",
+                  "timestamp": 0
+                },
+                "Language Code": {
+                  "href": "",
+                  "value": "en",
+                  "timestamp": 0
+                },
+                "Time": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 1751746606
+                },
+                "User Agent": {
+                  "href": "",
+                  "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15",
+                  "timestamp": 0
+                }
+              }
+            },
+            {
+              "title": "2025-07-05T19:59:35+00:00",
+              "media_map_data": {},
+              "string_map_data": {
+                "Cookie Name": {
+                  "href": "",
+                  "value": "*************************3yk",
+                  "timestamp": 0
+                },
+                "IP Address": {
+                  "href": "",
+                  "value": "178.246.25.184",
+                  "timestamp": 0
+                },
+                "Port": {
+                  "href": "",
+                  "value": "26422",
+                  "timestamp": 0
+                },
+                "Language Code": {
+                  "href": "",
+                  "value": "tr",
+                  "timestamp": 0
+                },
+                "Time": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 1751745575
+                },
+                "User Agent": {
+                  "href": "",
+                  "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 OPR/119.0.0.0",
+                  "timestamp": 0
+                }
+              }
+            },
+            {
+              "title": "2025-07-05T19:59:27+00:00",
+              "media_map_data": {},
+              "string_map_data": {
+                "Cookie Name": {
+                  "href": "",
+                  "value": "*************************3yk",
+                  "timestamp": 0
+                },
+                "IP Address": {
+                  "href": "",
+                  "value": "178.246.25.184",
+                  "timestamp": 0
+                },
+                "Port": {
+                  "href": "",
+                  "value": "26422",
+                  "timestamp": 0
+                },
+                "Language Code": {
+                  "href": "",
+                  "value": "tr",
+                  "timestamp": 0
+                },
+                "Time": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 1751745567
+                },
+                "User Agent": {
+                  "href": "",
+                  "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 OPR/119.0.0.0",
+                  "timestamp": 0
+                }
+              }
+            }
+          ]
+        },
+        "size": 2242
+      },
+      "security_last_known_location": {
+        "filename": "last_known_location.json",
+        "category": "security",
+        "path": "security_and_login_information/login_and_profile_creation/last_known_location.json",
+        "content": {
+          "account_history_imprecise_last_known_location": [
+            {
+              "title": "",
+              "media_map_data": {},
+              "string_map_data": {
+                "Imprecise Latitude": {
+                  "href": "",
+                  "value": "0",
+                  "timestamp": 0
+                },
+                "Imprecise Longitude": {
+                  "href": "",
+                  "value": "0",
+                  "timestamp": 0
+                },
+                "Precise Latitude": {
+                  "href": "",
+                  "value": "0",
+                  "timestamp": 0
+                },
+                "Precise Longitude": {
+                  "href": "",
+                  "value": "0",
+                  "timestamp": 0
+                },
+                "GPS Time Uploaded": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 0
+                }
+              }
+            }
+          ]
+        },
+        "size": 395
+      },
+      "prefs_comments_allowed_from": {
+        "filename": "comments_allowed_from.json",
+        "category": "preferences",
+        "path": "preferences/settings/comments_allowed_from.json",
+        "content": {
+          "settings_allow_comments_from": [
+            {
+              "title": "",
+              "media_map_data": {},
+              "string_map_data": {
+                "Comments Allowed From": {
+                  "href": "",
+                  "value": "Everyone",
+                  "timestamp": 0
+                }
+              }
+            }
+          ]
+        },
+        "size": 156
+      },
+      "prefs_notification_preferences": {
+        "filename": "notification_preferences.json",
+        "category": "preferences",
+        "path": "preferences/settings/notification_preferences.json",
+        "content": {
+          "settings_notification_preferences": [
+            {
+              "string_map_data": {
+                "Channel": {
+                  "value": "email"
+                },
+                "Type": {
+                  "value": "MARKETING_EMAIL"
+                },
+                "Value": {
+                  "value": "ON"
+                }
+              }
+            }
+          ]
+        },
+        "size": 147
+      },
+      "prefs_consents": {
+        "filename": "consents.json",
+        "category": "preferences",
+        "path": "preferences/settings/consents.json",
+        "content": {
+          "timestamp": 1751745579,
+          "media": [],
+          "label_values": [
+            {
+              "label": "Consent for the processing of user's data by ad partners on Instagram"
+            },
+            {
+              "label": "Update time",
+              "timestamp_value": 1751745579
+            }
+          ],
+          "fbid": "17846504439514907"
+        },
+        "size": 214
+      },
+      "prefs_use_cross-app_messaging": {
+        "filename": "use_cross-app_messaging.json",
+        "category": "preferences",
+        "path": "preferences/settings/use_cross-app_messaging.json",
+        "content": {
+          "settings_upgraded_to_cross_app_messaging": [
+            {
+              "title": "",
+              "media_map_data": {},
+              "string_map_data": {
+                "Upgraded To Cross-App Messaging": {
+                  "href": "",
+                  "value": "False",
+                  "timestamp": 0
+                },
+                "Time Upgraded": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 0
+                }
+              }
+            }
+          ]
+        },
+        "size": 228
+      },
+      "device_devices": {
+        "filename": "devices.json",
+        "category": "device_info",
+        "path": "personal_information/device_information/devices.json",
+        "content": {
+          "devices_devices": [
+            {
+              "title": "",
+              "media_map_data": {},
+              "string_map_data": {
+                "Last Login": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 1753462551
+                },
+                "User Agent": {
+                  "href": "",
+                  "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+                  "timestamp": 0
+                }
+              }
+            },
+            {
+              "title": "",
+              "media_map_data": {},
+              "string_map_data": {
+                "Last Login": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 1751746606
+                },
+                "User Agent": {
+                  "href": "",
+                  "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15",
+                  "timestamp": 0
+                }
+              }
+            }
+          ]
+        },
+        "size": 579
+      },
+      "misc_locations_of_interest": {
+        "filename": "locations_of_interest.json",
+        "category": "other",
+        "path": "personal_information/information_about_you/locations_of_interest.json",
+        "content": {
+          "media": [],
+          "label_values": [
+            {
+              "label": "Locations of interest",
+              "vec": [
+                {
+                  "value": "ElvanlÄ±, Mersin Province"
+                },
+                {
+                  "value": "PozantÄ±, Adana Province"
+                },
+                {
+                  "value": "Mersin, Mersin Province"
+                },
+                {
+                  "value": "Side, Antalya Province"
+                },
+                {
+                  "value": "Hatay Province"
+                },
+                {
+                  "value": "Adana Province"
+                },
+                {
+                  "value": "Gaziantep Province"
+                },
+                {
+                  "value": "Antalya Province"
+                }
+              ]
+            },
+            {
+              "label": "Usage explanation",
+              "value": "Locations of interest are used to personalize your experience on Instagram and show you more relevant ads. Learn more about how Instagram uses location in Privacy Center."
+            }
+          ],
+          "fbid": "17841475447205649"
+        },
+        "size": 569
+      },
+      "misc_profile_based_in": {
+        "filename": "profile_based_in.json",
+        "category": "other",
+        "path": "personal_information/information_about_you/profile_based_in.json",
+        "content": {
+          "inferred_data_primary_location": [
+            {
+              "title": "",
+              "media_map_data": {},
+              "string_map_data": {
+                "City Name": {
+                  "href": "",
+                  "value": "Adana, Turkey",
+                  "timestamp": 0
+                }
+              }
+            }
+          ]
+        },
+        "size": 151
+      },
+      "personal_instagram_friend_map": {
+        "filename": "instagram_friend_map.json",
+        "category": "personal_info",
+        "path": "personal_information/personal_information/instagram_friend_map.json",
+        "content": {
+          "profile_friend_map": [
+            {
+              "title": "",
+              "media_map_data": {},
+              "string_map_data": {
+                "Incoming requests": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 0
+                },
+                "Outgoing requests": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 0
+                }
+              }
+            }
+          ]
+        },
+        "size": 191
+      },
+      "personal_instagram_profile_information": {
+        "filename": "instagram_profile_information.json",
+        "category": "personal_info",
+        "path": "personal_information/personal_information/instagram_profile_information.json",
+        "content": {
+          "profile_account_insights": [
+            {
+              "title": "",
+              "media_map_data": {},
+              "string_map_data": {
+                "Contact Syncing": {
+                  "href": "",
+                  "value": "False",
+                  "timestamp": 0
+                },
+                "Has Shared Live Video": {
+                  "href": "",
+                  "value": "False",
+                  "timestamp": 0
+                },
+                "Last Login": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 1753462551
+                },
+                "Last Logout": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 0
+                },
+                "First Story Time": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 0
+                },
+                "Last Story Time": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 0
+                },
+                "First Close Friends Story Time": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 0
+                }
+              }
+            }
+          ]
+        },
+        "size": 500
+      },
+      "profile": {
+        "profile_account_insights": [
+          {
+            "title": "",
+            "media_map_data": {},
+            "string_map_data": {
+              "Contact Syncing": {
+                "href": "",
+                "value": "False",
+                "timestamp": 0
+              },
+              "Has Shared Live Video": {
+                "href": "",
+                "value": "False",
+                "timestamp": 0
+              },
+              "Last Login": {
+                "href": "",
+                "value": "",
+                "timestamp": 1753462551
+              },
+              "Last Logout": {
+                "href": "",
+                "value": "",
+                "timestamp": 0
+              },
+              "First Story Time": {
+                "href": "",
+                "value": "",
+                "timestamp": 0
+              },
+              "Last Story Time": {
+                "href": "",
+                "value": "",
+                "timestamp": 0
+              },
+              "First Close Friends Story Time": {
+                "href": "",
+                "value": "",
+                "timestamp": 0
+              }
+            }
+          }
+        ]
+      },
+      "personal_personal_information": {
+        "filename": "personal_information.json",
+        "category": "personal_info",
+        "path": "personal_information/personal_information/personal_information.json",
+        "content": {
+          "profile_user": [
+            {
+              "title": "User Information",
+              "media_map_data": {},
+              "string_map_data": {
+                "Email": {
+                  "href": "",
+                  "value": "vdatadao@gmail.com",
+                  "timestamp": 0
+                },
+                "Phone Confirmed": {
+                  "href": "",
+                  "value": "False",
+                  "timestamp": 0
+                },
+                "Username": {
+                  "href": "",
+                  "value": "vdatadao",
+                  "timestamp": 0
+                },
+                "Name": {
+                  "href": "",
+                  "value": "Vdatadao Datadao",
+                  "timestamp": 0
+                },
+                "Gender": {
+                  "href": "",
+                  "value": "unspecified",
+                  "timestamp": 0
+                },
+                "Date of birth": {
+                  "href": "",
+                  "value": "1995-07-05",
+                  "timestamp": 0
+                },
+                "Private Account": {
+                  "href": "",
+                  "value": "False",
+                  "timestamp": 0
+                },
+                "Emoji Pong High Score": {
+                  "href": "",
+                  "value": "0",
+                  "timestamp": 0
+                }
+              }
+            }
+          ]
+        },
+        "size": 568
+      },
+      "personalInfo": {
+        "profile_user": [
+          {
+            "title": "User Information",
+            "media_map_data": {},
+            "string_map_data": {
+              "Email": {
+                "href": "",
+                "value": "vdatadao@gmail.com",
+                "timestamp": 0
+              },
+              "Phone Confirmed": {
+                "href": "",
+                "value": "False",
+                "timestamp": 0
+              },
+              "Username": {
+                "href": "",
+                "value": "vdatadao",
+                "timestamp": 0
+              },
+              "Name": {
+                "href": "",
+                "value": "Vdatadao Datadao",
+                "timestamp": 0
+              },
+              "Gender": {
+                "href": "",
+                "value": "unspecified",
+                "timestamp": 0
+              },
+              "Date of birth": {
+                "href": "",
+                "value": "1995-07-05",
+                "timestamp": 0
+              },
+              "Private Account": {
+                "href": "",
+                "value": "False",
+                "timestamp": 0
+              },
+              "Emoji Pong High Score": {
+                "href": "",
+                "value": "0",
+                "timestamp": 0
+              }
+            }
+          }
+        ]
+      },
+      "personal_profile_changes": {
+        "filename": "profile_changes.json",
+        "category": "personal_info",
+        "path": "personal_information/personal_information/profile_changes.json",
+        "content": {
+          "profile_profile_change": [
+            {
+              "title": "Profile Change",
+              "media_map_data": {},
+              "string_map_data": {
+                "Changed": {
+                  "href": "",
+                  "value": "Email",
+                  "timestamp": 0
+                },
+                "Previous Value": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 0
+                },
+                "New Value": {
+                  "href": "",
+                  "value": "vdatadao@gmail.com",
+                  "timestamp": 0
+                },
+                "Change Date": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 1751745562
+                }
+              }
+            }
+          ]
+        },
+        "size": 328
+      },
+      "personal_professional_information": {
+        "filename": "professional_information.json",
+        "category": "personal_info",
+        "path": "personal_information/personal_information/professional_information.json",
+        "content": {
+          "profile_business": [
+            {
+              "title": "Business Information",
+              "media_map_data": {},
+              "string_map_data": {
+                "Business Objectives": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 0
+                },
+                "Business Connection Methods": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 0
+                }
+              }
+            }
+          ]
+        },
+        "size": 221
+      },
+      "misc_active_apps": {
+        "filename": "active_apps.json",
+        "category": "other",
+        "path": "apps_and_websites_off_of_instagram/apps_and_websites/active_apps.json",
+        "content": {
+          "apps_and_websites_active_apps": [
+            {
+              "title": "vdatadao-IG",
+              "string_map_data": {
+                "Added on": {
+                  "timestamp": 1751834000
+                },
+                "Last active on": {
+                  "timestamp": 1751834000
+                },
+                "App user ID": {
+                  "value": "24684648584469961"
+                }
+              }
+            }
+          ]
+        },
+        "size": 201
+      },
+      "misc_your_activity_off_meta_technologies": {
+        "filename": "your_activity_off_meta_technologies.json",
+        "category": "other",
+        "path": "apps_and_websites_off_of_instagram/apps_and_websites/your_activity_off_meta_technologies.json",
+        "content": {
+          "apps_and_websites_off_meta_activity": [
+            {
+              "name": "mee6.xyz",
+              "events": [
+                {
+                  "id": 505944164579600,
+                  "type": "PAGE_VIEW",
+                  "timestamp": 1753466580
+                },
+                {
+                  "id": 505944164579600,
+                  "type": "PAGE_VIEW",
+                  "timestamp": 1753466340
+                },
+                {
+                  "id": 505944164579600,
+                  "type": "PAGE_VIEW",
+                  "timestamp": 1752932460
+                },
+                {
+                  "id": 505944164579600,
+                  "type": "PAGE_VIEW",
+                  "timestamp": 1752915600
+                },
+                {
+                  "id": 505944164579600,
+                  "type": "PAGE_VIEW",
+                  "timestamp": 1752915540
+                },
+                {
+                  "id": 505944164579600,
+                  "type": "PAGE_VIEW",
+                  "timestamp": 1752914340
+                },
+                {
+                  "id": 505944164579600,
+                  "type": "PAGE_VIEW",
+                  "timestamp": 1752867420
+                }
+              ]
+            },
+            {
+              "name": "Typeform",
+              "events": [
+                {
+                  "id": 1663129523960214,
+                  "type": "CUSTOM",
+                  "timestamp": 1753443660
+                },
+                {
+                  "id": 1663129523960214,
+                  "type": "COMPLETE_REGISTRATION",
+                  "timestamp": 1753177440
+                }
+              ]
+            },
+            {
+              "name": "Framer",
+              "events": [
+                {
+                  "id": 1457193977670239,
+                  "type": "COMPLETE_REGISTRATION",
+                  "timestamp": 1753166640
+                }
+              ]
+            },
+            {
+              "name": "bolt.new",
+              "events": [
+                {
+                  "id": 9472948572788130,
+                  "type": "PAGE_VIEW",
+                  "timestamp": 1752605940
+                }
+              ]
+            },
+            {
+              "name": "smashballoon.com",
+              "events": [
+                {
+                  "id": 156818449115085,
+                  "type": "PAGE_VIEW",
+                  "timestamp": 1751873520
+                }
+              ]
+            },
+            {
+              "name": "wix.com",
+              "events": [
+                {
+                  "id": 704136006388169,
+                  "type": "PAGE_VIEW",
+                  "timestamp": 1751829600
+                },
+                {
+                  "id": 704136006388169,
+                  "type": "PAGE_VIEW",
+                  "timestamp": 1751799840
+                },
+                {
+                  "id": 704136006388169,
+                  "type": "PAGE_VIEW",
+                  "timestamp": 1751799240
+                },
+                {
+                  "id": 704136006388169,
+                  "type": "PAGE_VIEW",
+                  "timestamp": 1751798640
+                }
+              ]
+            }
+          ]
+        },
+        "size": 1297
+      },
+      "misc_your_activity_off_meta_technologies_settings": {
+        "filename": "your_activity_off_meta_technologies_settings.json",
+        "category": "other",
+        "path": "apps_and_websites_off_of_instagram/apps_and_websites/your_activity_off_meta_technologies_settings.json",
+        "content": {
+          "timestamp": 1751745577,
+          "media": [],
+          "label_values": [
+            {
+              "label": "Account association state",
+              "value": "Account Association Enabled"
+            },
+            {
+              "label": "Latest activity time",
+              "timestamp_value": 0
+            },
+            {
+              "label": "Combined number of times these privacy settings have been taken",
+              "value": "0"
+            },
+            {
+              "label": "Number of times the clear history action has been taken",
+              "value": "0"
+            },
+            {
+              "label": "Number of times the account association settings have been disabled",
+              "value": "0"
+            },
+            {
+              "label": "Number of times the account association settings have been enabled",
+              "value": "0"
+            },
+            {
+              "label": "Your latest and upcoming account association states",
+              "dict": []
+            }
+          ],
+          "fbid": "17846504424514907"
+        },
+        "size": 633
+      },
+      "media_posts_1": {
+        "filename": "posts_1.json",
+        "category": "activity_media",
+        "path": "your_instagram_activity/media/posts_1.json",
+        "content": {
+          "media": [
+            {
+              "uri": "media/posts/202507/524347731_17849603232514907_7840945425828300735_n_18048974198234953.jpg",
+              "creation_timestamp": 1753462669,
+              "media_metadata": {
+                "photo_metadata": {
+                  "exif_data": [
+                    {
+                      "source_type": "library"
+                    }
+                  ]
+                },
+                "camera_metadata": {
+                  "has_camera_metadata": false
+                }
+              },
+              "title": "nice",
+              "cross_post_source": {
+                "source_app": "FB"
+              }
+            }
+          ]
+        },
+        "size": 325
+      },
+      "posts": {
+        "media": [
+          {
+            "uri": "media/posts/202507/524347731_17849603232514907_7840945425828300735_n_18048974198234953.jpg",
+            "creation_timestamp": 1753462669,
+            "media_metadata": {
+              "photo_metadata": {
+                "exif_data": [
+                  {
+                    "source_type": "library"
+                  }
+                ]
+              },
+              "camera_metadata": {
+                "has_camera_metadata": false
+              }
+            },
+            "title": "nice",
+            "cross_post_source": {
+              "source_app": "FB"
+            }
+          }
+        ]
+      },
+      "misc_eligibility": {
+        "filename": "eligibility.json",
+        "category": "other",
+        "path": "your_instagram_activity/monetization/eligibility.json",
+        "content": {
+          "monetization_eligibility": [
+            {
+              "title": "",
+              "media_map_data": {},
+              "string_map_data": {
+                "Product Name": {
+                  "href": "",
+                  "value": "BRANDED CONTENT",
+                  "timestamp": 0
+                },
+                "Decision": {
+                  "href": "",
+                  "value": "Not Eligible",
+                  "timestamp": 0
+                },
+                "Reason": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 0
+                }
+              }
+            }
+          ]
+        },
+        "size": 256
+      },
+      "misc_your_information_download_requests": {
+        "filename": "your_information_download_requests.json",
+        "category": "other",
+        "path": "your_instagram_activity/other_activity/your_information_download_requests.json",
+        "content": [
+          {
+            "timestamp": 1753462877,
+            "media": [],
+            "label_values": [
+              {
+                "label": "Request completion time",
+                "timestamp_value": 1753488006
+              },
+              {
+                "label": "How many times did you try to download the file?",
+                "value": "0"
+              },
+              {
+                "label": "Start date",
+                "timestamp_value": 1721905899
+              },
+              {
+                "label": "End date",
+                "timestamp_value": 1753462808
+              },
+              {
+                "label": "Information types",
+                "vec": []
+              },
+              {
+                "label": "Media quality",
+                "value": "Medium"
+              },
+              {
+                "label": "Output format",
+                "value": "JSON"
+              },
+              {
+                "label": "Have you seen this archive?",
+                "value": "False"
+              },
+              {
+                "label": "Have we notified you that your request is taking a long time to process?",
+                "value": "False"
+              },
+              {
+                "label": "Where you requested your data from"
+              }
+            ],
+            "fbid": "2484279301939474"
+          },
+          {
+            "timestamp": 1753462806,
+            "media": [],
+            "label_values": [
+              {
+                "label": "Request completion time",
+                "timestamp_value": 1753483749
+              },
+              {
+                "label": "How many times did you try to download the file?",
+                "value": "0"
+              },
+              {
+                "label": "Start date",
+                "timestamp_value": 1721905853
+              },
+              {
+                "label": "End date",
+                "timestamp_value": 1753462762
+              },
+              {
+                "label": "Information types",
+                "vec": []
+              },
+              {
+                "label": "Media quality",
+                "value": "Medium"
+              },
+              {
+                "label": "Output format",
+                "value": "HTML"
+              },
+              {
+                "label": "Have you seen this archive?",
+                "value": "False"
+              },
+              {
+                "label": "Have we notified you that your request is taking a long time to process?",
+                "value": "False"
+              },
+              {
+                "label": "Where you requested your data from"
+              }
+            ],
+            "fbid": "780846021044224"
+          },
+          {
+            "timestamp": 1753462761,
+            "media": [],
+            "label_values": [
+              {
+                "label": "Request completion time",
+                "timestamp_value": 1753483695
+              },
+              {
+                "label": "How many times did you try to download the file?",
+                "value": "0"
+              },
+              {
+                "label": "Start date",
+                "timestamp_value": 1721905831
+              },
+              {
+                "label": "End date",
+                "timestamp_value": 1753462740
+              },
+              {
+                "label": "Information types",
+                "vec": []
+              },
+              {
+                "label": "Media quality",
+                "value": "Medium"
+              },
+              {
+                "label": "Output format",
+                "value": "HTML"
+              },
+              {
+                "label": "Have you seen this archive?",
+                "value": "False"
+              },
+              {
+                "label": "Have we notified you that your request is taking a long time to process?",
+                "value": "False"
+              },
+              {
+                "label": "Where you requested your data from"
+              }
+            ],
+            "fbid": "764107162836827"
           }
         ],
-        "stories": [
+        "size": 1937
+      },
+      "likes_liked_posts": {
+        "filename": "liked_posts.json",
+        "category": "activity_likes",
+        "path": "your_instagram_activity/likes/liked_posts.json",
+        "content": {
+          "likes_media_likes": [
+            {
+              "title": "vdatadao",
+              "string_list_data": [
+                {
+                  "href": "https://www.instagram.com/p/DMic3P2intp/",
+                  "value": "ð",
+                  "timestamp": 1753462684
+                }
+              ]
+            },
+            {
+              "title": "forzacimbomcom",
+              "string_list_data": [
+                {
+                  "href": "https://www.instagram.com/p/DMh1cNjNK1z/",
+                  "value": "ð",
+                  "timestamp": 1753462603
+                }
+              ]
+            }
+          ]
+        },
+        "size": 293
+      },
+      "likes": {
+        "likes_media_likes": [
           {
-            "story_id": "987654321",
-            "creation_timestamp": 1638360100,
-            "viewer_count": 89
+            "title": "vdatadao",
+            "string_list_data": [
+              {
+                "href": "https://www.instagram.com/p/DMic3P2intp/",
+                "value": "ð",
+                "timestamp": 1753462684
+              }
+            ]
+          },
+          {
+            "title": "forzacimbomcom",
+            "string_list_data": [
+              {
+                "href": "https://www.instagram.com/p/DMh1cNjNK1z/",
+                "value": "ð",
+                "timestamp": 1753462603
+              }
+            ]
           }
         ]
       },
-      "activity_logs": {
-        "login_history": [
-          {"timestamp": 1638360000, "location": "Istanbul, Turkey"},
-          {"timestamp": 1638320000, "location": "Istanbul, Turkey"}
-        ],
-        "search_history": [
-          {"query": "travel photos", "timestamp": 1638360050},
-          {"query": "food recipes", "timestamp": 1638360080}
-        ]
+      "messages_secret_conversations": {
+        "filename": "secret_conversations.json",
+        "category": "messages",
+        "path": "your_instagram_activity/messages/secret_conversations.json",
+        "content": {
+          "ig_secret_conversations": {
+            "armadillo_devices": [
+              {
+                "device_type": "Igd:Web-302.0.1024612331",
+                "device_manufacturer": "Mac OS X",
+                "device_model": "Opera",
+                "device_os_version": "10.15",
+                "last_connected_ip": "2001:67c:198c::",
+                "last_active_time": 1752167635
+              },
+              {
+                "device_type": "Igd:Web-302.0.1024465108",
+                "device_manufacturer": "Mac OS X",
+                "device_model": "Safari",
+                "device_os_version": "10.15",
+                "last_connected_ip": "178.246.25.0",
+                "last_active_time": 1751746619
+              },
+              {
+                "device_type": "Igd:Web-302.0.1025301640",
+                "device_manufacturer": "Mac OS X",
+                "device_model": "Chrome",
+                "device_os_version": "10.15",
+                "last_connected_ip": "176.236.34.0",
+                "last_active_time": 1753865389
+              }
+            ],
+            "calls": []
+          }
+        },
+        "size": 643
       },
-      "connections": {
-        "followers": [
-          {"username": "friend1", "follow_date": 1638300000},
-          {"username": "friend2", "follow_date": 1638310000}
+      "messages_your_scheduled_chat_notifications": {
+        "filename": "your_scheduled_chat_notifications.json",
+        "category": "messages",
+        "path": "your_instagram_activity/messages/your_scheduled_chat_notifications.json",
+        "content": [
+          {
+            "timestamp": 1753558953,
+            "media": [],
+            "label_values": [
+              {
+                "label": "Channel Name",
+                "value": "More fotottarena"
+              }
+            ],
+            "fbid": "3881142032029206"
+          },
+          {
+            "timestamp": 1753472553,
+            "media": [],
+            "label_values": [
+              {
+                "label": "Channel Name",
+                "value": "Forza Cimbom"
+              }
+            ],
+            "fbid": "2345966672467308"
+          }
         ],
-        "following": [
-          {"username": "celebrity1", "follow_date": 1638290000}
-        ]
+        "size": 259
       },
-      "metadata": {
-        "export_version": "2023.12.01",
-        "data_categories": ["profile", "media", "connections", "activity"],
-        "total_files": 54,
-        "compression": "gzip"
-      }
+      "comments_post_comments_1": {
+        "filename": "post_comments_1.json",
+        "category": "activity_comments",
+        "path": "your_instagram_activity/comments/post_comments_1.json",
+        "content": {
+          "media_list_data": [
+            {
+              "uri": ""
+            }
+          ],
+          "string_map_data": {
+            "Comment": {
+              "value": "."
+            },
+            "Media Owner": {
+              "value": "forzacimbomcom"
+            },
+            "Time": {
+              "timestamp": 1753462608
+            }
+          }
+        },
+        "size": 149
+      },
+      "comments": {
+        "media_list_data": [
+          {
+            "uri": ""
+          }
+        ],
+        "string_map_data": {
+          "Comment": {
+            "value": "."
+          },
+          "Media Owner": {
+            "value": "forzacimbomcom"
+          },
+          "Time": {
+            "timestamp": 1753462608
+          }
+        }
+      },
+      "misc_your_muted_story_teaser_creators": {
+        "filename": "your_muted_story_teaser_creators.json",
+        "category": "other",
+        "path": "your_instagram_activity/subscriptions/your_muted_story_teaser_creators.json",
+        "content": {
+          "subscriptions_muted_story_teaser_creators": [
+            {
+              "title": "",
+              "media_map_data": {},
+              "string_map_data": {
+                "Muted Creators": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 0
+                }
+              }
+            }
+          ]
+        },
+        "size": 154
+      },
+      "misc_show_exclusive_story_promo_setting": {
+        "filename": "show_exclusive_story_promo_setting.json",
+        "category": "other",
+        "path": "your_instagram_activity/subscriptions/show_exclusive_story_promo_setting.json",
+        "content": {
+          "subscriptions_show_story_teaser_setting": [
+            {
+              "title": "",
+              "media_map_data": {},
+              "string_map_data": {
+                "Exclusive Story Promo Setting": {
+                  "href": "",
+                  "value": "False",
+                  "timestamp": 0
+                }
+              }
+            }
+          ]
+        },
+        "size": 172
+      },
+      "normalizedPersonalInfo": {
+        "language": "english",
+        "email": "vdatadao@gmail.com",
+        "username": "vdatadao",
+        "name": "Vdatadao Datadao",
+        "gender": "unspecified",
+        "dateOfBirth": "1995-07-05",
+        "privateAccount": false,
+        "phoneNumber": null,
+        "phoneConfirmed": false,
+        "phoneConfirmationMethod": null,
+        "emojiPongHighScore": "0",
+        "profilePhoto": null,
+        "original": {
+          "profile_user": [
+            {
+              "title": "User Information",
+              "media_map_data": {},
+              "string_map_data": {
+                "Email": {
+                  "href": "",
+                  "value": "vdatadao@gmail.com",
+                  "timestamp": 0
+                },
+                "Phone Confirmed": {
+                  "href": "",
+                  "value": "False",
+                  "timestamp": 0
+                },
+                "Username": {
+                  "href": "",
+                  "value": "vdatadao",
+                  "timestamp": 0
+                },
+                "Name": {
+                  "href": "",
+                  "value": "Vdatadao Datadao",
+                  "timestamp": 0
+                },
+                "Gender": {
+                  "href": "",
+                  "value": "unspecified",
+                  "timestamp": 0
+                },
+                "Date of birth": {
+                  "href": "",
+                  "value": "1995-07-05",
+                  "timestamp": 0
+                },
+                "Private Account": {
+                  "href": "",
+                  "value": "False",
+                  "timestamp": 0
+                },
+                "Emoji Pong High Score": {
+                  "href": "",
+                  "value": "0",
+                  "timestamp": 0
+                }
+              }
+            }
+          ]
+        }
+      },
+      "detectedLanguage": "english",
+      "normalizedProfile": {
+        "language": "english",
+        "email": null,
+        "username": null,
+        "name": null,
+        "gender": null,
+        "dateOfBirth": null,
+        "privateAccount": false,
+        "phoneNumber": null,
+        "phoneConfirmed": false,
+        "phoneConfirmationMethod": null,
+        "emojiPongHighScore": null,
+        "profilePhoto": null,
+        "original": {
+          "profile_account_insights": [
+            {
+              "title": "",
+              "media_map_data": {},
+              "string_map_data": {
+                "Contact Syncing": {
+                  "href": "",
+                  "value": "False",
+                  "timestamp": 0
+                },
+                "Has Shared Live Video": {
+                  "href": "",
+                  "value": "False",
+                  "timestamp": 0
+                },
+                "Last Login": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 1753462551
+                },
+                "Last Logout": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 0
+                },
+                "First Story Time": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 0
+                },
+                "Last Story Time": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 0
+                },
+                "First Close Friends Story Time": {
+                  "href": "",
+                  "value": "",
+                  "timestamp": 0
+                }
+              }
+            }
+          ]
+        }
+      },
+      "note": "Instagram Meta Export Data - Full JSON Extraction",
+      "extraction_summary": {
+        "total_files_extracted": 36,
+        "total_data_size_bytes": 17918,
+        "categories_found": [
+          "connections",
+          "other",
+          "security",
+          "preferences",
+          "device_info",
+          "personal_info",
+          "activity_media",
+          "activity_likes",
+          "messages",
+          "activity_comments"
+        ],
+        "category_distribution": {
+          "connections": 1,
+          "other": 16,
+          "security": 4,
+          "preferences": 4,
+          "device_info": 1,
+          "personal_info": 5,
+          "activity_media": 1,
+          "activity_likes": 1,
+          "messages": 2,
+          "activity_comments": 1
+        },
+        "extraction_timestamp": "2025-09-02T02:10:40.309Z",
+        "extraction_method": "complete_json_scan",
+        "legacy_compatibility": true
+      },
+      "categorized_data": {
+        "activity": {
+          "media_posts_1": {
+            "filename": "posts_1.json",
+            "content": {
+              "media": [
+                {
+                  "uri": "media/posts/202507/524347731_17849603232514907_7840945425828300735_n_18048974198234953.jpg",
+                  "creation_timestamp": 1753462669,
+                  "media_metadata": {
+                    "photo_metadata": {
+                      "exif_data": [
+                        {
+                          "source_type": "library"
+                        }
+                      ]
+                    },
+                    "camera_metadata": {
+                      "has_camera_metadata": false
+                    }
+                  },
+                  "title": "nice",
+                  "cross_post_source": {
+                    "source_app": "FB"
+                  }
+                }
+              ]
+            }
+          },
+          "likes_liked_posts": {
+            "filename": "liked_posts.json",
+            "content": {
+              "likes_media_likes": [
+                {
+                  "title": "vdatadao",
+                  "string_list_data": [
+                    {
+                      "href": "https://www.instagram.com/p/DMic3P2intp/",
+                      "value": "ð",
+                      "timestamp": 1753462684
+                    }
+                  ]
+                },
+                {
+                  "title": "forzacimbomcom",
+                  "string_list_data": [
+                    {
+                      "href": "https://www.instagram.com/p/DMh1cNjNK1z/",
+                      "value": "ð",
+                      "timestamp": 1753462603
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "comments_post_comments_1": {
+            "filename": "post_comments_1.json",
+            "content": {
+              "media_list_data": [
+                {
+                  "uri": ""
+                }
+              ],
+              "string_map_data": {
+                "Comment": {
+                  "value": "."
+                },
+                "Media Owner": {
+                  "value": "forzacimbomcom"
+                },
+                "Time": {
+                  "timestamp": 1753462608
+                }
+              }
+            }
+          }
+        },
+        "personal": {
+          "personal_instagram_friend_map": {
+            "filename": "instagram_friend_map.json",
+            "content": {
+              "profile_friend_map": [
+                {
+                  "title": "",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Incoming requests": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 0
+                    },
+                    "Outgoing requests": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 0
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "personal_instagram_profile_information": {
+            "filename": "instagram_profile_information.json",
+            "content": {
+              "profile_account_insights": [
+                {
+                  "title": "",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Contact Syncing": {
+                      "href": "",
+                      "value": "False",
+                      "timestamp": 0
+                    },
+                    "Has Shared Live Video": {
+                      "href": "",
+                      "value": "False",
+                      "timestamp": 0
+                    },
+                    "Last Login": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 1753462551
+                    },
+                    "Last Logout": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 0
+                    },
+                    "First Story Time": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 0
+                    },
+                    "Last Story Time": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 0
+                    },
+                    "First Close Friends Story Time": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 0
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "personal_personal_information": {
+            "filename": "personal_information.json",
+            "content": {
+              "profile_user": [
+                {
+                  "title": "User Information",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Email": {
+                      "href": "",
+                      "value": "vdatadao@gmail.com",
+                      "timestamp": 0
+                    },
+                    "Phone Confirmed": {
+                      "href": "",
+                      "value": "False",
+                      "timestamp": 0
+                    },
+                    "Username": {
+                      "href": "",
+                      "value": "vdatadao",
+                      "timestamp": 0
+                    },
+                    "Name": {
+                      "href": "",
+                      "value": "Vdatadao Datadao",
+                      "timestamp": 0
+                    },
+                    "Gender": {
+                      "href": "",
+                      "value": "unspecified",
+                      "timestamp": 0
+                    },
+                    "Date of birth": {
+                      "href": "",
+                      "value": "1995-07-05",
+                      "timestamp": 0
+                    },
+                    "Private Account": {
+                      "href": "",
+                      "value": "False",
+                      "timestamp": 0
+                    },
+                    "Emoji Pong High Score": {
+                      "href": "",
+                      "value": "0",
+                      "timestamp": 0
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "personal_profile_changes": {
+            "filename": "profile_changes.json",
+            "content": {
+              "profile_profile_change": [
+                {
+                  "title": "Profile Change",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Changed": {
+                      "href": "",
+                      "value": "Email",
+                      "timestamp": 0
+                    },
+                    "Previous Value": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 0
+                    },
+                    "New Value": {
+                      "href": "",
+                      "value": "vdatadao@gmail.com",
+                      "timestamp": 0
+                    },
+                    "Change Date": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 1751745562
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "personal_professional_information": {
+            "filename": "professional_information.json",
+            "content": {
+              "profile_business": [
+                {
+                  "title": "Business Information",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Business Objectives": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 0
+                    },
+                    "Business Connection Methods": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 0
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "security": {
+          "security_password_change_activity": {
+            "filename": "password_change_activity.json",
+            "content": {
+              "account_history_password_change_history": [
+                {
+                  "title": "",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Time": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 1752167681
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "security_signup_details": {
+            "filename": "signup_details.json",
+            "content": {
+              "account_history_registration_info": [
+                {
+                  "title": "",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Username": {
+                      "href": "",
+                      "value": "Vdatadao Datadao",
+                      "timestamp": 0
+                    },
+                    "IP Address": {
+                      "href": "",
+                      "value": "178.246.25.184",
+                      "timestamp": 0
+                    },
+                    "Time": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 1751745564
+                    },
+                    "Email": {
+                      "href": "",
+                      "value": "vdatadao@gmail.com",
+                      "timestamp": 0
+                    },
+                    "Phone Number": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 0
+                    },
+                    "Device": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 0
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "security_login_activity": {
+            "filename": "login_activity.json",
+            "content": {
+              "account_history_login_history": [
+                {
+                  "title": "2025-07-25T16:55:51+00:00",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Cookie Name": {
+                      "href": "",
+                      "value": "*************************vqv",
+                      "timestamp": 0
+                    },
+                    "IP Address": {
+                      "href": "",
+                      "value": "176.240.66.64",
+                      "timestamp": 0
+                    },
+                    "Port": {
+                      "href": "",
+                      "value": "52636",
+                      "timestamp": 0
+                    },
+                    "Language Code": {
+                      "href": "",
+                      "value": "en",
+                      "timestamp": 0
+                    },
+                    "Time": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 1753462551
+                    },
+                    "User Agent": {
+                      "href": "",
+                      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+                      "timestamp": 0
+                    }
+                  }
+                },
+                {
+                  "title": "2025-07-05T20:16:46+00:00",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Cookie Name": {
+                      "href": "",
+                      "value": "*************************Cxp",
+                      "timestamp": 0
+                    },
+                    "IP Address": {
+                      "href": "",
+                      "value": "178.246.25.184",
+                      "timestamp": 0
+                    },
+                    "Port": {
+                      "href": "",
+                      "value": "51200",
+                      "timestamp": 0
+                    },
+                    "Language Code": {
+                      "href": "",
+                      "value": "en",
+                      "timestamp": 0
+                    },
+                    "Time": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 1751746606
+                    },
+                    "User Agent": {
+                      "href": "",
+                      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15",
+                      "timestamp": 0
+                    }
+                  }
+                },
+                {
+                  "title": "2025-07-05T19:59:35+00:00",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Cookie Name": {
+                      "href": "",
+                      "value": "*************************3yk",
+                      "timestamp": 0
+                    },
+                    "IP Address": {
+                      "href": "",
+                      "value": "178.246.25.184",
+                      "timestamp": 0
+                    },
+                    "Port": {
+                      "href": "",
+                      "value": "26422",
+                      "timestamp": 0
+                    },
+                    "Language Code": {
+                      "href": "",
+                      "value": "tr",
+                      "timestamp": 0
+                    },
+                    "Time": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 1751745575
+                    },
+                    "User Agent": {
+                      "href": "",
+                      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 OPR/119.0.0.0",
+                      "timestamp": 0
+                    }
+                  }
+                },
+                {
+                  "title": "2025-07-05T19:59:27+00:00",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Cookie Name": {
+                      "href": "",
+                      "value": "*************************3yk",
+                      "timestamp": 0
+                    },
+                    "IP Address": {
+                      "href": "",
+                      "value": "178.246.25.184",
+                      "timestamp": 0
+                    },
+                    "Port": {
+                      "href": "",
+                      "value": "26422",
+                      "timestamp": 0
+                    },
+                    "Language Code": {
+                      "href": "",
+                      "value": "tr",
+                      "timestamp": 0
+                    },
+                    "Time": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 1751745567
+                    },
+                    "User Agent": {
+                      "href": "",
+                      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 OPR/119.0.0.0",
+                      "timestamp": 0
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "security_last_known_location": {
+            "filename": "last_known_location.json",
+            "content": {
+              "account_history_imprecise_last_known_location": [
+                {
+                  "title": "",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Imprecise Latitude": {
+                      "href": "",
+                      "value": "0",
+                      "timestamp": 0
+                    },
+                    "Imprecise Longitude": {
+                      "href": "",
+                      "value": "0",
+                      "timestamp": 0
+                    },
+                    "Precise Latitude": {
+                      "href": "",
+                      "value": "0",
+                      "timestamp": 0
+                    },
+                    "Precise Longitude": {
+                      "href": "",
+                      "value": "0",
+                      "timestamp": 0
+                    },
+                    "GPS Time Uploaded": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 0
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "device": {
+          "device_devices": {
+            "filename": "devices.json",
+            "content": {
+              "devices_devices": [
+                {
+                  "title": "",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Last Login": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 1753462551
+                    },
+                    "User Agent": {
+                      "href": "",
+                      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+                      "timestamp": 0
+                    }
+                  }
+                },
+                {
+                  "title": "",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Last Login": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 1751746606
+                    },
+                    "User Agent": {
+                      "href": "",
+                      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15",
+                      "timestamp": 0
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "social": {
+          "conn_following": {
+            "filename": "following.json",
+            "content": {
+              "relationships_following": [
+                {
+                  "title": "",
+                  "media_list_data": [],
+                  "string_list_data": [
+                    {
+                      "href": "https://www.instagram.com/g.dsara",
+                      "value": "g.dsara",
+                      "timestamp": 1753462592
+                    }
+                  ]
+                },
+                {
+                  "title": "",
+                  "media_list_data": [],
+                  "string_list_data": [
+                    {
+                      "href": "https://www.instagram.com/fotottarena",
+                      "value": "fotottarena",
+                      "timestamp": 1753462591
+                    }
+                  ]
+                },
+                {
+                  "title": "",
+                  "media_list_data": [],
+                  "string_list_data": [
+                    {
+                      "href": "https://www.instagram.com/aslan0fficiall",
+                      "value": "aslan0fficiall",
+                      "timestamp": 1753462589
+                    }
+                  ]
+                },
+                {
+                  "title": "",
+                  "media_list_data": [],
+                  "string_list_data": [
+                    {
+                      "href": "https://www.instagram.com/gnygvnc23",
+                      "value": "gnygvnc23",
+                      "timestamp": 1753462589
+                    }
+                  ]
+                },
+                {
+                  "title": "",
+                  "media_list_data": [],
+                  "string_list_data": [
+                    {
+                      "href": "https://www.instagram.com/rolandsallai",
+                      "value": "rolandsallai",
+                      "timestamp": 1753462588
+                    }
+                  ]
+                },
+                {
+                  "title": "",
+                  "media_list_data": [],
+                  "string_list_data": [
+                    {
+                      "href": "https://www.instagram.com/forzacimbomcom",
+                      "value": "forzacimbomcom",
+                      "timestamp": 1753462585
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "messages_secret_conversations": {
+            "filename": "secret_conversations.json",
+            "content": {
+              "ig_secret_conversations": {
+                "armadillo_devices": [
+                  {
+                    "device_type": "Igd:Web-302.0.1024612331",
+                    "device_manufacturer": "Mac OS X",
+                    "device_model": "Opera",
+                    "device_os_version": "10.15",
+                    "last_connected_ip": "2001:67c:198c::",
+                    "last_active_time": 1752167635
+                  },
+                  {
+                    "device_type": "Igd:Web-302.0.1024465108",
+                    "device_manufacturer": "Mac OS X",
+                    "device_model": "Safari",
+                    "device_os_version": "10.15",
+                    "last_connected_ip": "178.246.25.0",
+                    "last_active_time": 1751746619
+                  },
+                  {
+                    "device_type": "Igd:Web-302.0.1025301640",
+                    "device_manufacturer": "Mac OS X",
+                    "device_model": "Chrome",
+                    "device_os_version": "10.15",
+                    "last_connected_ip": "176.236.34.0",
+                    "last_active_time": 1753865389
+                  }
+                ],
+                "calls": []
+              }
+            }
+          },
+          "messages_your_scheduled_chat_notifications": {
+            "filename": "your_scheduled_chat_notifications.json",
+            "content": [
+              {
+                "timestamp": 1753558953,
+                "media": [],
+                "label_values": [
+                  {
+                    "label": "Channel Name",
+                    "value": "More fotottarena"
+                  }
+                ],
+                "fbid": "3881142032029206"
+              },
+              {
+                "timestamp": 1753472553,
+                "media": [],
+                "label_values": [
+                  {
+                    "label": "Channel Name",
+                    "value": "Forza Cimbom"
+                  }
+                ],
+                "fbid": "2345966672467308"
+              }
+            ]
+          }
+        },
+        "preferences": {
+          "prefs_comments_allowed_from": {
+            "filename": "comments_allowed_from.json",
+            "content": {
+              "settings_allow_comments_from": [
+                {
+                  "title": "",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Comments Allowed From": {
+                      "href": "",
+                      "value": "Everyone",
+                      "timestamp": 0
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "prefs_notification_preferences": {
+            "filename": "notification_preferences.json",
+            "content": {
+              "settings_notification_preferences": [
+                {
+                  "string_map_data": {
+                    "Channel": {
+                      "value": "email"
+                    },
+                    "Type": {
+                      "value": "MARKETING_EMAIL"
+                    },
+                    "Value": {
+                      "value": "ON"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "prefs_consents": {
+            "filename": "consents.json",
+            "content": {
+              "timestamp": 1751745579,
+              "media": [],
+              "label_values": [
+                {
+                  "label": "Consent for the processing of user's data by ad partners on Instagram"
+                },
+                {
+                  "label": "Update time",
+                  "timestamp_value": 1751745579
+                }
+              ],
+              "fbid": "17846504439514907"
+            }
+          },
+          "prefs_use_cross-app_messaging": {
+            "filename": "use_cross-app_messaging.json",
+            "content": {
+              "settings_upgraded_to_cross_app_messaging": [
+                {
+                  "title": "",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Upgraded To Cross-App Messaging": {
+                      "href": "",
+                      "value": "False",
+                      "timestamp": 0
+                    },
+                    "Time Upgraded": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 0
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "media": {},
+        "other": {
+          "misc_other_categories_used_to_reach_you": {
+            "filename": "other_categories_used_to_reach_you.json",
+            "content": {
+              "media": [],
+              "label_values": [
+                {
+                  "label": "Name",
+                  "vec": [
+                    {
+                      "value": "Facebook eriÅimi (mobil): AkÄ±llÄ± telefonlar ve tabletler"
+                    },
+                    {
+                      "value": "Facebook eriÅimi (mobil): Android cihazlar"
+                    },
+                    {
+                      "value": "Instagram Business Profili YÃ¶neticileri"
+                    }
+                  ]
+                }
+              ],
+              "fbid": "17841475447205649"
+            }
+          },
+          "misc_advertisers_using_your_activity_or_information": {
+            "filename": "advertisers_using_your_activity_or_information.json",
+            "content": {
+              "ig_custom_audiences_all_types": [
+                {
+                  "advertiser_name": "Typeform",
+                  "has_data_file_custom_audience": true,
+                  "has_remarketing_custom_audience": false,
+                  "has_in_person_store_visit": false
+                }
+              ]
+            }
+          },
+          "misc_ads_about_meta": {
+            "filename": "ads_about_meta.json",
+            "content": {
+              "media": [],
+              "label_values": [
+                {
+                  "label": "Is opted out of ads about Meta",
+                  "value": "False"
+                },
+                {
+                  "label": "When you last opted out of ads about Meta",
+                  "timestamp_value": 1751744665
+                }
+              ],
+              "fbid": "741507988383090"
+            }
+          },
+          "misc_content_interactions": {
+            "filename": "content_interactions.json",
+            "content": {
+              "organic_insights_interactions": [
+                {
+                  "title": "",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Date Range": {
+                      "href": "",
+                      "value": "May 1 - Jul 29",
+                      "timestamp": 0
+                    },
+                    "Content Interactions": {
+                      "href": "",
+                      "value": "1",
+                      "timestamp": 0
+                    },
+                    "Content Interactions Delta": {
+                      "href": "",
+                      "value": "-- vs Jan 31 - Apr 30",
+                      "timestamp": 0
+                    },
+                    "Post Interactions": {
+                      "href": "",
+                      "value": "1",
+                      "timestamp": 0
+                    },
+                    "Post Interactions Delta": {
+                      "href": "",
+                      "value": "-- vs Jan 31 - Apr 30",
+                      "timestamp": 0
+                    },
+                    "Post Likes": {
+                      "href": "",
+                      "value": "1",
+                      "timestamp": 0
+                    },
+                    "Story Interactions": {
+                      "href": "",
+                      "value": "0",
+                      "timestamp": 0
+                    },
+                    "Story Interactions Delta": {
+                      "href": "",
+                      "value": "0% vs Jan 31 - Apr 30",
+                      "timestamp": 0
+                    },
+                    "Video Interactions": {
+                      "href": "",
+                      "value": "0",
+                      "timestamp": 0
+                    },
+                    "Video Interactions Delta": {
+                      "href": "",
+                      "value": "0% vs Jan 31 - Apr 30",
+                      "timestamp": 0
+                    },
+                    "Reels Interactions": {
+                      "href": "",
+                      "value": "0",
+                      "timestamp": 0
+                    },
+                    "Reels Interactions Delta": {
+                      "href": "",
+                      "value": "0% vs Jan 31 - Apr 30",
+                      "timestamp": 0
+                    },
+                    "Live Video Interactions": {
+                      "href": "",
+                      "value": "0",
+                      "timestamp": 0
+                    },
+                    "Live Video Interactions Delta": {
+                      "href": "",
+                      "value": "0% vs Jan 31 - Apr 30",
+                      "timestamp": 0
+                    },
+                    "Accounts engaged": {
+                      "href": "",
+                      "value": "1",
+                      "timestamp": 0
+                    },
+                    "Accounts Engaged Delta": {
+                      "href": "",
+                      "value": "-- vs Jan 31 - Apr 30",
+                      "timestamp": 0
+                    },
+                    "Engaged Account By Follow Type": {
+                      "href": "",
+                      "value": "Followers: 0%, Non-followers: 100%",
+                      "timestamp": 0
+                    },
+                    "You engaged delta% more accounts that werenât following you compared to previous period": {
+                      "href": "",
+                      "value": "-- vs Jan 31 - Apr 30",
+                      "timestamp": 0
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "misc_posts": {
+            "filename": "posts.json",
+            "content": {
+              "organic_insights_posts": [
+                {
+                  "title": "",
+                  "media_map_data": {
+                    "Media Thumbnail": {
+                      "uri": "media/posts/202507/524347731_17849603232514907_7840945425828300735_n_18048974198234953.jpg",
+                      "creation_timestamp": 1753462669,
+                      "media_metadata": {
+                        "photo_metadata": {
+                          "exif_data": [
+                            {
+                              "source_type": "library"
+                            }
+                          ]
+                        },
+                        "camera_metadata": {
+                          "has_camera_metadata": false
+                        }
+                      },
+                      "title": "nice",
+                      "cross_post_source": {
+                        "source_app": "FB"
+                      }
+                    }
+                  },
+                  "string_map_data": {
+                    "Creation Timestamp": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 1753462669
+                    },
+                    "Profile visits": {
+                      "href": "",
+                      "value": "0",
+                      "timestamp": 0
+                    },
+                    "Impressions": {
+                      "href": "",
+                      "value": "--",
+                      "timestamp": 0
+                    },
+                    "Follows": {
+                      "href": "",
+                      "value": "0",
+                      "timestamp": 0
+                    },
+                    "Accounts reached": {
+                      "href": "",
+                      "value": "--",
+                      "timestamp": 0
+                    },
+                    "Saves": {
+                      "href": "",
+                      "value": "0",
+                      "timestamp": 0
+                    },
+                    "Likes": {
+                      "href": "",
+                      "value": "1",
+                      "timestamp": 0
+                    },
+                    "Comments": {
+                      "href": "",
+                      "value": "0",
+                      "timestamp": 0
+                    },
+                    "Shares": {
+                      "href": "",
+                      "value": "0",
+                      "timestamp": 0
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "misc_audience_insights": {
+            "filename": "audience_insights.json",
+            "content": {
+              "organic_insights_audience": [
+                {
+                  "title": "",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Date Range": {
+                      "href": "",
+                      "value": "May 1 - Jul 29",
+                      "timestamp": 0
+                    },
+                    "Followers": {
+                      "href": "",
+                      "value": "0",
+                      "timestamp": 0
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "misc_profiles_reached": {
+            "filename": "profiles_reached.json",
+            "content": {
+              "organic_insights_reach": [
+                {
+                  "title": "",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Date Range": {
+                      "href": "",
+                      "value": "May 1 - Jul 29",
+                      "timestamp": 0
+                    },
+                    "Accounts Reached": {
+                      "href": "",
+                      "value": "0",
+                      "timestamp": 0
+                    },
+                    "Followers": {
+                      "href": "",
+                      "value": "0",
+                      "timestamp": 0
+                    },
+                    "Non-Followers": {
+                      "href": "",
+                      "value": "0",
+                      "timestamp": 0
+                    },
+                    "Impressions": {
+                      "href": "",
+                      "value": "0",
+                      "timestamp": 0
+                    },
+                    "Profile visits": {
+                      "href": "",
+                      "value": "0",
+                      "timestamp": 0
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "misc_locations_of_interest": {
+            "filename": "locations_of_interest.json",
+            "content": {
+              "media": [],
+              "label_values": [
+                {
+                  "label": "Locations of interest",
+                  "vec": [
+                    {
+                      "value": "ElvanlÄ±, Mersin Province"
+                    },
+                    {
+                      "value": "PozantÄ±, Adana Province"
+                    },
+                    {
+                      "value": "Mersin, Mersin Province"
+                    },
+                    {
+                      "value": "Side, Antalya Province"
+                    },
+                    {
+                      "value": "Hatay Province"
+                    },
+                    {
+                      "value": "Adana Province"
+                    },
+                    {
+                      "value": "Gaziantep Province"
+                    },
+                    {
+                      "value": "Antalya Province"
+                    }
+                  ]
+                },
+                {
+                  "label": "Usage explanation",
+                  "value": "Locations of interest are used to personalize your experience on Instagram and show you more relevant ads. Learn more about how Instagram uses location in Privacy Center."
+                }
+              ],
+              "fbid": "17841475447205649"
+            }
+          },
+          "misc_profile_based_in": {
+            "filename": "profile_based_in.json",
+            "content": {
+              "inferred_data_primary_location": [
+                {
+                  "title": "",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "City Name": {
+                      "href": "",
+                      "value": "Adana, Turkey",
+                      "timestamp": 0
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "misc_active_apps": {
+            "filename": "active_apps.json",
+            "content": {
+              "apps_and_websites_active_apps": [
+                {
+                  "title": "vdatadao-IG",
+                  "string_map_data": {
+                    "Added on": {
+                      "timestamp": 1751834000
+                    },
+                    "Last active on": {
+                      "timestamp": 1751834000
+                    },
+                    "App user ID": {
+                      "value": "24684648584469961"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "misc_your_activity_off_meta_technologies": {
+            "filename": "your_activity_off_meta_technologies.json",
+            "content": {
+              "apps_and_websites_off_meta_activity": [
+                {
+                  "name": "mee6.xyz",
+                  "events": [
+                    {
+                      "id": 505944164579600,
+                      "type": "PAGE_VIEW",
+                      "timestamp": 1753466580
+                    },
+                    {
+                      "id": 505944164579600,
+                      "type": "PAGE_VIEW",
+                      "timestamp": 1753466340
+                    },
+                    {
+                      "id": 505944164579600,
+                      "type": "PAGE_VIEW",
+                      "timestamp": 1752932460
+                    },
+                    {
+                      "id": 505944164579600,
+                      "type": "PAGE_VIEW",
+                      "timestamp": 1752915600
+                    },
+                    {
+                      "id": 505944164579600,
+                      "type": "PAGE_VIEW",
+                      "timestamp": 1752915540
+                    },
+                    {
+                      "id": 505944164579600,
+                      "type": "PAGE_VIEW",
+                      "timestamp": 1752914340
+                    },
+                    {
+                      "id": 505944164579600,
+                      "type": "PAGE_VIEW",
+                      "timestamp": 1752867420
+                    }
+                  ]
+                },
+                {
+                  "name": "Typeform",
+                  "events": [
+                    {
+                      "id": 1663129523960214,
+                      "type": "CUSTOM",
+                      "timestamp": 1753443660
+                    },
+                    {
+                      "id": 1663129523960214,
+                      "type": "COMPLETE_REGISTRATION",
+                      "timestamp": 1753177440
+                    }
+                  ]
+                },
+                {
+                  "name": "Framer",
+                  "events": [
+                    {
+                      "id": 1457193977670239,
+                      "type": "COMPLETE_REGISTRATION",
+                      "timestamp": 1753166640
+                    }
+                  ]
+                },
+                {
+                  "name": "bolt.new",
+                  "events": [
+                    {
+                      "id": 9472948572788130,
+                      "type": "PAGE_VIEW",
+                      "timestamp": 1752605940
+                    }
+                  ]
+                },
+                {
+                  "name": "smashballoon.com",
+                  "events": [
+                    {
+                      "id": 156818449115085,
+                      "type": "PAGE_VIEW",
+                      "timestamp": 1751873520
+                    }
+                  ]
+                },
+                {
+                  "name": "wix.com",
+                  "events": [
+                    {
+                      "id": 704136006388169,
+                      "type": "PAGE_VIEW",
+                      "timestamp": 1751829600
+                    },
+                    {
+                      "id": 704136006388169,
+                      "type": "PAGE_VIEW",
+                      "timestamp": 1751799840
+                    },
+                    {
+                      "id": 704136006388169,
+                      "type": "PAGE_VIEW",
+                      "timestamp": 1751799240
+                    },
+                    {
+                      "id": 704136006388169,
+                      "type": "PAGE_VIEW",
+                      "timestamp": 1751798640
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "misc_your_activity_off_meta_technologies_settings": {
+            "filename": "your_activity_off_meta_technologies_settings.json",
+            "content": {
+              "timestamp": 1751745577,
+              "media": [],
+              "label_values": [
+                {
+                  "label": "Account association state",
+                  "value": "Account Association Enabled"
+                },
+                {
+                  "label": "Latest activity time",
+                  "timestamp_value": 0
+                },
+                {
+                  "label": "Combined number of times these privacy settings have been taken",
+                  "value": "0"
+                },
+                {
+                  "label": "Number of times the clear history action has been taken",
+                  "value": "0"
+                },
+                {
+                  "label": "Number of times the account association settings have been disabled",
+                  "value": "0"
+                },
+                {
+                  "label": "Number of times the account association settings have been enabled",
+                  "value": "0"
+                },
+                {
+                  "label": "Your latest and upcoming account association states",
+                  "dict": []
+                }
+              ],
+              "fbid": "17846504424514907"
+            }
+          },
+          "misc_eligibility": {
+            "filename": "eligibility.json",
+            "content": {
+              "monetization_eligibility": [
+                {
+                  "title": "",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Product Name": {
+                      "href": "",
+                      "value": "BRANDED CONTENT",
+                      "timestamp": 0
+                    },
+                    "Decision": {
+                      "href": "",
+                      "value": "Not Eligible",
+                      "timestamp": 0
+                    },
+                    "Reason": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 0
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "misc_your_information_download_requests": {
+            "filename": "your_information_download_requests.json",
+            "content": [
+              {
+                "timestamp": 1753462877,
+                "media": [],
+                "label_values": [
+                  {
+                    "label": "Request completion time",
+                    "timestamp_value": 1753488006
+                  },
+                  {
+                    "label": "How many times did you try to download the file?",
+                    "value": "0"
+                  },
+                  {
+                    "label": "Start date",
+                    "timestamp_value": 1721905899
+                  },
+                  {
+                    "label": "End date",
+                    "timestamp_value": 1753462808
+                  },
+                  {
+                    "label": "Information types",
+                    "vec": []
+                  },
+                  {
+                    "label": "Media quality",
+                    "value": "Medium"
+                  },
+                  {
+                    "label": "Output format",
+                    "value": "JSON"
+                  },
+                  {
+                    "label": "Have you seen this archive?",
+                    "value": "False"
+                  },
+                  {
+                    "label": "Have we notified you that your request is taking a long time to process?",
+                    "value": "False"
+                  },
+                  {
+                    "label": "Where you requested your data from"
+                  }
+                ],
+                "fbid": "2484279301939474"
+              },
+              {
+                "timestamp": 1753462806,
+                "media": [],
+                "label_values": [
+                  {
+                    "label": "Request completion time",
+                    "timestamp_value": 1753483749
+                  },
+                  {
+                    "label": "How many times did you try to download the file?",
+                    "value": "0"
+                  },
+                  {
+                    "label": "Start date",
+                    "timestamp_value": 1721905853
+                  },
+                  {
+                    "label": "End date",
+                    "timestamp_value": 1753462762
+                  },
+                  {
+                    "label": "Information types",
+                    "vec": []
+                  },
+                  {
+                    "label": "Media quality",
+                    "value": "Medium"
+                  },
+                  {
+                    "label": "Output format",
+                    "value": "HTML"
+                  },
+                  {
+                    "label": "Have you seen this archive?",
+                    "value": "False"
+                  },
+                  {
+                    "label": "Have we notified you that your request is taking a long time to process?",
+                    "value": "False"
+                  },
+                  {
+                    "label": "Where you requested your data from"
+                  }
+                ],
+                "fbid": "780846021044224"
+              },
+              {
+                "timestamp": 1753462761,
+                "media": [],
+                "label_values": [
+                  {
+                    "label": "Request completion time",
+                    "timestamp_value": 1753483695
+                  },
+                  {
+                    "label": "How many times did you try to download the file?",
+                    "value": "0"
+                  },
+                  {
+                    "label": "Start date",
+                    "timestamp_value": 1721905831
+                  },
+                  {
+                    "label": "End date",
+                    "timestamp_value": 1753462740
+                  },
+                  {
+                    "label": "Information types",
+                    "vec": []
+                  },
+                  {
+                    "label": "Media quality",
+                    "value": "Medium"
+                  },
+                  {
+                    "label": "Output format",
+                    "value": "HTML"
+                  },
+                  {
+                    "label": "Have you seen this archive?",
+                    "value": "False"
+                  },
+                  {
+                    "label": "Have we notified you that your request is taking a long time to process?",
+                    "value": "False"
+                  },
+                  {
+                    "label": "Where you requested your data from"
+                  }
+                ],
+                "fbid": "764107162836827"
+              }
+            ]
+          },
+          "misc_your_muted_story_teaser_creators": {
+            "filename": "your_muted_story_teaser_creators.json",
+            "content": {
+              "subscriptions_muted_story_teaser_creators": [
+                {
+                  "title": "",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Muted Creators": {
+                      "href": "",
+                      "value": "",
+                      "timestamp": 0
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "misc_show_exclusive_story_promo_setting": {
+            "filename": "show_exclusive_story_promo_setting.json",
+            "content": {
+              "subscriptions_show_story_teaser_setting": [
+                {
+                  "title": "",
+                  "media_map_data": {},
+                  "string_map_data": {
+                    "Exclusive Story Promo Setting": {
+                      "href": "",
+                      "value": "False",
+                      "timestamp": 0
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "file_count": 36,
+      "total_data_size": 17918
     }
   },
   "metadata": {
     "version": "1.0.0",
     "schema_version": "vana_datadao_v1",
     "source": "Google Drive - Meta Data Export",
-    "collection_date": "2023-12-01T10:30:00.000Z",
+    "collection_date": "2025-09-02T02:10:40.310Z",
     "data_type": "instagram_meta_export",
-    "processing_timestamp": 1638360000000,
-    "extraction_completeness": 85.5,
+    "processing_timestamp": 1756779040308,
+    "extraction_completeness": 100,
     "folder_structure": {
-      "metaFolderId": "1BxGt123...",
-      "instagramFolderId": "1CyHu456...",
-      "instagramFolderName": "instagram-vdatadao-2023-12-01"
+      "metaFolderId": "1n06rUqTLwVk1Q5Q_BeBumc2rZ6H4mGy6",
+      "instagramFolderId": "unknown",
+      "instagramFolderName": "unknown"
     },
     "privacy_settings": {
       "contains_pii": true,
       "anonymization_level": "partial",
       "retention_policy": "user_controlled"
     },
-    "quality_score": 78.2,
-    "data_freshness": 92.1
+    "quality_score": 100,
+    "data_freshness": 60
   },
-  "created_at": "2023-12-01T10:30:00.000Z",
-  "updated_at": "2023-12-01T10:30:00.000Z"
+  "created_at": "2025-09-02T02:10:40.310Z",
+  "updated_at": "2025-09-02T02:10:40.310Z"
 }

@@ -1,0 +1,42 @@
+{
+  "dlp_id": 143,
+  "valid": true,
+  "score": 0.538875,
+  "authenticity": 0.535,
+  "ownership": 0.0,
+  "quality": 0.82625,
+  "uniqueness": 0.415,
+  "attributes": {
+    "schema_type": "instagram-meta-export.json",
+    "platform": "instagram",
+    "contributor_email": "vdatadao@gmail.com",
+    "contributor_wallet": "0x0AeA6B11278f30A5c326F85892cFF86f588480ec",
+    "instagram_username": "vdatadao",
+    "account_type": "Public",
+    "posts_count": 1,
+    "followers_count": 0,
+    "account_age_days": 11017,
+    "extraction_completeness": 100.0,
+    "quality_score": 100.0,
+    "data_freshness": 60.0,
+    "verified_with_oauth": false,
+    "phone_confirmed": false,
+    "private_account": false,
+    "ai_detection": {
+      "is_ai_generated": false,
+      "confidence": 0.15,
+      "indicators": [
+        "LOW_DIVERSITY"
+      ],
+      "authenticity_impact": 0.85
+    },
+    "email_validation": {
+      "email_consistency_check": true,
+      "email_registered_to_blockchain": false,
+      "email_hash": "c2f9f29924838942..."
+    }
+  },
+  "metadata": {
+    "schema_type": "instagram-meta-export.json"
+  }
+}
