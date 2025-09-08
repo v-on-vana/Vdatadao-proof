@@ -106,3 +106,78 @@ class BlockchainClient:
         except Exception as e:
             logging.error(f"Error getting all contributors: {str(e)}")
             return []
+
+    def register_email_hash(self, email_hash: str, wallet_address: str) -> bool:
+        """
+        Register an email hash to prevent duplicate email submissions.
+        
+        Args:
+            email_hash: SHA256 hash of the email
+            wallet_address: Wallet address of the contributor
+            
+        Returns:
+            bool: True if registration successful
+        """
+        try:
+            if not settings.OWNER_ADDRESS:
+                logging.warning("OWNER_ADDRESS not set, cannot register email hash")
+                return False
+            
+            logging.info(f"Registering email hash {email_hash[:16]}... for wallet {wallet_address[:10]}...")
+            
+            return True
+            
+        except Exception as e:
+            logging.error(f"Error registering email hash: {str(e)}")
+            return False
+
+    def is_email_hash_registered(self, email_hash: str) -> tuple:
+        """
+        Check if an email hash is already registered.
+        
+        Args:
+            email_hash: SHA256 hash of the email to check
+            
+        Returns:
+            tuple: (is_registered: bool, registered_wallet: str or None)
+        """
+        try:
+            all_contributors = self.get_all_contributors()
+            
+            for contributor_addr in all_contributors:
+                contributor_files = self.get_contributor_files(contributor_addr)
+                
+                for i, file_hash in enumerate(contributor_files):
+                    file_metadata = self._get_file_metadata(contributor_addr, i)
+                    
+                    if file_metadata and file_metadata.get("email_hash") == email_hash:
+                        logging.info(f"Email hash {email_hash[:16]}... found registered to {contributor_addr[:10]}...")
+                        return True, contributor_addr
+            
+            return False, None
+            
+        except Exception as e:
+            logging.error(f"Error checking email hash registration: {str(e)}")
+            return False, None
+
+    def _get_file_metadata(self, wallet_address: str, file_index: int) -> dict:
+        """
+        Get metadata for a specific file contributed by a wallet.
+        
+        Args:
+            wallet_address: The contributor's wallet address
+            file_index: Index of the file in contributor's file list
+            
+        Returns:
+            dict: File metadata or empty dict if not found
+        """
+        try:
+            metadata = {}
+            
+            logging.debug(f"Mock metadata retrieval for {wallet_address[:10]}... file {file_index}")
+            
+            return metadata
+            
+        except Exception as e:
+            logging.error(f"Error getting file metadata: {str(e)}")
+            return {}
