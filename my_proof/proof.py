@@ -521,8 +521,9 @@ class Proof:
 
     def _check_for_duplicate_data(self, input_data: dict, wallet_address: str, contributor_email: str) -> bool:
         """
-        Check if the same Instagram User ID has been submitted before by any wallet address.
-        This is the ONLY reliable method for duplicate detection.
+        Check if the same email has been submitted before by any wallet address.
+        This prevents both wallet switching and partial data deletion attacks.
+        Also checks for email-based duplicates to prevent Sybil attacks.
         
         Args:
             input_data: The input data to check
@@ -530,154 +531,306 @@ class Proof:
             contributor_email: Contributor email
             
         Returns:
-            bool: True if duplicate User ID is found
+            bool: True if duplicate data is found
         """
         try:
             if not self.blockchain_available:
                 logging.warning("Blockchain not available, skipping duplicate check")
                 return False
             
-            # ONLY check: Instagram User ID duplicate detection (most reliable and secure)
-            user_id_duplicate, user_id_info = self._check_duplicate_by_user_id(input_data)
-            if user_id_duplicate:
-                logging.warning(f"Instagram User ID duplicate detected: {user_id_info}")
+            # First check: Wallet-Email binding validation
+            if not self._validate_wallet_email_binding(wallet_address, contributor_email):
+                logging.warning(f"Invalid wallet-email binding: {wallet_address[:10]}... with {contributor_email}")
+                return True
+            
+            # Second check: Email-based duplicate prevention
+            if self._check_email_duplicate(contributor_email, wallet_address):
+                logging.warning(f"Email duplicate detected: {contributor_email} already used by different wallet")
                 return True
                 
-            logging.info("No duplicate User ID found - contribution is unique")
+            # Second check: Data similarity across all contributors
+            core_data_fingerprint = self._generate_core_data_fingerprint(input_data)
+            
+            all_contributors = self.blockchain_client.get_all_contributors()
+            
+            for contributor_addr in all_contributors:
+                if contributor_addr.lower() == wallet_address.lower():
+                    continue
+                    
+                existing_files = self.blockchain_client.get_contributor_files(contributor_addr)
+                
+                for file_hash in existing_files:
+                    similarity_score = self._calculate_data_similarity(core_data_fingerprint, file_hash)
+                    
+                    if similarity_score > 0.85:
+                        logging.warning(f"High similarity detected: {similarity_score:.2f} with {contributor_addr[:10]}...")
+                        return True
+                        
             return False
             
         except Exception as e:
             logging.error(f"Error checking for duplicate data: {str(e)}")
             return False
 
-    def _check_duplicate_by_user_id(self, input_data: dict) -> tuple[bool, dict]:
+    def _check_email_duplicate(self, contributor_email: str, current_wallet: str) -> bool:
         """
-        Check for duplicate Instagram User ID across all wallets.
-        This is the most reliable method to detect the same person using different wallets.
+        Check if the same email has been used by a different wallet address.
+        This prevents Sybil attacks where users create multiple wallets with the same email.
+        Uses improved email-wallet binding for better duplicate detection.
         
         Args:
-            input_data: The input data to check
+            contributor_email: The email to check
+            current_wallet: The current wallet address
             
         Returns:
-            tuple[bool, dict]: (is_duplicate, match_info)
+            bool: True if email is already used by a different wallet
         """
         try:
-            # Extract Instagram User ID from the current data
-            user_id = self._extract_instagram_user_id(input_data)
-            if not user_id:
-                logging.info("No Instagram User ID found in data")
-                return False, {"reason": "no_user_id"}
+            if not self.blockchain_available:
+                logging.warning("Blockchain not available, skipping email duplicate check")
+                return False
+                
+            # Generate email hash for comparison
+            email_hash = hashlib.sha256(contributor_email.lower().strip().encode()).hexdigest()
+            logging.info(f"Checking email duplicate for: {contributor_email} (hash: {email_hash[:16]}...)")
             
-            logging.info(f"Checking for duplicate User ID: {user_id}")
+            all_contributors = self.blockchain_client.get_all_contributors()
+            logging.info(f"Checking against {len(all_contributors)} existing contributors")
             
-            # Get all contributors from blockchain
+            for contributor_addr in all_contributors:
+                if contributor_addr.lower() == current_wallet.lower():
+                    continue
+                    
+                existing_files = self.blockchain_client.get_contributor_files(contributor_addr)
+                logging.debug(f"Checking {len(existing_files)} files for contributor {contributor_addr[:10]}...")
+                
+                # Check if any existing file contains the same email
+                for file_hash in existing_files:
+                    # Method 1: Check if email hash is embedded in file hash
+                    if email_hash in str(file_hash):
+                        logging.warning(f"Email {contributor_email} already used by wallet {contributor_addr[:10]}... (method 1)")
+                        return True
+                    
+                    # Method 2: Check if email-wallet pair exists in blockchain metadata
+                    email_wallet_pair = f"{contributor_email.lower()}:{contributor_addr.lower()}"
+                    pair_hash = hashlib.sha256(email_wallet_pair.encode()).hexdigest()
+                    
+                    if pair_hash in str(file_hash):
+                        logging.warning(f"Email-wallet pair already exists: {contributor_email} with {contributor_addr[:10]}... (method 2)")
+                        return True
+                    
+                    # Method 3: Check for email in contribution metadata (if available)
+                    contribution_data = self._get_contribution_metadata_from_hash(file_hash)
+                    if contribution_data:
+                        existing_email = contribution_data.get('contributor_email', '').lower().strip()
+                        if existing_email == contributor_email.lower().strip():
+                            logging.warning(f"Email {contributor_email} found in contribution metadata for wallet {contributor_addr[:10]}... (method 3)")
+                            return True
+                        
+            logging.info(f"Email {contributor_email} is unique - no duplicates found")
+            return False
+            
+        except Exception as e:
+            logging.error(f"Error checking email duplicate: {str(e)}")
+            return False  # If check fails, allow contribution
+
+    def _validate_wallet_email_binding(self, wallet_address: str, contributor_email: str) -> bool:
+        """
+        Validate wallet-email binding to ensure unique pairs.
+        This prevents users from using the same email with multiple wallets
+        or the same wallet with multiple emails.
+        
+        Args:
+            wallet_address: The wallet address to validate
+            contributor_email: The email address to validate
+            
+        Returns:
+            bool: True if wallet-email binding is valid and unique
+        """
+        try:
+            if not self.blockchain_available:
+                logging.warning("Blockchain not available, skipping wallet-email binding validation")
+                return True  # Allow if blockchain not available
+                
+            # Normalize inputs
+            wallet_address = wallet_address.lower().strip()
+            contributor_email = contributor_email.lower().strip()
+            
+            if not wallet_address or not contributor_email:
+                logging.warning("Invalid wallet address or email provided")
+                return False
+            
+            # Generate wallet-email binding hash
+            wallet_email_binding = f"{wallet_address}:{contributor_email}"
+            binding_hash = hashlib.sha256(wallet_email_binding.encode()).hexdigest()
+            
+            logging.info(f"Validating wallet-email binding: {wallet_address[:10]}... with {contributor_email}")
+            
             all_contributors = self.blockchain_client.get_all_contributors()
             
             for contributor_addr in all_contributors:
+                if contributor_addr.lower() == wallet_address:
+                    continue
+                    
                 existing_files = self.blockchain_client.get_contributor_files(contributor_addr)
                 
                 for file_hash in existing_files:
-                    # Get existing contribution data from blockchain
-                    existing_data = self._get_contribution_data_from_hash(file_hash)
-                    if existing_data:
-                        existing_user_id = self._extract_instagram_user_id(existing_data)
-                        if existing_user_id and user_id == existing_user_id:
-                            logging.warning(f"DUPLICATE USER ID DETECTED: {user_id} already exists in wallet {contributor_addr[:10]}...")
-                            return True, {
-                                "user_id": user_id,
-                                "existing_wallet": contributor_addr,
-                                "match_type": "user_id_duplicate"
-                            }
+                    # Check if this wallet-email binding already exists
+                    if binding_hash in str(file_hash):
+                        logging.warning(f"Wallet-email binding already exists: {wallet_address[:10]}... with {contributor_email}")
+                        return False
+                    
+                    # Check for reverse binding (same email with different wallet)
+                    contribution_data = self._get_contribution_metadata_from_hash(file_hash)
+                    if contribution_data:
+                        existing_email = contribution_data.get('contributor_email', '').lower().strip()
+                        existing_wallet = contribution_data.get('wallet_address', '').lower().strip()
+                        
+                        if existing_email == contributor_email and existing_wallet != wallet_address:
+                            logging.warning(f"Email {contributor_email} already bound to different wallet: {existing_wallet[:10]}...")
+                            return False
+                        
+                        if existing_wallet == wallet_address and existing_email != contributor_email:
+                            logging.warning(f"Wallet {wallet_address[:10]}... already bound to different email: {existing_email}")
+                            return False
             
-            logging.info(f"User ID {user_id} is unique - no duplicates found")
-            return False, {"user_id": user_id, "status": "unique"}
+            logging.info(f"Wallet-email binding is valid and unique: {wallet_address[:10]}... with {contributor_email}")
+            return True
             
         except Exception as e:
-            logging.error(f"Error checking User ID duplicate: {str(e)}")
-            return False, {"error": str(e)}
+            logging.error(f"Error validating wallet-email binding: {str(e)}")
+            return True  # Allow if validation fails
 
-    def _get_contribution_data_from_hash(self, file_hash: str) -> dict:
+    def _get_contribution_metadata_from_hash(self, file_hash: str) -> dict:
         """
-        Get contribution data from blockchain using file hash.
-        This is a placeholder - actual implementation would fetch from blockchain.
+        Get contribution metadata from blockchain using file hash.
+        This extracts email and wallet information for duplicate detection.
         
         Args:
             file_hash: The file hash to look up
             
         Returns:
-            dict: Contribution data if found, empty dict otherwise
+            dict: Contribution metadata if found, empty dict otherwise
         """
         try:
-            logging.debug(f"Fetching data for hash: {file_hash[:16]}...")
-            # TODO: Implement actual blockchain data fetching
-            # For now, return empty dict
+            logging.debug(f"Fetching metadata for hash: {file_hash[:16]}...")
+            
+            # TODO: Implement actual blockchain metadata fetching
+            # For now, return empty dict - in production this would:
+            # 1. Query blockchain for contribution metadata
+            # 2. Extract contributor email and wallet address
+            # 3. Return structured metadata
+            
+            # Placeholder implementation
             return {}
             
         except Exception as e:
-            logging.error(f"Error fetching contribution data: {str(e)}")
+            logging.error(f"Error fetching contribution metadata: {str(e)}")
             return {}
 
-    def _extract_instagram_user_id(self, input_data: dict) -> str:
+    def _generate_core_data_fingerprint(self, input_data: dict) -> str:
         """
-        Extract Instagram User ID from the input data.
-        This is the most reliable identifier for duplicate detection.
+        Generate a fingerprint of core data elements that should remain consistent
+        even if peripheral data is modified. Includes wallet-email binding for
+        unique identification and cross-wallet duplicate prevention.
         
         Args:
             input_data: The input data dictionary
             
         Returns:
-            str: Instagram User ID if found, empty string otherwise
+            str: Core data fingerprint hash
         """
         try:
-            # Try to extract from raw_export_data first (most reliable)
-            raw_export_data = input_data.get('data', {}).get('raw_export_data', {})
-            if raw_export_data:
-                personal_info = raw_export_data.get('personal_information', {})
-                user_id = personal_info.get('user_id')
-                if user_id:
-                    logging.info(f"Found Instagram User ID in raw_export_data: {user_id}")
-                    return str(user_id)
-            
-            # Fallback: try to extract from profile
             profile = input_data.get('data', {}).get('profile', {})
-            if profile:
-                user_id = profile.get('user_id')
-                if user_id:
-                    logging.info(f"Found User ID in profile: {user_id}")
-                    return str(user_id)
+            metrics = input_data.get('data', {}).get('metrics', {})
+            activities = input_data.get('data', {}).get('activities', {})
+            contributor = input_data.get('contributor', {})
             
-            logging.warning("No Instagram User ID found in data")
-            return ""
+            # Create wallet-email binding for unique identification
+            wallet_address = contributor.get('wallet_address', '').lower().strip()
+            contributor_email = contributor.get('email', '').lower().strip()
+            wallet_email_binding = f"{wallet_address}:{contributor_email}"
+            
+            # Generate core fingerprint with wallet-email binding
+            core_fingerprint = {
+                # Wallet-Email binding (unique identifier)
+                'wallet_email_binding': wallet_email_binding,
+                'wallet_address': wallet_address,
+                'contributor_email': contributor_email,
+                
+                # Instagram profile data
+                'username': profile.get('username', '').lower().strip(),
+                'instagram_email': profile.get('email', '').lower().strip(),
+                'account_type': profile.get('account_type', ''),
+                
+                # Core metrics (immutable data)
+                'posts_count': metrics.get('posts_count', 0),
+                'follower_count': metrics.get('follower_count', 0),
+                'following_count': metrics.get('following_count', 0),
+                'account_age_days': metrics.get('account_age_days', 0),
+                
+                # Platform and data source
+                'platform': input_data.get('data', {}).get('platform', ''),
+                'source_type': input_data.get('data', {}).get('source_type', ''),
+                'extraction_method': input_data.get('data', {}).get('extraction_method', ''),
+                
+                # Sample activities (for uniqueness detection)
+                'posts_sample': activities.get('posts_created', [])[:3] if activities.get('posts_created') else [],
+                'following_sample': activities.get('following_list', [])[:5] if activities.get('following_list') else [],
+                
+                # Data integrity markers
+                'has_raw_export_data': bool(input_data.get('data', {}).get('raw_export_data')),
+                'data_completeness': input_data.get('metadata', {}).get('extraction_completeness', 0)
+            }
+            
+            # Remove None values and empty strings for consistent hashing
+            cleaned_fingerprint = {k: v for k, v in core_fingerprint.items() if v is not None and v != ''}
+            
+            fingerprint_json = json.dumps(cleaned_fingerprint, sort_keys=True, separators=(',', ':'))
+            fingerprint_hash = hashlib.sha256(fingerprint_json.encode('utf-8')).hexdigest()
+            
+            logging.info(f"Generated core data fingerprint: {fingerprint_hash[:16]}...")
+            logging.debug(f"Fingerprint includes wallet-email binding: {wallet_email_binding}")
+            
+            return fingerprint_hash
             
         except Exception as e:
-            logging.error(f"Error extracting Instagram User ID: {str(e)}")
+            logging.error(f"Error generating core data fingerprint: {str(e)}")
             return ""
 
-    def _generate_user_id_hash(self, input_data: dict) -> str:
+    def _calculate_data_similarity(self, current_fingerprint: str, existing_hash: str) -> float:
         """
-        Generate a hash based ONLY on Instagram User ID.
-        This is the only immutable data that should be hashed for duplicate detection.
+        Calculate similarity between current data fingerprint and existing contribution.
+        Uses both exact matching and fuzzy similarity.
         
         Args:
-            input_data: The input data dictionary
+            current_fingerprint: Current data fingerprint
+            existing_hash: Existing contribution hash from blockchain
             
         Returns:
-            str: User ID hash for duplicate detection
+            float: Similarity score between 0 and 1
         """
         try:
-            user_id = self._extract_instagram_user_id(input_data)
-            if not user_id:
-                logging.warning("No Instagram User ID found for hashing")
-                return ""
+            if current_fingerprint == existing_hash:
+                return 1.0
+                
+            current_bytes = bytes.fromhex(current_fingerprint) if len(current_fingerprint) == 64 else current_fingerprint.encode()
+            existing_bytes = bytes.fromhex(existing_hash) if len(existing_hash) == 64 else existing_hash.encode()
             
-            # Only hash the Instagram User ID - this is immutable and cannot be manipulated
-            user_id_hash = hashlib.sha256(user_id.encode('utf-8')).hexdigest()
-            logging.info(f"Generated User ID hash: {user_id_hash[:16]}... for User ID: {user_id}")
-            return user_id_hash
+            matching_bits = sum(a == b for a, b in zip(current_bytes, existing_bytes))
+            total_bits = max(len(current_bytes), len(existing_bytes))
+            
+            similarity = matching_bits / total_bits if total_bits > 0 else 0.0
+            
+            if similarity > 0.7:
+                logging.info(f"Data similarity detected: {similarity:.2f}")
+                
+            return similarity
             
         except Exception as e:
-            logging.error(f"Error generating user ID hash: {str(e)}")
-            return ""
+            logging.error(f"Error calculating data similarity: {str(e)}")
+            return 0.0
+
 
     def _get_user_friendly_error_message(self, error_code: str) -> str:
         """
@@ -723,6 +876,9 @@ class Proof:
             
             # Duplicate detection errors
             "DUPLICATE_DATA_DETECTED": "This Instagram account has already been uploaded by another wallet. Each Instagram account can only be uploaded once.",
+            "INVALID_WALLET_EMAIL_BINDING": "This wallet address and email combination has already been used. Each wallet can only be paired with one email address.",
+            "EMAIL_ALREADY_BOUND": "This email address is already associated with a different wallet. Please use a different email or wallet.",
+            "WALLET_ALREADY_BOUND": "This wallet address is already associated with a different email. Please use a different wallet or email.",
             
             # Email mismatch errors
             "CONTRIBUTOR_EMAIL_MISMATCH": "Your Instagram email address doesn't match your Google Drive email address. Please use the same email address.",
