@@ -40,7 +40,10 @@ class Proof:
                 if self._check_duplicates(input_data, errors):
                     break
 
-                self._process_data_by_type(input_data, schema_type, schema_matches, google_user, errors)
+                if self._validate_raw_export_data(input_data, errors):
+                    self._process_data_by_type(input_data, schema_type, schema_matches, google_user, errors)
+                else:
+                    break
 
                 self.proof_response.metadata = {
                     "schema_type": schema_type,
@@ -89,6 +92,23 @@ class Proof:
                 logging.warning(f"Duplicate data detected for wallet: {wallet_address[:10]}...")
                 return True
         return False
+
+    def _validate_raw_export_data(self, input_data, errors):
+        try:
+            is_valid, validation_errors, completeness_score = self.duplicate_validator.validate_raw_export_data(input_data)
+            
+            if not is_valid:
+                errors.extend(validation_errors)
+                logging.error(f"Raw export data validation failed: {validation_errors}")
+                return False
+            
+            logging.info(f"Raw export data validation passed: {completeness_score:.1f}% complete")
+            return True
+            
+        except Exception as e:
+            logging.error(f"Error in raw export data validation: {str(e)}")
+            errors.append("RAW_EXPORT_VALIDATION_ERROR")
+            return False
 
     def _process_data_by_type(self, input_data, schema_type, schema_matches, google_user, errors):
         if schema_type == "instagram-meta-export.json":
