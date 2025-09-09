@@ -18,7 +18,7 @@ class Proof:
         self.duplicate_validator = DuplicateValidator()
         
     def generate(self) -> ProofResponse:
-        logging.info("Starting proof generation")
+        logging.info("Starting proof generation for vdatadao ")
         errors = []
 
         google_user = self._get_google_user(errors)
