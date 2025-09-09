@@ -103,15 +103,11 @@ class DuplicateValidator:
     def _generate_core_data_fingerprint(self, input_data: Dict[str, Any]) -> str:
         try:
             profile = input_data.get('data', {}).get('profile', {})
-            metrics = input_data.get('data', {}).get('metrics', {})
             
             core_fingerprint = {
                 'username': profile.get('username'),
                 'email': hashlib.sha256(str(profile.get('email', '')).encode('utf-8')).hexdigest(),
-                'account_type': profile.get('account_type'),
-                'posts_count': metrics.get('posts_count'),
-                'follower_count': metrics.get('follower_count'),
-                'following_count': metrics.get('following_count')
+                'account_type': profile.get('account_type')
             }
             
             fingerprint_json = json.dumps(core_fingerprint, sort_keys=True, separators=(',', ':'))
@@ -163,13 +159,18 @@ class DuplicateValidator:
 
     def _calculate_simple_hash(self, input_data: Dict[str, Any]) -> str:
         try:
+            profile = input_data.get('data', {}).get('profile', {})
+            
             core_data = {
                 'contribution_id': input_data.get('contribution_id'),
                 'contributor': input_data.get('contributor', {}),
                 'data': {
                     'platform': input_data.get('data', {}).get('platform'),
-                    'profile': input_data.get('data', {}).get('profile', {}),
-                    'metrics': input_data.get('data', {}).get('metrics', {})
+                    'profile': {
+                        'username': profile.get('username'),
+                        'email': hashlib.sha256(str(profile.get('email', '')).encode('utf-8')).hexdigest(),
+                        'account_type': profile.get('account_type')
+                    }
                 }
             }
             

@@ -23,27 +23,37 @@ class AIDetector:
         timestamp_score = self._analyze_timestamp_patterns(data)
         if timestamp_score > 0.7:
             indicators.append('SUSPICIOUS_TIMESTAMP')
-            confidence += 0.25
+            confidence += 0.20
         
         realism_score = self._check_data_realism(data)
         if realism_score < 0.5:
             indicators.append('UNREALISTIC_DATA')
-            confidence += 0.30
+            confidence += 0.25
         
         pattern_score = self._analyze_patterns(data)
         if pattern_score > 0.6:
             indicators.append('REGULAR_PATTERNS')
-            confidence += 0.20
+            confidence += 0.15
         
         diversity_score = self._analyze_content_diversity(data)
         if diversity_score < 0.4:
             indicators.append('LOW_DIVERSITY')
-            confidence += 0.15
+            confidence += 0.10
         
         consistency_score = self._check_consistency(data)
         if consistency_score < 0.6:
             indicators.append('INCONSISTENT_DATA')
             confidence += 0.10
+        
+        behavioral_score = self._analyze_behavioral_patterns(data)
+        if behavioral_score > 0.7:
+            indicators.append('ARTIFICIAL_BEHAVIOR')
+            confidence += 0.15
+        
+        language_score = self._analyze_language_patterns(data)
+        if language_score > 0.6:
+            indicators.append('ARTIFICIAL_LANGUAGE')
+            confidence += 0.05
         
         return {
             'is_ai_generated': confidence > 0.5,
@@ -54,8 +64,11 @@ class AIDetector:
                 'realism': realism_score,
                 'patterns': pattern_score,
                 'diversity': diversity_score,
-                'consistency': consistency_score
-            }
+                'consistency': consistency_score,
+                'behavioral': behavioral_score,
+                'language': language_score
+            },
+            'authenticity_impact': max(0.0, 1.0 - confidence)
         }
     
     def _analyze_timestamp_patterns(self, data: Dict) -> float:
@@ -374,6 +387,95 @@ class AIDetector:
             current = current[key]
         
         return current
+
+    def _analyze_behavioral_patterns(self, data: Dict) -> float:
+        """Analyze behavioral patterns for AI detection"""
+        score = 0.0
+        
+        activities = data.get('data', {}).get('activities', {})
+        metrics = data.get('data', {}).get('metrics', {})
+        
+        posts_count = metrics.get('posts_count', 0)
+        followers = metrics.get('follower_count', 0)
+        following = metrics.get('following_count', 0)
+        account_age_days = metrics.get('account_age_days', 1)
+        
+        if followers == 0 and following > 100:
+            score += 0.3
+        
+        if posts_count == 0 and following > 0:
+            score += 0.2
+        
+        following_list = activities.get('following_list', [])
+        if len(following_list) > 0:
+            usernames = [f.get('username', '') for f in following_list if f.get('username')]
+            if len(usernames) > 3:
+                sequential_count = 0
+                for i in range(1, len(usernames)):
+                    if usernames[i].startswith(usernames[i-1][:3]):
+                        sequential_count += 1
+                
+                if sequential_count / len(usernames) > 0.5:
+                    score += 0.2
+        
+        posts = activities.get('posts_created', [])
+        if len(posts) > 2:
+            creation_times = [p.get('creation_timestamp', 0) for p in posts]
+            creation_times.sort()
+            
+            intervals = []
+            for i in range(1, len(creation_times)):
+                if creation_times[i] > 0 and creation_times[i-1] > 0:
+                    intervals.append(creation_times[i] - creation_times[i-1])
+            
+            if len(intervals) > 0:
+                avg_interval = sum(intervals) / len(intervals)
+                if avg_interval < 3600:  # Posts less than 1 hour apart
+                    score += 0.15
+        
+        if account_age_days > 0:
+            activity_rate = (posts_count + len(following_list)) / account_age_days
+            if activity_rate > 50:  # Too much activity per day
+                score += 0.25
+        
+        return min(score, 1.0)
+    
+    def _analyze_language_patterns(self, data: Dict) -> float:
+        """Analyze language patterns for AI detection"""
+        score = 0.0
+        
+        profile = data.get('data', {}).get('profile', {})
+        contributor = data.get('contributor', {})
+        
+        username = profile.get('username', '').lower()
+        display_name = profile.get('display_name', '').lower()
+        contributor_name = contributor.get('name', '').lower()
+        
+        if username and display_name:
+            if username == display_name.replace(' ', ''):
+                score += 0.1
+        
+        if re.match(r'^[a-z]+\d{4,}$', username):
+            score += 0.2
+        
+        generic_words = ['user', 'test', 'admin', 'demo', 'sample', 'account', 'profile']
+        if any(word in username for word in generic_words):
+            score += 0.3
+        
+        if contributor_name:
+            words = contributor_name.split()
+            if len(words) == 2 and all(len(word) < 5 for word in words):
+                score += 0.2
+        
+        bio = profile.get('bio', '')
+        if bio:
+            if len(bio.split()) < 3 or bio.count(' ') == 0:
+                score += 0.1
+            
+            if any(generic in bio.lower() for generic in ['lorem', 'ipsum', 'test', 'demo']):
+                score += 0.3
+        
+        return min(score, 1.0)
 
 def both_exist(val1, val2) -> bool:
     """Check if both values exist and are not zero"""
