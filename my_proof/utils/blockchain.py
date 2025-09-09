@@ -49,33 +49,35 @@ class BlockchainClient:
 
     def get_contributor_files(self, wallet_address: str) -> list:
         """
-        Get all file hashes contributed by a specific wallet address.
+        Get all file IDs contributed by a specific wallet address.
         
         Args:
             wallet_address: The wallet address to check
             
         Returns:
-            list: List of file hashes contributed by the address
+            list: List of file IDs contributed by the address
         """
         try:
             contributor_info = self.contract.functions.contributorInfo(
                 Web3.to_checksum_address(wallet_address)
             ).call()
             
-            file_count = contributor_info[1]
-            file_hashes = []
+            file_count = contributor_info[1] if len(contributor_info) > 1 else 0
+            file_ids = []
             
             for i in range(file_count):
                 try:
-                    file_hash = self.contract.functions.contributorFiles(
+                    file_response = self.contract.functions.contributorFiles(
                         Web3.to_checksum_address(wallet_address), i
                     ).call()
-                    if file_hash:
-                        file_hashes.append(file_hash)
-                except:
+                    if file_response and len(file_response) > 0:
+                        file_id = file_response[0]  # fileId is first element in tuple
+                        file_ids.append(str(file_id))
+                except Exception as e:
+                    logging.debug(f"Error getting file {i} for {wallet_address[:10]}...: {str(e)}")
                     continue
                     
-            return file_hashes
+            return file_ids
             
         except Exception as e:
             logging.error(f"Error getting contributor files: {str(e)}")
@@ -95,10 +97,13 @@ class BlockchainClient:
             
             for i in range(contributor_count):
                 try:
-                    contributor_address = self.contract.functions.contributors(i).call()
-                    if contributor_address:
-                        contributors.append(contributor_address)
-                except:
+                    contributor_response = self.contract.functions.contributors(i).call()
+                    if contributor_response and len(contributor_response) > 0:
+                        contributor_address = contributor_response[0]  # contributorAddress is first element
+                        if contributor_address:
+                            contributors.append(contributor_address)
+                except Exception as e:
+                    logging.debug(f"Error getting contributor {i}: {str(e)}")
                     continue
                     
             return contributors
