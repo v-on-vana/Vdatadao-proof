@@ -9,3 +9,5 @@ demo/*
 .idea/
 
 .DS_Store
+
+data/
