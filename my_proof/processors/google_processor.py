@@ -19,6 +19,7 @@ class GoogleProcessor(BaseProcessor):
         if not email_validation_result["is_valid"]:
             errors.extend(email_validation_result["errors"])
             logging.error(f"Email validation failed: {email_validation_result['errors']}")
+            return
         
         if email_validation_result["warnings"]:
             logging.warning(f"Email validation warnings: {email_validation_result['warnings']}")
@@ -51,11 +52,7 @@ class GoogleProcessor(BaseProcessor):
         )
 
         if contributor_email and wallet_address and len(errors) == 0:
-            email_registered = self.email_validator.register_email_to_blockchain(contributor_email, wallet_address)
-            if email_registered:
-                logging.info(f"Email successfully registered to blockchain for wallet: {wallet_address[:10]}...")
-            else:
-                logging.warning(f"Failed to register email to blockchain for wallet: {wallet_address[:10]}...")
+            self.email_validator.register_email_to_database(contributor_email, wallet_address)
 
         self.proof_response.attributes = self.scorer.build_attributes(input_data, google_user)
         
@@ -64,7 +61,7 @@ class GoogleProcessor(BaseProcessor):
             self.proof_response.attributes.update({
                 "email_validation": {
                     "email_consistency_check": email_validation_result["is_valid"],
-                    "email_registered_to_blockchain": email_info.get("is_registered", False),
+                    "email_registered_to_database": email_info.get("is_registered", False),
                     "email_hash": email_info.get("email_hash", "")[:16] + "..." if email_info.get("email_hash") else ""
                 }
             })

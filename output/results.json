@@ -1,8 +1,8 @@
 {
   "dlp_id": 143,
   "valid": true,
-  "score": 0.540625,
-  "authenticity": 0.54,
+  "score": 0.533625,
+  "authenticity": 0.52,
   "ownership": 0.0,
   "quality": 0.82625,
   "uniqueness": 0.415,
@@ -24,15 +24,15 @@
     "private_account": false,
     "ai_detection": {
       "is_ai_generated": false,
-      "confidence": 0.1,
+      "confidence": 0.3,
       "indicators": [
         "LOW_DIVERSITY"
       ],
-      "authenticity_impact": 0.9
+      "authenticity_impact": 0.7
     },
     "email_validation": {
       "email_consistency_check": true,
-      "email_registered_to_blockchain": false,
+      "email_registered_to_database": true,
       "email_hash": "c2f9f29924838942..."
     }
   },

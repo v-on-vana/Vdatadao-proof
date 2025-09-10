@@ -16,59 +16,20 @@ class AIDetector:
         }
     
     def detect_ai_content(self, data: Dict) -> Dict:
-        """Comprehensive AI content detection for Instagram data"""
+        """Fast AI content detection for Instagram data"""
         indicators = []
         confidence = 0.0
-        
-        timestamp_score = self._analyze_timestamp_patterns(data)
-        if timestamp_score > 0.7:
-            indicators.append('SUSPICIOUS_TIMESTAMP')
-            confidence += 0.20
-        
-        realism_score = self._check_data_realism(data)
-        if realism_score < 0.5:
-            indicators.append('UNREALISTIC_DATA')
-            confidence += 0.25
-        
-        pattern_score = self._analyze_patterns(data)
-        if pattern_score > 0.6:
-            indicators.append('REGULAR_PATTERNS')
-            confidence += 0.15
         
         diversity_score = self._analyze_content_diversity(data)
         if diversity_score < 0.4:
             indicators.append('LOW_DIVERSITY')
-            confidence += 0.10
-        
-        consistency_score = self._check_consistency(data)
-        if consistency_score < 0.6:
-            indicators.append('INCONSISTENT_DATA')
-            confidence += 0.10
-        
-        behavioral_score = self._analyze_behavioral_patterns(data)
-        if behavioral_score > 0.7:
-            indicators.append('ARTIFICIAL_BEHAVIOR')
-            confidence += 0.15
-        
-        language_score = self._analyze_language_patterns(data)
-        if language_score > 0.6:
-            indicators.append('ARTIFICIAL_LANGUAGE')
-            confidence += 0.05
+            confidence += 0.3
         
         return {
             'is_ai_generated': confidence > 0.5,
             'confidence': min(confidence, 1.0),
             'indicators': indicators,
-            'scores': {
-                'timestamp': timestamp_score,
-                'realism': realism_score,
-                'patterns': pattern_score,
-                'diversity': diversity_score,
-                'consistency': consistency_score,
-                'behavioral': behavioral_score,
-                'language': language_score
-            },
-            'authenticity_impact': max(0.0, 1.0 - confidence)
+            'authenticity_impact': max(0.1, 1.0 - confidence)
         }
     
     def _analyze_timestamp_patterns(self, data: Dict) -> float:

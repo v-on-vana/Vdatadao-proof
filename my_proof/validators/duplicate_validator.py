@@ -4,6 +4,7 @@ import logging
 from typing import Dict, Any
 
 from my_proof.utils.blockchain import BlockchainClient
+from my_proof.utils.db import DataRegistry, hash_email
 from my_proof.config import settings
 
 class DuplicateValidator:
@@ -15,6 +16,13 @@ class DuplicateValidator:
         except Exception as e:
             logging.warning(f"Blockchain client initialization failed: {str(e)}")
             self.blockchain_available = False
+        
+        try:
+            self.data_registry = DataRegistry()
+            self.db_available = True
+        except Exception as e:
+            logging.error(f"Data registry initialization failed: {str(e)}")
+            self.db_available = False
     
     def check_for_duplicate_data(self, input_data: Dict[str, Any], wallet_address: str, contributor_email: str) -> bool:
         try:
@@ -187,15 +195,18 @@ class DuplicateValidator:
 
     def _check_wallet_email_binding(self, wallet_address: str, contributor_email: str) -> bool:
         try:
-            if not contributor_email:
+            if not contributor_email or not self.db_available:
                 return False
                 
-            email_hash = hashlib.sha256(contributor_email.encode('utf-8')).hexdigest()
-            is_registered, registered_wallet = self.blockchain_client.is_email_hash_registered(email_hash)
+            email_hash = hash_email(contributor_email)
+            is_registered, registered_wallet = self.data_registry.is_email_hash_registered(email_hash)
             
             if is_registered and registered_wallet and str(registered_wallet).lower() != str(wallet_address).lower():
                 logging.warning(f"Email {contributor_email[:10]}... already registered to different wallet {str(registered_wallet)[:10]}...")
                 return True
+            
+            if not is_registered:
+                self.data_registry.register_email_hash(email_hash, wallet_address)
                 
             return False
             
@@ -206,45 +217,31 @@ class DuplicateValidator:
     def validate_raw_export_data(self, input_data: Dict[str, Any]) -> tuple:
         try:
             data_section = input_data.get('data', {})
-            raw_export_data = data_section.get('raw_export_data')
             
-            validation_errors = []
-            completeness_score = 0.0
+            if not data_section.get('raw_export_data'):
+                return False, ["MISSING_RAW_EXPORT_DATA"], 0.0
             
-            if not raw_export_data:
-                validation_errors.append("MISSING_RAW_EXPORT_DATA")
-                return False, validation_errors, completeness_score
+            required_sections = ['profile', 'activities', 'metrics']
+            required_fields = ['username', 'email', 'account_type', 'posts_count', 'following_count', 'follower_count']
             
-            required_sections = {
-                'profile': ['username', 'email', 'account_type'],
-                'activities': ['following_list', 'posts_created'],
-                'metrics': ['posts_count', 'following_count', 'follower_count']
-            }
-            
-            total_required = sum(len(fields) for fields in required_sections.values())
             found_fields = 0
+            total_required = len(required_fields)
             
-            for section, fields in required_sections.items():
-                section_data = data_section.get(section, {})
-                if not section_data:
-                    validation_errors.append(f"MISSING_SECTION_{section.upper()}")
-                    continue
-                    
-                for field in fields:
-                    if field in section_data and section_data[field] is not None:
-                        found_fields += 1
-                    else:
-                        validation_errors.append(f"MISSING_FIELD_{field.upper()}")
+            profile = data_section.get('profile', {})
+            activities = data_section.get('activities', {})
+            metrics = data_section.get('metrics', {})
             
-            completeness_score = (found_fields / total_required) * 100.0 if total_required > 0 else 0.0
+            if profile.get('username'): found_fields += 1
+            if profile.get('email'): found_fields += 1  
+            if profile.get('account_type'): found_fields += 1
+            if metrics.get('posts_count') is not None: found_fields += 1
+            if metrics.get('following_count') is not None: found_fields += 1
+            if metrics.get('follower_count') is not None: found_fields += 1
             
-            if completeness_score < 70:
-                validation_errors.append("INCOMPLETE_EXPORT_DATA")
+            completeness_score = (found_fields / total_required) * 100.0
+            is_valid = completeness_score >= 70.0
             
-            is_valid = len(validation_errors) == 0
-            logging.info(f"Raw export validation: {completeness_score:.1f}% complete, valid: {is_valid}")
-            
-            return is_valid, validation_errors, completeness_score
+            return is_valid, [], completeness_score
             
         except Exception as e:
             logging.error(f"Error validating raw export data: {str(e)}")

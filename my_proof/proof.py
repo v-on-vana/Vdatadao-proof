@@ -24,7 +24,6 @@ class Proof:
         google_user = self._get_google_user(errors)
 
         for input_filename in os.listdir(settings.INPUT_DIR):
-            logging.info(f"Checking file: {input_filename}")
             input_file = os.path.join(settings.INPUT_DIR, input_filename)
 
             if os.path.splitext(input_file)[1].lower() == ".json":

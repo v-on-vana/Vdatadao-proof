@@ -3,6 +3,7 @@ import hashlib
 from typing import Dict, Any, Optional
 
 from my_proof.utils.blockchain import BlockchainClient
+from my_proof.utils.db import DataRegistry, hash_email
 from my_proof.config import settings
 
 class EmailValidator:
@@ -14,6 +15,13 @@ class EmailValidator:
         except Exception as e:
             logging.warning(f"Blockchain client initialization failed: {str(e)}")
             self.blockchain_available = False
+        
+        try:
+            self.data_registry = DataRegistry()
+            self.db_available = True
+        except Exception as e:
+            logging.error(f"Data registry initialization failed: {str(e)}")
+            self.db_available = False
     
     def validate_email_consistency(self, google_user: Optional[Any], input_data: Dict[str, Any]) -> Dict[str, Any]:
         validation_result = {
@@ -69,25 +77,16 @@ class EmailValidator:
             logging.error(f"Error checking email duplication: {str(e)}")
             return False
     
-    def register_email_to_blockchain(self, email: str, wallet_address: str) -> bool:
+    def register_email_to_database(self, email: str, wallet_address: str) -> bool:
         try:
-            if not self.blockchain_available:
-                logging.warning("Blockchain not available, skipping email registration")
+            if not self.db_available:
                 return False
             
-            email_hash = self._hash_email(email)
-            
-            success = self._register_email_hash(email_hash, wallet_address)
-            
-            if success:
-                logging.info(f"Email successfully registered to blockchain: {email[:10]}...")
-                return True
-            else:
-                logging.error(f"Failed to register email to blockchain: {email[:10]}...")
-                return False
+            email_hash = hash_email(email)
+            return self.data_registry.register_email_hash(email_hash, wallet_address)
                 
         except Exception as e:
-            logging.error(f"Error registering email to blockchain: {str(e)}")
+            logging.error(f"Error registering email: {str(e)}")
             return False
     
     def _hash_email(self, email: str) -> str:
@@ -103,13 +102,6 @@ class EmailValidator:
             logging.error(f"Error checking if email is registered: {str(e)}")
             return False
     
-    def _register_email_hash(self, email_hash: str, wallet_address: str) -> bool:
-        try:
-            return self.blockchain_client.register_email_hash(email_hash, wallet_address)
-            
-        except Exception as e:
-            logging.error(f"Error registering email hash: {str(e)}")
-            return False
     
     def _extract_email_hash_from_metadata(self, file_metadata: Any) -> Optional[str]:
         try:
@@ -122,9 +114,12 @@ class EmailValidator:
     
     def get_email_registration_info(self, email: str) -> Dict[str, Any]:
         try:
-            email_hash = self._hash_email(email)
+            email_hash = hash_email(email)
             
-            is_registered, registered_wallet = self.blockchain_client.is_email_hash_registered(email_hash)
+            if not self.db_available:
+                return {"is_registered": False, "email_hash": email_hash}
+            
+            is_registered, registered_wallet = self.data_registry.is_email_hash_registered(email_hash)
             
             if not is_registered:
                 return {
