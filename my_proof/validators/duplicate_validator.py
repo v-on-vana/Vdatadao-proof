@@ -111,10 +111,13 @@ class DuplicateValidator:
     def _generate_core_data_fingerprint(self, input_data: Dict[str, Any]) -> str:
         try:
             profile = input_data.get('data', {}).get('profile', {})
+            contributor = input_data.get('contributor', {})
             
             core_fingerprint = {
-                'username': profile.get('username'),
-                'email': hashlib.sha256(str(profile.get('email', '')).encode('utf-8')).hexdigest(),
+                'wallet_address': contributor.get('wallet_address'),
+                'contributor_email': contributor.get('email'),
+                'profile_username': profile.get('username'),
+                'profile_email': hashlib.sha256(str(profile.get('email', '')).encode('utf-8')).hexdigest(),
                 'account_type': profile.get('account_type')
             }
             
