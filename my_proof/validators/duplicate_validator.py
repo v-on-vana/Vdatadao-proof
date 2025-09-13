@@ -7,36 +7,45 @@ from my_proof.utils.db import DataRegistry, hash_email
 from my_proof.config import settings
 
 class DuplicateValidator:
+    # Bu class sahte/tekrar veri tespiti yapıyor - en önemli güvenlik kısmı
     
     def __init__(self):
-        
+        # Database bağlantısı kuruyoruz, yoksa çalışmaz
         try:
             self.data_registry = DataRegistry()
             self.db_available = True
         except Exception as e:
             logging.error(f"Data registry initialization failed: {str(e)}")
             self.db_available = False
+        
+        # Hash cache - performance için aynı hash'leri tekrar hesaplamayız
+        self._cached_hashes = None
     
     def check_for_duplicate_data(self, input_data: Dict[str, Any], wallet_address: str, contributor_email: str) -> Tuple[bool, str]:
-        """
-        Complete duplicate data validation with wallet+email+data combination rules.
-        
-        Returns:
-            Tuple: (is_duplicate: bool, reason: str)
-        """
+        # Ana kontrol fonksiyonu - burda her şey kontrol ediliyor
+        # wallet + email + veri kombinasyonu hiç görülmüşmü diye bakıyoruz
         try:
             if not self.db_available:
                 logging.warning("Database not available, skipping duplicate data check")
                 return False, "DATABASE_UNAVAILABLE"
             
-            data_hash = self.calculate_data_hash(input_data)
-            fingerprint = self._generate_core_data_fingerprint(input_data)
-            email_hash = hash_email(contributor_email)
+            # Önce verinin hash'ini ve parmak izini çıkarıyoruz
+            data_hash = self.calculate_data_hash(input_data)  # tüm veri için hash
+            fingerprint = self._generate_core_data_fingerprint(input_data)  # aktivite parmak izi
+            email_hash = hash_email(contributor_email)  # email hash'i
             
             if not data_hash or not fingerprint:
                 logging.error("Failed to generate data hash or fingerprint")
                 return False, "HASH_GENERATION_ERROR"
             
+            # Hash'leri cache'liyoruz - register_valid_data'da tekrar kullanmak için
+            self._cached_hashes = {
+                'data_hash': data_hash,
+                'fingerprint': fingerprint,
+                'email_hash': email_hash
+            }
+            
+            # Asıl kontrolü database'de yapıyoruz - ultra sıkı kurallar
             is_duplicate, reason = self.data_registry.check_data_duplicate(
                 data_hash, fingerprint, wallet_address, email_hash
             )
@@ -53,21 +62,25 @@ class DuplicateValidator:
             return False, f"ERROR: {str(e)}"
 
     def calculate_data_hash(self, input_data: Dict[str, Any]) -> str:
+        # Gelen verinin SHA256 hash'ini hesaplıyoruz - tekrar veri tespiti için kullanılacak
         try:
             normalized_data = json.loads(json.dumps(input_data))
             
+            # Bu alanları hash'e dahil etmiyoruz çünkü her seferinde değişiyorlar
             fields_to_exclude = [
                 'created_at', 'updated_at', 'processing_timestamp',
                 'collection_date', 'metadata.processing_timestamp',
                 'metadata.collection_date', 'data.raw_export_data'
             ]
             
+            # Gereksiz alanları temizliyoruz
             for field_path in fields_to_exclude:
                 self._remove_nested_field(normalized_data, field_path)
             
             data_size = len(str(normalized_data))
             logging.info(f"Normalizing data for hash (size: {data_size} chars)")
             
+            # JSON'u normalize edip SHA256 hash alıyoruz
             normalized_json = json.dumps(normalized_data, sort_keys=True, separators=(',', ':'))
             data_hash = hashlib.sha256(normalized_json.encode('utf-8')).hexdigest()
             
@@ -76,7 +89,7 @@ class DuplicateValidator:
             
         except (MemoryError, UnicodeError) as e:
             logging.error(f"Memory/encoding error in hash calculation: {str(e)}")
-            return self._calculate_simple_hash(input_data)
+            return self._calculate_simple_hash(input_data)  # hata olursa basit hash kullan
         except Exception as e:
             logging.error(f"Error calculating data hash: {str(e)}")
             return self._calculate_simple_hash(input_data)
@@ -110,20 +123,84 @@ class DuplicateValidator:
             return False
 
     def _generate_core_data_fingerprint(self, input_data: Dict[str, Any]) -> str:
+        # EN ÖNEMLİ FONKSİYON! Sahte veri tespiti burada yapılıyor
+        # Following, post, beğeni aktivitelerine bakıyoruz - profil bilgisi değil
         try:
-            profile = input_data.get('data', {}).get('profile', {})
+            data_section = input_data.get('data', {})
+            activities = data_section.get('activities', {})
             
-            core_fingerprint = {
-                'username': profile.get('username'),
-                'email': hashlib.sha256(str(profile.get('email', '')).encode('utf-8')).hexdigest(),
-                'account_type': profile.get('account_type')
-            }
+            # Aktivite bazlı parmak izi - profil bağımsız
+            activity_fingerprint = {}
             
-            fingerprint_json = json.dumps(core_fingerprint, sort_keys=True, separators=(',', ':'))
-            return hashlib.sha256(fingerprint_json.encode('utf-8')).hexdigest()
+            # Takip listesi imzası - sahte takip listelerini engelliyor
+            following_list = activities.get('following_list', [])
+            if following_list and len(following_list) >= 3:
+                # TÜM takip edilenlerin imzasını alıyoruz - güçlü tespit için
+                following_signature = []
+                for follow in following_list:  # tüm following verisini dahil et
+                    if follow.get('username') and follow.get('followed_at'):
+                        following_signature.append({
+                            'username': follow.get('username'),  # kimi takip etmiş
+                            'followed_at': follow.get('followed_at')  # ne zaman takip etmiş
+                        })
+                activity_fingerprint['following_signature'] = following_signature
+            
+            # Post imzası - sahte post verilerini engelliyor
+            posts_created = activities.get('posts_created', [])
+            if posts_created:
+                posts_signature = []
+                for post in posts_created:  # tüm postları al
+                    if post.get('creation_timestamp'):
+                        posts_signature.append({
+                            'creation_timestamp': post.get('creation_timestamp'),  # post zamanı
+                            'title': post.get('title', ''),  # post başlığı
+                            'source_app': post.get('source_app'),  # hangi uygulamadan
+                            'has_photo': post.get('has_photo'),  # fotoğraf varmı
+                            'has_camera_metadata': post.get('has_camera_metadata')  # kamera bilgisi
+                        })
+                activity_fingerprint['posts_signature'] = posts_signature
+            
+            # Beğeni imzası - sahte beğeni verilerini engelliyor
+            likes_given = activities.get('likes_given', [])
+            if likes_given:
+                likes_signature = []
+                for like in likes_given:
+                    likes_signature.append({
+                        'target_username': like.get('target_username'),  # kimi beğenmiş
+                        'count': like.get('count'),  # kaç kez
+                        'last_activity': like.get('last_activity')  # son aktivite
+                    })
+                activity_fingerprint['likes_signature'] = likes_signature
+            
+            # Yorum imzası - sahte yorum tespiti
+            comments_made = activities.get('comments_made', [])
+            if comments_made:
+                comments_signature = []
+                for comment in comments_made:
+                    if comment.get('timestamp'):
+                        comments_signature.append({
+                            'timestamp': comment.get('timestamp'),  # yorum zamanı
+                            'content': comment.get('content', '')[:20]  # ilk 20 karakter
+                        })
+                activity_fingerprint['comments_signature'] = comments_signature
+            
+            # Eğer önemli aktivite yoksa temel profili kullan
+            if not activity_fingerprint:
+                profile = data_section.get('profile', {})
+                activity_fingerprint = {
+                    'username': profile.get('username'),
+                    'account_type': profile.get('account_type')
+                }
+            
+            # Aktivite parmak izini hash'e çevir
+            fingerprint_json = json.dumps(activity_fingerprint, sort_keys=True, separators=(',', ':'))
+            fingerprint_hash = hashlib.sha256(fingerprint_json.encode('utf-8')).hexdigest()
+            
+            logging.info(f"Generated activity fingerprint: {fingerprint_hash[:16]}... from {len(activity_fingerprint)} activity types")
+            return fingerprint_hash
             
         except Exception as e:
-            logging.error(f"Error generating core data fingerprint: {str(e)}")
+            logging.error(f"Error generating activity fingerprint: {str(e)}")
             return ""
 
     def _calculate_data_similarity(self, current_fingerprint: str, existing_hash: str) -> float:
@@ -216,25 +293,25 @@ class DuplicateValidator:
             return False
 
     def register_valid_data(self, input_data: Dict[str, Any], wallet_address: str, contributor_email: str) -> bool:
-        """
-        Register valid data hash, fingerprint and wallet to the database.
-        
-        Args:
-            input_data: The validated input data
-            wallet_address: Wallet address of the contributor
-            contributor_email: Email of the contributor
-            
-        Returns:
-            bool: True if registration successful
-        """
+        # Başarılı geçen veriyi database'e kayıt ediyoruz
+        # Wallet + veri hash + parmak izi hepsini saklıyoruz ki sonra kontrol edebilelim
         try:
             if not self.db_available:
                 logging.warning("Database not available, skipping data registration")
                 return False
             
-            data_hash = self.calculate_data_hash(input_data)
-            fingerprint = self._generate_core_data_fingerprint(input_data)
-            email_hash = hash_email(contributor_email)
+            # Cache'den hash'leri al - tekrar hesaplamak yerine (PERFORMANCE İYİLEŞTİRMESİ!)
+            if hasattr(self, '_cached_hashes') and self._cached_hashes:
+                data_hash = self._cached_hashes['data_hash']
+                fingerprint = self._cached_hashes['fingerprint']
+                email_hash = self._cached_hashes['email_hash']
+                logging.info("Using cached hashes for registration (performance optimization)")
+            else:
+                # Cache yoksa tekrar hesapla (fallback)
+                logging.warning("No cached hashes found, recalculating...")
+                data_hash = self.calculate_data_hash(input_data)
+                fingerprint = self._generate_core_data_fingerprint(input_data)
+                email_hash = hash_email(contributor_email)
             
             if not data_hash or not fingerprint:
                 logging.error("Failed to generate data hash or fingerprint for registration")
@@ -243,15 +320,19 @@ class DuplicateValidator:
             contribution_id = input_data.get('contribution_id')
             platform = input_data.get('data', {}).get('platform', 'instagram')
             
-            # Register wallet first (since this is the first time for this wallet)
+            # Önce wallet'ı kaydet (bu wallet'ın ilk submission'ı olduğu için)
             wallet_success = self.data_registry.register_wallet(
                 wallet_address, email_hash, data_hash, platform
             )
             
-            # Register data hash
+            # Sonra veri hash'ini kaydet
             data_success = self.data_registry.register_data_hash(
                 data_hash, fingerprint, wallet_address, email_hash, contribution_id, platform
             )
+            
+            # Cache'i temizle - bir sonraki submission için
+            if hasattr(self, '_cached_hashes'):
+                delattr(self, '_cached_hashes')
             
             if wallet_success and data_success:
                 logging.info(f"Successfully registered wallet and data for {wallet_address[:10]}...")

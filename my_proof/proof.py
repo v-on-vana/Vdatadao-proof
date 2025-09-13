@@ -14,25 +14,34 @@ from my_proof.validators.email_validator import EmailValidator
 from my_proof.config import settings
 
 class Proof:
+    # Ana proof class'ı - tüm validation işlemleri burada yapılıyor
+    
     def __init__(self):
+        # Başlangıç ayarları - response objesi ve validator'ları hazırlıyoruz
         self.proof_response = ProofResponse(dlp_id=settings.DLP_ID)
-        self.duplicate_validator = DuplicateValidator()
-        self.email_validator = EmailValidator()
+        self.duplicate_validator = DuplicateValidator()  # sahte veri kontrol edici
+        self.email_validator = EmailValidator()  # email kontrol edici
         
     def generate(self) -> ProofResponse:
+        # ANA FONKSİYON - Burda tüm validation süreci işliyor
+        # 6 aşamalı kontrol sistemi ile çalışıyor
         logging.info("Starting proof generation for vdatadao with improved validation flow")
         errors = []
 
+        # Google kullanıcı doğrulaması (opsiyonel)
         google_user = self._get_google_user(errors)
 
+        # Input klasöründeki JSON dosyalarını tek tek işle
         for input_filename in os.listdir(settings.INPUT_DIR):
             input_file = os.path.join(settings.INPUT_DIR, input_filename)
 
             if os.path.splitext(input_file)[1].lower() == ".json":
+                # Dosyayı yükle ve parse et
                 input_data = self._load_and_validate_file(input_file, errors)
                 if not input_data:
                     continue
                 
+                # Temel bilgileri çıkar - bunlar olmadan işlem yapamayız
                 contributor_email = input_data.get('contributor', {}).get('email')
                 wallet_address = input_data.get('contributor', {}).get('wallet_address')
                 
@@ -41,7 +50,7 @@ class Proof:
                     logging.error("Missing contributor email or wallet address")
                     break
                 
-                # STEP 1: SCHEMA VALIDATION
+                # AŞAMA 1: ŞEMA KONTROLÜ - veri yapısı doğru mu?
                 logging.info("Step 1: Schema validation")
                 schema_type, schema_matches = validate_schema(input_data)
                 if not schema_matches:
@@ -49,7 +58,8 @@ class Proof:
                     logging.error(f"Schema validation failed for {schema_type}")
                     break
 
-                # STEP 2: DUPLICATE DATA CHECK
+                # AŞAMA 2: DUPLICATE DATA KONTROLÜ - en kritik kısım!
+                # Wallet, email, veri hash, aktivite parmak izi hepsi kontrol ediliyor
                 logging.info("Step 2: Duplicate data validation")
                 is_duplicate, duplicate_reason = self.duplicate_validator.check_for_duplicate_data(
                     input_data, wallet_address, contributor_email
@@ -59,7 +69,8 @@ class Proof:
                     logging.error(f"Duplicate data detected: {duplicate_reason}")
                     break
 
-                # STEP 3: EMAIL CONSISTENCY CHECK
+                # AŞAMA 3: EMAIL UYUMLULUK KONTROLÜ
+                # Contributor email ile Instagram email aynımı?
                 logging.info("Step 3: Email consistency validation")
                 email_validation_result = self.email_validator.validate_email_consistency(google_user, input_data)
                 if not email_validation_result["is_valid"]:
@@ -67,19 +78,22 @@ class Proof:
                     logging.error(f"Email validation failed: {email_validation_result['errors']}")
                     break
                 
-                # Note: Email duplication is now checked within duplicate data validation
+                # Not: Email duplication artık duplicate data validation içinde kontrol ediliyor
                 
-                # STEP 4: RAW DATA VALIDATION
+                # AŞAMA 4: HAM VERİ KONTROLÜ
+                # Raw export data yeterli mi? boyutu uygun mu?
                 logging.info("Step 4: Raw data validation")
                 if not self._validate_raw_export_data_simple(input_data, errors):
                     logging.error("Raw data validation failed")
                     break
 
-                # STEP 5: PROCESS DATA & CALCULATE SCORES
+                # AŞAMA 5: VERİ İŞLEME VE SKORLAMA
+                # Instagram/Google işlemcisi ile veriler analiz ediliyor
                 logging.info("Step 5: Processing data and calculating scores")
                 self._process_data_by_type(input_data, schema_type, schema_matches, google_user, errors)
                 
-                # STEP 6: SAVE TO DATABASE (only if no errors)
+                # AŞAMA 6: DATABASE'E KAYDETME (sadece hata yoksa)
+                # Geçerli veriyi kalıcı olarak saklıyoruz
                 if len(errors) == 0:
                     logging.info("Step 6: Saving valid data to database")
                     data_saved = self.duplicate_validator.register_valid_data(input_data, wallet_address, contributor_email)
@@ -93,7 +107,7 @@ class Proof:
                 self.proof_response.metadata = {
                     "schema_type": schema_type,
                     "validation_steps_completed": 6,
-                    "duplicate_check_reason": duplicate_reason if not is_duplicate else "NO_DUPLICATE"
+                    "duplicate_check_reason": duplicate_reason if is_duplicate else "NO_DUPLICATE"
                 }
 
                 self.proof_response.valid = len(errors) == 0
@@ -132,48 +146,50 @@ class Proof:
 
 
     def _validate_raw_export_data_simple(self, input_data, errors):
+        # Ham Instagram/Google export verisinin yeterli olup olmadığını kontrol ediyor
+        # Sahte minimal verilerle gelen submission'ları engellemek için
         try:
             data_section = input_data.get('data', {})
             profile = data_section.get('profile', {})
             
-            # 1. Profile temel kontrolü
+            # 1. Profil temel kontrolü - username ve email olmadan olmaz
             if not profile.get('username') or not profile.get('email'):
                 errors.append("MISSING_BASIC_PROFILE_DATA")
                 return False
                 
-            # 2. Raw export data varlığı kontrolü
+            # 2. Raw export data varlık kontrolü - asıl veriler burada
             raw_export_data = data_section.get('raw_export_data', {})
             if not raw_export_data:
                 errors.append("MISSING_RAW_EXPORT_DATA")
                 return False
                 
-            # 3. Kategori sayısı kontrolü (minimum 3 kategori olmalı)
+            # 3. Kategori sayısı kontrolü - çok az kategori varsa şüpheli
             category_count = len(raw_export_data)
             if category_count < 3:
                 errors.append("INSUFFICIENT_RAW_DATA_CATEGORIES")
                 logging.warning(f"Raw data has only {category_count} categories, minimum 3 required")
                 return False
                 
-            # 4. İçerik boyutu kontrolü
+            # 4. İçerik boyutu hesaplama
             total_content_size = 0
             categories_with_content = 0
             
             for category_name, category_data in raw_export_data.items():
                 if isinstance(category_data, dict) and 'content' in category_data:
                     content = category_data['content']
-                    if content:  # Content boş değilse
+                    if content:  # İçerik boş değilse say
                         content_size = len(str(content))
                         total_content_size += content_size
                         categories_with_content += 1
                         
-            # 5. Minimum data size kontrolü (en az 10KB raw data olmalı)
-            min_required_size = 10000  # 10KB
+            # 5. Minimum boyut kontrolü - çok küçük data sahte olabilir
+            min_required_size = 10000  # 10KB minimum
             if total_content_size < min_required_size:
                 errors.append("INSUFFICIENT_RAW_DATA_SIZE")
                 logging.warning(f"Raw data size {total_content_size} bytes, minimum {min_required_size} required")
                 return False
                 
-            # 6. İçerikli kategori kontrolü (en az 2 kategori içerik sahibi olmalı)
+            # 6. İçerikli kategori kontrolü - en az 2 kategori dolu olmalı
             if categories_with_content < 2:
                 errors.append("INSUFFICIENT_CONTENT_CATEGORIES")
                 logging.warning(f"Only {categories_with_content} categories have content, minimum 2 required")
@@ -188,10 +204,12 @@ class Proof:
             return False
 
     def _process_data_by_type(self, input_data, schema_type, schema_matches, google_user, errors):
+        # Veri tipine göre doğru işlemciyi seç - Instagram vs Google
+        # Her platform'un kendine özel analiz yöntemi var
         if schema_type == "instagram-meta-export.json":
-            processor = InstagramProcessor(self.proof_response)
+            processor = InstagramProcessor(self.proof_response)  # Instagram verisi
             processor.process_data(input_data, schema_matches, google_user, errors)
         else:
-            processor = GoogleProcessor(self.proof_response)
+            processor = GoogleProcessor(self.proof_response)  # Google verisi
             processor.process_data(input_data, schema_matches, google_user, errors)
 
