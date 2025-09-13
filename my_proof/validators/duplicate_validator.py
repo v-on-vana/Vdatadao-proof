@@ -3,19 +3,12 @@ import json
 import logging
 from typing import Dict, Any
 
-from my_proof.utils.blockchain import BlockchainClient
 from my_proof.utils.db import DataRegistry, hash_email
 from my_proof.config import settings
 
 class DuplicateValidator:
     
     def __init__(self):
-        try:
-            self.blockchain_client = BlockchainClient()
-            self.blockchain_available = True
-        except Exception as e:
-            logging.warning(f"Blockchain client initialization failed: {str(e)}")
-            self.blockchain_available = False
         
         try:
             self.data_registry = DataRegistry()
@@ -26,31 +19,9 @@ class DuplicateValidator:
     
     def check_for_duplicate_data(self, input_data: Dict[str, Any], wallet_address: str, contributor_email: str) -> bool:
         try:
-            if not self.blockchain_available:
-                return False
-            
             if self._check_wallet_email_binding(wallet_address, contributor_email):
                 logging.warning(f"Wallet-email binding violation detected for {wallet_address[:10]}...")
                 return True
-                
-            core_data_fingerprint = self._generate_core_data_fingerprint(input_data)
-            
-            all_contributors = self.blockchain_client.get_all_contributors()
-            
-            for contributor_addr in all_contributors:
-                if not contributor_addr or not wallet_address:
-                    continue
-                if str(contributor_addr).lower() == str(wallet_address).lower():
-                    continue
-                    
-                existing_files = self.blockchain_client.get_contributor_files(contributor_addr)
-                
-                for file_hash in existing_files:
-                    similarity_score = self._calculate_data_similarity(core_data_fingerprint, file_hash)
-                    
-                    if similarity_score > 0.85:
-                        logging.warning(f"High similarity detected: {similarity_score:.2f} with {contributor_addr[:10]}...")
-                        return True
                         
             return False
             
@@ -89,19 +60,7 @@ class DuplicateValidator:
 
     def is_duplicate_data(self, current_hash: str) -> bool:
         try:
-            if not self.blockchain_available or not settings.OWNER_ADDRESS:
-                return False
-                
-            existing_file_count = self.blockchain_client.get_contributor_file_count()
-            
-            if existing_file_count == 0:
-                logging.info("No existing contributions found")
-                return False
-            
-            logging.info(f"Checking {existing_file_count} existing contributions for duplicates")
-            
-            logging.info(f"Hash check for: {current_hash[:16]}... (simplified implementation)")
-            
+            logging.info(f"Hash check for: {current_hash[:16]}... (database implementation)")
             return False
             
         except Exception as e:

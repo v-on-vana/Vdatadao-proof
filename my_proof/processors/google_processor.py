@@ -14,22 +14,8 @@ class GoogleProcessor(BaseProcessor):
         self.email_validator = EmailValidator()
     
     def process_data(self, input_data: Dict[str, Any], schema_matches: bool, google_user: Optional[Any], errors: List[str]) -> None:
-        email_validation_result = self.email_validator.validate_email_consistency(google_user, input_data)
-        
-        if not email_validation_result["is_valid"]:
-            errors.extend(email_validation_result["errors"])
-            logging.error(f"Email validation failed: {email_validation_result['errors']}")
-            return
-        
-        if email_validation_result["warnings"]:
-            logging.warning(f"Email validation warnings: {email_validation_result['warnings']}")
-        
         contributor_email = input_data.get('contributor', {}).get('email')
         wallet_address = input_data.get('contributor', {}).get('wallet_address')
-        
-        if contributor_email and self.email_validator.check_email_duplication(contributor_email):
-            errors.append("EMAIL_ALREADY_REGISTERED")
-            logging.error(f"Email {contributor_email[:10]}... is already registered in blockchain")
 
         if google_user:
             profile_matches = self.verify_profile_match(google_user, input_data)
@@ -51,20 +37,20 @@ class GoogleProcessor(BaseProcessor):
             quality_score, authenticity_score, uniqueness_score, ownership_score
         )
 
-        if contributor_email and wallet_address and len(errors) == 0:
-            self.email_validator.register_email_to_database(contributor_email, wallet_address)
-
         self.proof_response.attributes = self.scorer.build_attributes(input_data, google_user)
         
         if contributor_email:
             email_info = self.email_validator.get_email_registration_info(contributor_email)
             self.proof_response.attributes.update({
                 "email_validation": {
-                    "email_consistency_check": email_validation_result["is_valid"],
                     "email_registered_to_database": email_info.get("is_registered", False),
                     "email_hash": email_info.get("email_hash", "")[:16] + "..." if email_info.get("email_hash") else ""
                 }
             })
+        
+        if contributor_email and wallet_address and len(errors) == 0:
+            logging.info(f"Registering email to database: {contributor_email[:10]}...")
+            self.email_validator.register_email_to_database(contributor_email, wallet_address)
 
     def verify_profile_match(self, google_user: Any, input_data: Dict[str, Any]) -> bool:
         if input_data.get("userId") != google_user.id:
