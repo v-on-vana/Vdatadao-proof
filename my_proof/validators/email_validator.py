@@ -2,19 +2,12 @@ import logging
 import hashlib
 from typing import Dict, Any, Optional
 
-from my_proof.utils.blockchain import BlockchainClient
 from my_proof.utils.db import DataRegistry, hash_email
 from my_proof.config import settings
 
 class EmailValidator:
     
     def __init__(self):
-        try:
-            self.blockchain_client = BlockchainClient()
-            self.blockchain_available = True
-        except Exception as e:
-            logging.warning(f"Blockchain client initialization failed: {str(e)}")
-            self.blockchain_available = False
         
         try:
             self.data_registry = DataRegistry()
@@ -32,23 +25,26 @@ class EmailValidator:
         
         if not google_user:
             validation_result["warnings"].append("NO_GOOGLE_USER")
-            return validation_result
+            # Google user olmasa da contributor vs instagram email kontrolü yap
         
-        google_email = google_user.email
         contributor_email = input_data.get('contributor', {}).get('email')
-        
         instagram_profile_email = input_data.get('data', {}).get('profile', {}).get('email')
         
-        if google_email != contributor_email:
-            validation_result["is_valid"] = False
-            validation_result["errors"].append("GOOGLE_CONTRIBUTOR_EMAIL_MISMATCH")
-            logging.error(f"Google email {google_email} does not match contributor email {contributor_email}")
+        # Google user varsa Google email kontrolü
+        if google_user:
+            google_email = google_user.email
+            
+            if google_email != contributor_email:
+                validation_result["is_valid"] = False
+                validation_result["errors"].append("GOOGLE_CONTRIBUTOR_EMAIL_MISMATCH")
+                logging.error(f"Google email {google_email} does not match contributor email {contributor_email}")
+            
+            if google_email != instagram_profile_email:
+                validation_result["is_valid"] = False
+                validation_result["errors"].append("GOOGLE_INSTAGRAM_EMAIL_MISMATCH")
+                logging.error(f"Google email {google_email} does not match Instagram profile email {instagram_profile_email}")
         
-        if google_email != instagram_profile_email:
-            validation_result["is_valid"] = False
-            validation_result["errors"].append("GOOGLE_INSTAGRAM_EMAIL_MISMATCH")
-            logging.error(f"Google email {google_email} does not match Instagram profile email {instagram_profile_email}")
-        
+        # TEMEL KONTROL: Contributor vs Instagram email (Google user olsun ya da olmasın)
         if contributor_email != instagram_profile_email:
             validation_result["is_valid"] = False
             validation_result["errors"].append("CONTRIBUTOR_INSTAGRAM_EMAIL_MISMATCH")
@@ -58,16 +54,16 @@ class EmailValidator:
     
     def check_email_duplication(self, email: str) -> bool:
         try:
-            if not self.blockchain_available:
-                logging.warning("Blockchain not available, skipping email duplication check")
+            if not self.db_available:
+                logging.warning("Database not available, skipping email duplication check")
                 return False
             
-            email_hash = self._hash_email(email)
+            email_hash = hash_email(email)
             
-            is_duplicate = self._is_email_registered(email_hash)
+            is_registered, registered_wallet = self.data_registry.is_email_hash_registered(email_hash)
             
-            if is_duplicate:
-                logging.warning(f"Email already registered: {email[:10]}...")
+            if is_registered:
+                logging.warning(f"Email already registered: {email[:10]}... to wallet {registered_wallet[:10] if registered_wallet else 'unknown'}...")
                 return True
             
             logging.info(f"Email validation passed for: {email[:10]}...")
@@ -93,14 +89,6 @@ class EmailValidator:
         normalized_email = email.lower().strip()
         return hashlib.sha256(normalized_email.encode('utf-8')).hexdigest()
     
-    def _is_email_registered(self, email_hash: str) -> bool:
-        try:
-            is_registered, registered_wallet = self.blockchain_client.is_email_hash_registered(email_hash)
-            return is_registered
-            
-        except Exception as e:
-            logging.error(f"Error checking if email is registered: {str(e)}")
-            return False
     
     
     def _extract_email_hash_from_metadata(self, file_metadata: Any) -> Optional[str]:

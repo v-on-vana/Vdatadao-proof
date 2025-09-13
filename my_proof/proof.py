@@ -10,12 +10,14 @@ from my_proof.utils.schema import validate_schema
 from my_proof.processors.instagram_processor import InstagramProcessor
 from my_proof.processors.google_processor import GoogleProcessor
 from my_proof.validators.duplicate_validator import DuplicateValidator
+from my_proof.validators.email_validator import EmailValidator
 from my_proof.config import settings
 
 class Proof:
     def __init__(self):
         self.proof_response = ProofResponse(dlp_id=settings.DLP_ID)
         self.duplicate_validator = DuplicateValidator()
+        self.email_validator = EmailValidator()
         
     def generate(self) -> ProofResponse:
         logging.info("Starting proof generation for vdatadao ")
@@ -36,12 +38,25 @@ class Proof:
                     errors.append(f"INVALID_SCHEMA")
                     break
 
-                if self._check_duplicates(input_data, errors):
+                # EMAIL CONSISTENCY CHECK - EN ÖNCELİKLİ
+                email_validation_result = self.email_validator.validate_email_consistency(google_user, input_data)
+                if not email_validation_result["is_valid"]:
+                    errors.extend(email_validation_result["errors"])
+                    logging.error(f"Email validation failed: {email_validation_result['errors']}")
                     break
-
-                if self._validate_raw_export_data(input_data, errors):
-                    self._process_data_by_type(input_data, schema_type, schema_matches, google_user, errors)
-                else:
+                
+                # DATABASE DUPLICATE CHECK
+                contributor_email = input_data.get('contributor', {}).get('email')
+                if contributor_email and self.email_validator.check_email_duplication(contributor_email):
+                    errors.append("EMAIL_ALREADY_REGISTERED")
+                    logging.error(f"Email {contributor_email[:10]}... already registered")
+                    break
+                
+                # SCORE CALCULATION & DATABASE REGISTRATION
+                self._process_data_by_type(input_data, schema_type, schema_matches, google_user, errors)
+                
+                # Raw data validation - simplified check
+                if not self._validate_raw_export_data_simple(input_data, errors):
                     break
 
                 self.proof_response.metadata = {
@@ -80,28 +95,56 @@ class Proof:
             errors.append("FILE_LOADING_ERROR")
             return None
 
-    def _check_duplicates(self, input_data, errors):
-        contributor = input_data.get('contributor', {})
-        wallet_address = contributor.get('wallet_address')
-        contributor_email = contributor.get('email')
-        
-        if self.duplicate_validator.blockchain_available and wallet_address and contributor_email:
-            if self.duplicate_validator.check_for_duplicate_data(input_data, wallet_address, contributor_email):
-                errors.append("DUPLICATE_DATA_DETECTED")
-                logging.warning(f"Duplicate data detected for wallet: {wallet_address[:10]}...")
-                return True
-        return False
 
-    def _validate_raw_export_data(self, input_data, errors):
+    def _validate_raw_export_data_simple(self, input_data, errors):
         try:
-            is_valid, validation_errors, completeness_score = self.duplicate_validator.validate_raw_export_data(input_data)
+            data_section = input_data.get('data', {})
+            profile = data_section.get('profile', {})
             
-            if not is_valid:
-                errors.extend(validation_errors)
-                logging.error(f"Raw export data validation failed: {validation_errors}")
+            # 1. Profile temel kontrolü
+            if not profile.get('username') or not profile.get('email'):
+                errors.append("MISSING_BASIC_PROFILE_DATA")
                 return False
+                
+            # 2. Raw export data varlığı kontrolü
+            raw_export_data = data_section.get('raw_export_data', {})
+            if not raw_export_data:
+                errors.append("MISSING_RAW_EXPORT_DATA")
+                return False
+                
+            # 3. Kategori sayısı kontrolü (minimum 3 kategori olmalı)
+            category_count = len(raw_export_data)
+            if category_count < 3:
+                errors.append("INSUFFICIENT_RAW_DATA_CATEGORIES")
+                logging.warning(f"Raw data has only {category_count} categories, minimum 3 required")
+                return False
+                
+            # 4. İçerik boyutu kontrolü
+            total_content_size = 0
+            categories_with_content = 0
             
-            logging.info(f"Raw export data validation passed: {completeness_score:.1f}% complete")
+            for category_name, category_data in raw_export_data.items():
+                if isinstance(category_data, dict) and 'content' in category_data:
+                    content = category_data['content']
+                    if content:  # Content boş değilse
+                        content_size = len(str(content))
+                        total_content_size += content_size
+                        categories_with_content += 1
+                        
+            # 5. Minimum data size kontrolü (en az 10KB raw data olmalı)
+            min_required_size = 10000  # 10KB
+            if total_content_size < min_required_size:
+                errors.append("INSUFFICIENT_RAW_DATA_SIZE")
+                logging.warning(f"Raw data size {total_content_size} bytes, minimum {min_required_size} required")
+                return False
+                
+            # 6. İçerikli kategori kontrolü (en az 2 kategori içerik sahibi olmalı)
+            if categories_with_content < 2:
+                errors.append("INSUFFICIENT_CONTENT_CATEGORIES")
+                logging.warning(f"Only {categories_with_content} categories have content, minimum 2 required")
+                return False
+                
+            logging.info(f"Raw export validation passed: {category_count} categories, {categories_with_content} with content, {total_content_size:,} bytes total")
             return True
             
         except Exception as e:
