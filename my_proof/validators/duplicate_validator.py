@@ -1,7 +1,7 @@
 import hashlib
 import json
 import logging
-from typing import Dict, Any
+from typing import Dict, Any, Tuple
 
 from my_proof.utils.db import DataRegistry, hash_email
 from my_proof.config import settings
@@ -17,17 +17,40 @@ class DuplicateValidator:
             logging.error(f"Data registry initialization failed: {str(e)}")
             self.db_available = False
     
-    def check_for_duplicate_data(self, input_data: Dict[str, Any], wallet_address: str, contributor_email: str) -> bool:
+    def check_for_duplicate_data(self, input_data: Dict[str, Any], wallet_address: str, contributor_email: str) -> Tuple[bool, str]:
+        """
+        Complete duplicate data validation with wallet+email+data combination rules.
+        
+        Returns:
+            Tuple: (is_duplicate: bool, reason: str)
+        """
         try:
-            if self._check_wallet_email_binding(wallet_address, contributor_email):
-                logging.warning(f"Wallet-email binding violation detected for {wallet_address[:10]}...")
-                return True
-                        
-            return False
+            if not self.db_available:
+                logging.warning("Database not available, skipping duplicate data check")
+                return False, "DATABASE_UNAVAILABLE"
+            
+            data_hash = self.calculate_data_hash(input_data)
+            fingerprint = self._generate_core_data_fingerprint(input_data)
+            email_hash = hash_email(contributor_email)
+            
+            if not data_hash or not fingerprint:
+                logging.error("Failed to generate data hash or fingerprint")
+                return False, "HASH_GENERATION_ERROR"
+            
+            is_duplicate, reason = self.data_registry.check_data_duplicate(
+                data_hash, fingerprint, wallet_address, email_hash
+            )
+            
+            if is_duplicate:
+                logging.warning(f"Duplicate data detected for {wallet_address[:10]}...: {reason}")
+                return True, reason
+            
+            logging.info(f"No duplicate found for {wallet_address[:10]}...: {reason}")
+            return False, reason
             
         except Exception as e:
             logging.error(f"Error checking for duplicate data: {str(e)}")
-            return False
+            return False, f"ERROR: {str(e)}"
 
     def calculate_data_hash(self, input_data: Dict[str, Any]) -> str:
         try:
@@ -59,8 +82,27 @@ class DuplicateValidator:
             return self._calculate_simple_hash(input_data)
 
     def is_duplicate_data(self, current_hash: str) -> bool:
+        """
+        Check if a data hash already exists in the database.
+        
+        Args:
+            current_hash: SHA256 hash of the data to check
+            
+        Returns:
+            bool: True if hash exists, False otherwise
+        """
         try:
-            logging.info(f"Hash check for: {current_hash[:16]}... (database implementation)")
+            if not self.db_available:
+                logging.warning("Database not available, skipping hash check")
+                return False
+            
+            is_registered, registered_wallet, registered_email = self.data_registry.is_data_hash_registered(current_hash)
+            
+            if is_registered:
+                logging.info(f"Hash {current_hash[:16]}... found in database: wallet {registered_wallet[:10] if registered_wallet else 'unknown'}...")
+                return True
+            
+            logging.info(f"Hash {current_hash[:16]}... not found in database")
             return False
             
         except Exception as e:
@@ -171,6 +213,55 @@ class DuplicateValidator:
             
         except Exception as e:
             logging.error(f"Error checking wallet-email binding: {str(e)}")
+            return False
+
+    def register_valid_data(self, input_data: Dict[str, Any], wallet_address: str, contributor_email: str) -> bool:
+        """
+        Register valid data hash, fingerprint and wallet to the database.
+        
+        Args:
+            input_data: The validated input data
+            wallet_address: Wallet address of the contributor
+            contributor_email: Email of the contributor
+            
+        Returns:
+            bool: True if registration successful
+        """
+        try:
+            if not self.db_available:
+                logging.warning("Database not available, skipping data registration")
+                return False
+            
+            data_hash = self.calculate_data_hash(input_data)
+            fingerprint = self._generate_core_data_fingerprint(input_data)
+            email_hash = hash_email(contributor_email)
+            
+            if not data_hash or not fingerprint:
+                logging.error("Failed to generate data hash or fingerprint for registration")
+                return False
+            
+            contribution_id = input_data.get('contribution_id')
+            platform = input_data.get('data', {}).get('platform', 'instagram')
+            
+            # Register wallet first (since this is the first time for this wallet)
+            wallet_success = self.data_registry.register_wallet(
+                wallet_address, email_hash, data_hash, platform
+            )
+            
+            # Register data hash
+            data_success = self.data_registry.register_data_hash(
+                data_hash, fingerprint, wallet_address, email_hash, contribution_id, platform
+            )
+            
+            if wallet_success and data_success:
+                logging.info(f"Successfully registered wallet and data for {wallet_address[:10]}...")
+                return True
+            else:
+                logging.error(f"Failed to register wallet or data for {wallet_address[:10]}... (wallet: {wallet_success}, data: {data_success})")
+                return False
+            
+        except Exception as e:
+            logging.error(f"Error registering valid data: {str(e)}")
             return False
 
     def validate_raw_export_data(self, input_data: Dict[str, Any]) -> tuple:

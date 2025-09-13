@@ -20,7 +20,7 @@ class Proof:
         self.email_validator = EmailValidator()
         
     def generate(self) -> ProofResponse:
-        logging.info("Starting proof generation for vdatadao ")
+        logging.info("Starting proof generation for vdatadao with improved validation flow")
         errors = []
 
         google_user = self._get_google_user(errors)
@@ -32,41 +32,76 @@ class Proof:
                 input_data = self._load_and_validate_file(input_file, errors)
                 if not input_data:
                     continue
-                    
+                
+                contributor_email = input_data.get('contributor', {}).get('email')
+                wallet_address = input_data.get('contributor', {}).get('wallet_address')
+                
+                if not contributor_email or not wallet_address:
+                    errors.append("MISSING_CONTRIBUTOR_INFO")
+                    logging.error("Missing contributor email or wallet address")
+                    break
+                
+                # STEP 1: SCHEMA VALIDATION
+                logging.info("Step 1: Schema validation")
                 schema_type, schema_matches = validate_schema(input_data)
                 if not schema_matches:
-                    errors.append(f"INVALID_SCHEMA")
+                    errors.append("INVALID_SCHEMA")
+                    logging.error(f"Schema validation failed for {schema_type}")
                     break
 
-                # EMAIL CONSISTENCY CHECK - EN ÖNCELİKLİ
+                # STEP 2: DUPLICATE DATA CHECK
+                logging.info("Step 2: Duplicate data validation")
+                is_duplicate, duplicate_reason = self.duplicate_validator.check_for_duplicate_data(
+                    input_data, wallet_address, contributor_email
+                )
+                if is_duplicate:
+                    errors.append(f"DUPLICATE_DATA: {duplicate_reason}")
+                    logging.error(f"Duplicate data detected: {duplicate_reason}")
+                    break
+
+                # STEP 3: EMAIL CONSISTENCY CHECK
+                logging.info("Step 3: Email consistency validation")
                 email_validation_result = self.email_validator.validate_email_consistency(google_user, input_data)
                 if not email_validation_result["is_valid"]:
                     errors.extend(email_validation_result["errors"])
                     logging.error(f"Email validation failed: {email_validation_result['errors']}")
                     break
                 
-                # DATABASE DUPLICATE CHECK
-                contributor_email = input_data.get('contributor', {}).get('email')
-                if contributor_email and self.email_validator.check_email_duplication(contributor_email):
-                    errors.append("EMAIL_ALREADY_REGISTERED")
-                    logging.error(f"Email {contributor_email[:10]}... already registered")
-                    break
+                # Note: Email duplication is now checked within duplicate data validation
                 
-                # SCORE CALCULATION & DATABASE REGISTRATION
+                # STEP 4: RAW DATA VALIDATION
+                logging.info("Step 4: Raw data validation")
+                if not self._validate_raw_export_data_simple(input_data, errors):
+                    logging.error("Raw data validation failed")
+                    break
+
+                # STEP 5: PROCESS DATA & CALCULATE SCORES
+                logging.info("Step 5: Processing data and calculating scores")
                 self._process_data_by_type(input_data, schema_type, schema_matches, google_user, errors)
                 
-                # Raw data validation - simplified check
-                if not self._validate_raw_export_data_simple(input_data, errors):
-                    break
+                # STEP 6: SAVE TO DATABASE (only if no errors)
+                if len(errors) == 0:
+                    logging.info("Step 6: Saving valid data to database")
+                    data_saved = self.duplicate_validator.register_valid_data(input_data, wallet_address, contributor_email)
+                    email_saved = self.email_validator.register_email_to_database(contributor_email, wallet_address)
+                    
+                    if not data_saved:
+                        logging.warning("Failed to save data to database")
+                    if not email_saved:
+                        logging.warning("Failed to save email to database")
 
                 self.proof_response.metadata = {
                     "schema_type": schema_type,
+                    "validation_steps_completed": 6,
+                    "duplicate_check_reason": duplicate_reason if not is_duplicate else "NO_DUPLICATE"
                 }
 
                 self.proof_response.valid = len(errors) == 0
+                logging.info(f"Proof generation completed with {len(errors)} errors")
 
         if len(errors) > 0:
             self.proof_response.attributes["errors"] = errors
+            logging.error(f"Proof generation failed with errors: {errors}")
 
         return self.proof_response
 

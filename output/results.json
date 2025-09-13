@@ -8,7 +8,7 @@
   "uniqueness": 0.0,
   "attributes": {
     "errors": [
-      "EMAIL_ALREADY_REGISTERED"
+      "DUPLICATE_DATA: WALLET_ALREADY_USED"
     ]
   },
   "metadata": {}
