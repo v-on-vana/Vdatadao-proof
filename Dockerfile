@@ -9,6 +9,9 @@ WORKDIR /app
 
 COPY . /app
 
+# Create data directory for database
+RUN mkdir -p /app/data && chmod 777 /app/data
+
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
