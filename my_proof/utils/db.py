@@ -66,6 +66,10 @@ class DataRegistry:
         """
         import os
         
+        if not os.path.isabs(db_path):
+            app_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            db_path = os.path.join(app_root, db_path)
+        
         db_dir = os.path.dirname(db_path)
         if db_dir and not os.path.exists(db_dir):
             os.makedirs(db_dir, exist_ok=True)
