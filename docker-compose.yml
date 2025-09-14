@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  vdatadao-proof:
+    build: .
+    container_name: vdatadao-proof-v2
+    environment:
+      - DLP_ID=143
+      - INPUT_DIR=/input
+      - OUTPUT_DIR=/output
+      - DATABASE_PATH=/app/data/registry.db
+      - LOG_LEVEL=INFO
+      - GOOGLE_TOKEN=${GOOGLE_TOKEN:-}
+      - FILE_ID=${FILE_ID:-0}
+      - OWNER_ADDRESS=${OWNER_ADDRESS:-}
+    volumes:
+      - ./input:/input:ro
+      - ./output:/output
+      - ./data:/app/data
+    restart: "no"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import my_proof.config; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

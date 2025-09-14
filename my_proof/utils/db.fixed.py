@@ -99,9 +99,8 @@ class DataRegistry:
         
         # Test database connection
         try:
-            from sqlalchemy import text
             with self.get_session() as session:
-                session.execute(text("SELECT 1"))
+                session.execute("SELECT 1")
             logging.info(f"Database connection test successful")
         except Exception as e:
             logging.error(f"Database connection test failed: {e}")

@@ -64,26 +64,10 @@ class Settings(BaseSettings):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         
-        # Only create directories if they are local (not system directories)
-        # This prevents trying to create system directories like /input, /output, /app
-        try:
-            if self.INPUT_DIR.startswith('./') or not self.INPUT_DIR.startswith('/'):
-                os.makedirs(self.INPUT_DIR, exist_ok=True)
-        except (OSError, PermissionError):
-            pass  # Ignore if we can't create system directories
-            
-        try:
-            if self.OUTPUT_DIR.startswith('./') or not self.OUTPUT_DIR.startswith('/'):
-                os.makedirs(self.OUTPUT_DIR, exist_ok=True)
-        except (OSError, PermissionError):
-            pass  # Ignore if we can't create system directories
-        
-        # Only create database directory if it's local
-        try:
-            if self.DATABASE_PATH.startswith('./') or not self.DATABASE_PATH.startswith('/'):
-                os.makedirs(os.path.dirname(self.DATABASE_PATH), exist_ok=True)
-        except (OSError, PermissionError):
-            pass  # Ignore if we can't create system directories
+        # Ensure directories exist
+        os.makedirs(self.INPUT_DIR, exist_ok=True)
+        os.makedirs(self.OUTPUT_DIR, exist_ok=True)
+        os.makedirs(os.path.dirname(self.DATABASE_PATH), exist_ok=True)
         
         # Log configuration
         print(f"Configuration loaded:")

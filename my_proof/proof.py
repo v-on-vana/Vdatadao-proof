@@ -174,16 +174,25 @@ class Proof:
             total_content_size = 0
             categories_with_content = 0
             
+            logging.info(f"Raw data validation - processing {len(raw_export_data)} categories")
             for category_name, category_data in raw_export_data.items():
+                logging.info(f"Processing category: {category_name}, type: {type(category_data)}")
                 if isinstance(category_data, dict) and 'content' in category_data:
                     content = category_data['content']
+                    logging.info(f"Content type: {type(content)}, empty: {not content}")
                     if content:  # İçerik boş değilse say
                         content_size = len(str(content))
                         total_content_size += content_size
                         categories_with_content += 1
+                        logging.info(f"Category {category_name}: {content_size:,} bytes")
+                    else:
+                        logging.warning(f"Category {category_name}: content is empty")
+                else:
+                    logging.warning(f"Category {category_name}: not a dict or no content key")
                         
             # 5. Minimum boyut kontrolü - çok küçük data sahte olabilir
             min_required_size = 10000  # 10KB minimum
+            logging.info(f"Raw data validation result: {total_content_size:,} bytes, {categories_with_content} categories with content")
             if total_content_size < min_required_size:
                 errors.append("INSUFFICIENT_RAW_DATA_SIZE")
                 logging.warning(f"Raw data size {total_content_size} bytes, minimum {min_required_size} required")

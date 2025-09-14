@@ -9,8 +9,8 @@
   "attributes": {
     "schema_type": "instagram-meta-export.json",
     "platform": "instagram",
-    "contributor_email": "suite_base_1757826465@example.com",
-    "contributor_wallet": "0x3fc0fd146c17176e8200570ea717a5a815178e81",
+    "contributor_email": "suite_c_1757826465@example.com",
+    "contributor_wallet": "0x125de2956376d0455d7937450ed420afc42da312",
     "instagram_username": "test_user",
     "account_type": "Public",
     "posts_count": 0,
@@ -32,7 +32,7 @@
     },
     "email_validation": {
       "email_registered_to_database": false,
-      "email_hash": "25a3a9d37b4bcc3d..."
+      "email_hash": "f8d2703c8ec41196..."
     }
   },
   "metadata": {

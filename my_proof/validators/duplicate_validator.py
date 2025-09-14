@@ -1,7 +1,7 @@
 import hashlib
 import json
 import logging
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, Optional
 
 from my_proof.utils.db import DataRegistry, hash_email
 from my_proof.config import settings
@@ -192,6 +192,14 @@ class DuplicateValidator:
                     'account_type': profile.get('account_type')
                 }
             
+            # Tek güçlü sabit alan: hesap oluşturma timestamp'ı (signup_details)
+            account_creation_ts = self._extract_account_creation_timestamp(input_data)
+            if account_creation_ts:
+                try:
+                    activity_fingerprint['account_creation_ts'] = int(account_creation_ts)
+                except Exception:
+                    pass
+            
             # Aktivite parmak izini hash'e çevir
             fingerprint_json = json.dumps(activity_fingerprint, sort_keys=True, separators=(',', ':'))
             fingerprint_hash = hashlib.sha256(fingerprint_json.encode('utf-8')).hexdigest()
@@ -202,6 +210,37 @@ class DuplicateValidator:
         except Exception as e:
             logging.error(f"Error generating activity fingerprint: {str(e)}")
             return ""
+
+    def _extract_account_creation_timestamp(self, input_data: Dict[str, Any]) -> Optional[int]:
+        """Ham export'taki signup detaylarından hesap oluşturma zamanını çıkar."""
+        try:
+            raw_export = input_data.get('data', {}).get('raw_export_data', {}) or {}
+            # Muhtemel anahtarlar arasında 'signup', 'register', 'registration' aranır
+            for key, wrapper in raw_export.items():
+                lowered = str(key).lower()
+                if not any(t in lowered for t in ('signup', 'register', 'registration')):
+                    continue
+                content = wrapper.get('content') if isinstance(wrapper, dict) else wrapper
+                if isinstance(content, dict):
+                    info = content.get('account_history_registration_info')
+                    if isinstance(info, list) and info and isinstance(info[0], dict):
+                        smd = info[0].get('string_map_data', {}) or {}
+                        for tkey in ('timestamp', 'Timestamp', 'Zaman', 'time', 'Time'):
+                            entry = smd.get(tkey)
+                            if isinstance(entry, dict) and 'timestamp' in entry:
+                                try:
+                                    return int(entry['timestamp'])
+                                except Exception:
+                                    pass
+                        # Bazı dump'larda doğrudan olabilir
+                        if 'timestamp' in info[0]:
+                            try:
+                                return int(info[0]['timestamp'])
+                            except Exception:
+                                pass
+            return None
+        except Exception:
+            return None
 
     def _calculate_data_similarity(self, current_fingerprint: str, existing_hash: str) -> float:
         try:
