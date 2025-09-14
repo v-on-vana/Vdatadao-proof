@@ -21,18 +21,31 @@ class DuplicateValidator:
         # Hash cache - performance için aynı hash'leri tekrar hesaplamayız
         self._cached_hashes = None
     
-    def check_for_duplicate_data(self, input_data: Dict[str, Any], wallet_address: str, contributor_email: str) -> Tuple[bool, str]:
-        # Ana kontrol fonksiyonu - burda her şey kontrol ediliyor
-        # wallet + email + veri kombinasyonu hiç görülmüşmü diye bakıyoruz
+    def check_for_duplicate_data(self, input_data: Dict[str, Any], wallet_address: str, contributor_email: str) -> Tuple[bool, str]:                                                                             
+        # YENİ SİSTEM: Her field'i ayrı ayrı kontrol et - daha güvenilir duplicate detection
         try:
             if not self.db_available:
                 logging.warning("Database not available, skipping duplicate data check")
                 return False, "DATABASE_UNAVAILABLE"
             
-            # Önce verinin hash'ini ve parmak izini çıkarıyoruz
-            data_hash = self.calculate_data_hash(input_data)  # tüm veri için hash
-            fingerprint = self._generate_core_data_fingerprint(input_data)  # aktivite parmak izi
-            email_hash = hash_email(contributor_email)  # email hash'i
+            # Immutable field'leri extract et
+            immutable_data = self.extract_immutable_fields(input_data)
+            
+            if not immutable_data:
+                logging.warning("No immutable data found for duplicate check")
+                return False, "NO_IMMUTABLE_DATA"
+            
+            # 1. ÖNCE AYRı AYRı FIELD KONTROLLERİ
+            is_duplicate, reason = self.check_individual_duplicates(immutable_data, wallet_address)
+            
+            if is_duplicate:
+                logging.warning(f"Individual field duplicate detected for {wallet_address[:10]}...: {reason}")
+                return True, reason
+            
+            # 2. SONRA GENEL DATA HASH KONTROLÜ
+            data_hash = self.calculate_data_hash(input_data)
+            fingerprint = self._generate_core_data_fingerprint(input_data)
+            email_hash = hash_email(contributor_email)
             
             if not data_hash or not fingerprint:
                 logging.error("Failed to generate data hash or fingerprint")
@@ -45,13 +58,13 @@ class DuplicateValidator:
                 'email_hash': email_hash
             }
             
-            # Asıl kontrolü database'de yapıyoruz - ultra sıkı kurallar
+            # Genel data hash kontrolü
             is_duplicate, reason = self.data_registry.check_data_duplicate(
                 data_hash, fingerprint, wallet_address, email_hash
             )
             
             if is_duplicate:
-                logging.warning(f"Duplicate data detected for {wallet_address[:10]}...: {reason}")
+                logging.warning(f"Data hash duplicate detected for {wallet_address[:10]}...: {reason}")
                 return True, reason
             
             logging.info(f"No duplicate found for {wallet_address[:10]}...: {reason}")
@@ -61,35 +74,139 @@ class DuplicateValidator:
             logging.error(f"Error checking for duplicate data: {str(e)}")
             return False, f"ERROR: {str(e)}"
 
-    def calculate_data_hash(self, input_data: Dict[str, Any]) -> str:
-        # Gelen verinin SHA256 hash'ini hesaplıyoruz - tekrar veri tespiti için kullanılacak
+    def extract_immutable_fields(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Instagram verisinden değişmez alanları çıkarır.
+        
+        NEDEN EKLENDİ: Duplicate detection için sadece değişmez alanları 
+        (timestamp, email, phone, username) kullanarak daha güvenilir kontrol sağlar.
+        """
+        immutable_data = {}
+        
+        # Raw export data'dan güvenilir verileri çıkar
+        raw_export_data = input_data.get('data', {}).get('raw_export_data', {})
+        if raw_export_data:
+            # Her kategorinin content'ini parse et
+            for category_name, category_data in raw_export_data.items():
+                if isinstance(category_data, dict) and 'content' in category_data:
+                    content = category_data['content']
+                    try:
+                        import json
+                        content_json = json.loads(content)
+
+                        # Account creation timestamp (signup_details.json) - HİÇ DEĞİŞMEZ
+                        if 'account_creation_timestamp' in content_json:
+                            timestamp = content_json['account_creation_timestamp']
+                            # Milisaniye hassasiyetinde olduğundan emin ol
+                            if isinstance(timestamp, (int, float)):
+                                # Saniye cinsindeyse milisaniyeye çevir
+                                if timestamp < 10000000000:  # 10 milyar'dan küçükse saniye cinsinden
+                                    timestamp = int(timestamp * 1000)
+                                immutable_data['account_creation_timestamp'] = timestamp
+
+                        # Email (personal_information.json) - KİŞİYE ÖZEL
+                        if 'email' in content_json:
+                            immutable_data['email'] = content_json['email']
+
+                        # Phone number (personal_information.json) - KİŞİYE ÖZEL
+                        if 'phone_number' in content_json:
+                            immutable_data['phone_number'] = content_json['phone_number']
+
+                        # Username (personal_information.json) - KİŞİYE ÖZEL
+                        if 'username' in content_json:
+                            immutable_data['username'] = content_json['username']
+                            
+                    except:
+                        pass
+        
+        # Boş değerleri temizle
+        immutable_data = {k: v for k, v in immutable_data.items() if v != '' and v is not None}
+        return immutable_data
+
+    def check_individual_duplicates(self, immutable_data: Dict[str, Any], wallet_address: str) -> Tuple[bool, str]:                                                                                              
+        """
+        Her değişmez alanı ayrı ayrı duplicate kontrol eder.
+        
+        NEDEN EKLENDİ: Tek hash yerine her alanı ayrı ayrı kontrol ederek 
+        daha hassas duplicate detection sağlar.
+        
+        Returns:
+            Tuple[bool, str]: (is_duplicate, reason)
+        """
         try:
-            normalized_data = json.loads(json.dumps(input_data))
+            if not self.db_available:
+                logging.warning("Database not available, skipping individual duplicate checks")
+                return False, "NO_DUPLICATE"
             
-            # Bu alanları hash'e dahil etmiyoruz çünkü her seferinde değişiyorlar
-            fields_to_exclude = [
-                'created_at', 'updated_at', 'processing_timestamp',
-                'collection_date', 'metadata.processing_timestamp',
-                'metadata.collection_date', 'data.raw_export_data'
-            ]
+            # 1. Account creation timestamp kontrolü - EN ÖNEMLİ
+            if 'account_creation_timestamp' in immutable_data:
+                timestamp = immutable_data['account_creation_timestamp']
+                # Data registry üzerinden kontrol et
+                is_duplicate, reason = self.data_registry.check_timestamp_duplicate(timestamp, wallet_address)
+                if is_duplicate:
+                    logging.warning(f"Same Instagram account (timestamp: {timestamp}) already used: {reason}")
+                    return True, reason
             
-            # Gereksiz alanları temizliyoruz
-            for field_path in fields_to_exclude:
-                self._remove_nested_field(normalized_data, field_path)
+            # 2. Email kontrolü - mevcut sistem
+            if 'email' in immutable_data:
+                email = immutable_data['email']
+                email_hash = hashlib.sha256(email.lower().encode('utf-8')).hexdigest()
+                
+                # Mevcut email registry kontrolü
+                is_registered, registered_wallet = self.data_registry.is_email_hash_registered(email_hash)
+                if is_registered and registered_wallet != wallet_address:
+                    logging.warning(f"Email {email} already used by wallet {registered_wallet}")
+                    return True, f"EMAIL_ALREADY_USED_BY_WALLET_{registered_wallet}"
             
-            data_size = len(str(normalized_data))
-            logging.info(f"Normalizing data for hash (size: {data_size} chars)")
+            # 3. Phone kontrolü - yeni sistem
+            if 'phone_number' in immutable_data:
+                phone = immutable_data['phone_number']
+                phone_hash = hashlib.sha256(phone.encode('utf-8')).hexdigest()
+                
+                is_duplicate, reason = self.data_registry.check_phone_duplicate(phone_hash, wallet_address)
+                if is_duplicate:
+                    logging.warning(f"Phone {phone} already used: {reason}")
+                    return True, reason
             
+            # 4. Username kontrolü - yeni sistem
+            if 'username' in immutable_data:
+                username = immutable_data['username']
+                username_hash = hashlib.sha256(username.lower().encode('utf-8')).hexdigest()
+                
+                is_duplicate, reason = self.data_registry.check_username_duplicate(username_hash, wallet_address)
+                if is_duplicate:
+                    logging.warning(f"Username {username} already used: {reason}")
+                    return True, reason
+            
+            return False, "NO_DUPLICATE"
+            
+        except Exception as e:
+            logging.error(f"Error in individual duplicate check: {str(e)}")
+            return False, "ERROR_IN_DUPLICATE_CHECK"
+
+    def calculate_data_hash(self, input_data: Dict[str, Any]) -> str:
+        """Calculate data hash for the complete immutable data set"""
+        try:
+            immutable_data = self.extract_immutable_fields(input_data)
+            
+            if not immutable_data:
+                logging.warning("No immutable data found in input")
+                return ""
+
+            data_size = len(str(immutable_data))
+            logging.info(f"Extracting immutable data for hash (size: {data_size} chars)")
+            logging.info(f"Immutable data: {list(immutable_data.keys())}")
+
             # JSON'u normalize edip SHA256 hash alıyoruz
-            normalized_json = json.dumps(normalized_data, sort_keys=True, separators=(',', ':'))
+            normalized_json = json.dumps(immutable_data, sort_keys=True, separators=(',', ':'))
             data_hash = hashlib.sha256(normalized_json.encode('utf-8')).hexdigest()
-            
+
             logging.info(f"Calculated data hash: {data_hash[:16]}...")
             return data_hash
             
         except (MemoryError, UnicodeError) as e:
             logging.error(f"Memory/encoding error in hash calculation: {str(e)}")
-            return self._calculate_simple_hash(input_data)  # hata olursa basit hash kullan
+            return self._calculate_simple_hash(input_data)
         except Exception as e:
             logging.error(f"Error calculating data hash: {str(e)}")
             return self._calculate_simple_hash(input_data)
@@ -329,6 +446,29 @@ class DuplicateValidator:
             data_success = self.data_registry.register_data_hash(
                 data_hash, fingerprint, wallet_address, email_hash, contribution_id, platform
             )
+            
+            # Phone ve Username kayıtlarını da ekle
+            immutable_data = self.extract_immutable_fields(input_data)
+            
+            # Phone kaydı
+            if 'phone_number' in immutable_data:
+                phone = immutable_data['phone_number']
+                phone_hash = hashlib.sha256(phone.encode('utf-8')).hexdigest()
+                self.data_registry.register_phone_hash(phone_hash, wallet_address)
+                logging.info(f"Phone hash registered for wallet {wallet_address[:10]}...")
+            
+            # Username kaydı
+            if 'username' in immutable_data:
+                username = immutable_data['username']
+                username_hash = hashlib.sha256(username.lower().encode('utf-8')).hexdigest()
+                self.data_registry.register_username_hash(username_hash, wallet_address)
+                logging.info(f"Username hash registered for wallet {wallet_address[:10]}...")
+            
+            # Timestamp kaydı
+            if 'account_creation_timestamp' in immutable_data:
+                timestamp = immutable_data['account_creation_timestamp']
+                self.data_registry.register_timestamp(timestamp, wallet_address)
+                logging.info(f"Timestamp {timestamp} registered for wallet {wallet_address[:10]}...")
             
             # Cache'i temizle - bir sonraki submission için
             if hasattr(self, '_cached_hashes'):

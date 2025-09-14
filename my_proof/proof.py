@@ -53,6 +53,7 @@ class Proof:
                 # AŞAMA 1: ŞEMA KONTROLÜ - veri yapısı doğru mu?
                 logging.info("Step 1: Schema validation")
                 schema_type, schema_matches = validate_schema(input_data)
+                # Schema validation aktif - gerçek veri testi için
                 if not schema_matches:
                     errors.append("INVALID_SCHEMA")
                     logging.error(f"Schema validation failed for {schema_type}")

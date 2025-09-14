@@ -3,7 +3,7 @@ import hashlib
 from datetime import datetime
 from typing import Optional, Tuple
 from contextlib import contextmanager
-from sqlalchemy import create_engine, Column, String, DateTime, Integer, Index
+from sqlalchemy import create_engine, Column, String, DateTime, Integer, Index, BigInteger
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.exc import IntegrityError
@@ -38,6 +38,54 @@ class DataHashRegistry(Base):
         Index('idx_hash_wallet_email', 'data_hash', 'wallet_address', 'email_hash'),
         Index('idx_fingerprint_wallet', 'fingerprint', 'wallet_address'),
         Index('idx_platform_registered', 'platform', 'registered_at'),
+    )
+
+class PhoneRegistry(Base):
+    __tablename__ = 'phone_registry'
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    phone_hash = Column(String(64), nullable=False, index=True)
+    wallet_address = Column(String(42), nullable=False, index=True)
+    registered_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    
+    __table_args__ = (
+        Index('idx_phone_wallet', 'phone_hash', 'wallet_address'),
+    )
+
+class UsernameRegistry(Base):
+    """
+    Kullanıcı adı kayıt tablosu - duplicate detection için.
+    
+    NEDEN EKLENDİ: Aynı Instagram hesabının farklı wallet'larla 
+    gönderilmesini engellemek için kullanıcı adlarını ayrı ayrı kontrol eder.
+    """
+    __tablename__ = 'username_registry'
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    username_hash = Column(String(64), nullable=False, index=True)
+    wallet_address = Column(String(42), nullable=False, index=True)
+    registered_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    
+    __table_args__ = (
+        Index('idx_username_wallet', 'username_hash', 'wallet_address'),
+    )
+
+class TimestampRegistry(Base):
+    """
+    Hesap oluşturma zamanı kayıt tablosu - duplicate detection için.
+    
+    NEDEN EKLENDİ: Aynı Instagram hesabının farklı wallet'larla 
+    gönderilmesini engellemek için hesap oluşturma zamanını kontrol eder.
+    """
+    __tablename__ = 'timestamp_registry'
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    timestamp = Column(BigInteger, nullable=False, index=True)
+    wallet_address = Column(String(42), nullable=False, index=True)
+    registered_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    
+    __table_args__ = (
+        Index('idx_timestamp_wallet', 'timestamp', 'wallet_address'),
     )
 
 class WalletRegistry(Base):
@@ -415,6 +463,102 @@ class DataRegistry:
         except Exception as e:
             logging.error(f"Error getting registration stats: {str(e)}")
             return {'email_registrations': 0, 'email_unique_wallets': 0, 'data_registrations': 0, 'data_unique_wallets': 0, 'unique_platforms': 0}
+
+    def check_timestamp_duplicate(self, timestamp: int, wallet_address: str) -> Tuple[bool, str]:
+        """
+        Hesap oluşturma zamanı duplicate kontrolü.
+        
+        NEDEN EKLENDİ: Aynı Instagram hesabının farklı wallet'larla 
+        gönderilmesini engellemek için hesap oluşturma zamanını kontrol eder.
+        """
+        try:
+            with self.get_session() as session:
+                # Timestamp registry'de ara
+                result = session.query(TimestampRegistry).filter_by(timestamp=timestamp).first()
+                if result and result.wallet_address != wallet_address:
+                    logging.warning(f"Found timestamp {timestamp} already used by wallet {result.wallet_address}")
+                    return True, f"SAME_INSTAGRAM_ACCOUNT_ALREADY_USED_BY_WALLET_{result.wallet_address}"
+                logging.info(f"No timestamp {timestamp} found in existing records")
+                return False, "NO_DUPLICATE"
+        except Exception as e:
+            logging.error(f"Error checking timestamp duplicate: {str(e)}")
+            return False, "ERROR_IN_TIMESTAMP_CHECK"
+
+    def check_phone_duplicate(self, phone_hash: str, wallet_address: str) -> Tuple[bool, str]:
+        """
+        Telefon numarası duplicate kontrolü.
+        
+        NEDEN EKLENDİ: Aynı telefon numarasının farklı wallet'larla 
+        gönderilmesini engellemek için telefon numaralarını kontrol eder.
+        """
+        try:
+            with self.get_session() as session:
+                result = session.query(PhoneRegistry).filter_by(phone_hash=phone_hash).first()
+                if result and result.wallet_address != wallet_address:
+                    return True, f"PHONE_ALREADY_USED_BY_WALLET_{result.wallet_address}"
+                return False, "NO_DUPLICATE"
+        except Exception as e:
+            logging.error(f"Error checking phone duplicate: {str(e)}")
+            return False, "ERROR_IN_PHONE_CHECK"
+
+    def check_username_duplicate(self, username_hash: str, wallet_address: str) -> Tuple[bool, str]:
+        """
+        Kullanıcı adı duplicate kontrolü.
+        
+        NEDEN EKLENDİ: Aynı kullanıcı adının farklı wallet'larla 
+        gönderilmesini engellemek için kullanıcı adlarını kontrol eder.
+        """
+        try:
+            with self.get_session() as session:
+                result = session.query(UsernameRegistry).filter_by(username_hash=username_hash).first()
+                if result and result.wallet_address != wallet_address:
+                    return True, f"USERNAME_ALREADY_USED_BY_WALLET_{result.wallet_address}"
+                return False, "NO_DUPLICATE"
+        except Exception as e:
+            logging.error(f"Error checking username duplicate: {str(e)}")
+            return False, "ERROR_IN_USERNAME_CHECK"
+
+    def register_phone_hash(self, phone_hash: str, wallet_address: str) -> bool:
+        """Register phone hash"""
+        try:
+            with self.get_session() as session:
+                phone_reg = PhoneRegistry(
+                    phone_hash=phone_hash,
+                    wallet_address=wallet_address
+                )
+                session.add(phone_reg)
+                return True
+        except Exception as e:
+            logging.error(f"Error registering phone hash: {str(e)}")
+            return False
+
+    def register_username_hash(self, username_hash: str, wallet_address: str) -> bool:
+        """Register username hash"""
+        try:
+            with self.get_session() as session:
+                username_reg = UsernameRegistry(
+                    username_hash=username_hash,
+                    wallet_address=wallet_address
+                )
+                session.add(username_reg)
+                return True
+        except Exception as e:
+            logging.error(f"Error registering username hash: {str(e)}")
+            return False
+
+    def register_timestamp(self, timestamp: int, wallet_address: str) -> bool:
+        """Register timestamp"""
+        try:
+            with self.get_session() as session:
+                timestamp_reg = TimestampRegistry(
+                    timestamp=timestamp,
+                    wallet_address=wallet_address
+                )
+                session.add(timestamp_reg)
+                return True
+        except Exception as e:
+            logging.error(f"Error registering timestamp: {str(e)}")
+            return False
 
 def hash_email(email: str) -> str:
     """Hash an email address using SHA256."""
