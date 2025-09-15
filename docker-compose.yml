@@ -7,14 +7,14 @@ services:
     volumes:
       # CRITICAL: Mount host directory to persist database
       - ./data:/app/data:rw
-      # Mount input/output directories
-      - ./demo/input:/app/input:ro
-      - ./output:/app/output:rw
+      # Mount input/output directories for LOCAL TESTING (TEE production uses /input directly)
+      - ./demo/input:/input:ro
+      - ./output:/output:rw
     environment:
       - DOCKER_CONTAINER=true
       - DB_PATH=/app/data/registry.db
-      - INPUT_DIR=/app/input
-      - OUTPUT_DIR=/app/output
+      # INPUT_DIR and OUTPUT_DIR use defaults from config.py (/input, /output)
+      # This matches TEE production environment
       - GOOGLE_TOKEN=${GOOGLE_TOKEN:-}
       - DLP_ID=${DLP_ID:-143}
       - PYTHONUNBUFFERED=1
