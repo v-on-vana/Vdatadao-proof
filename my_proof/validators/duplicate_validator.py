@@ -3,7 +3,7 @@ import json
 import logging
 from typing import Dict, Any, Tuple
 
-from my_proof.utils.db import DataRegistry, hash_email
+from my_proof.utils.db import DataRegistry, hash_email, hash_username, hash_wallet
 from my_proof.config import settings
 
 class DuplicateValidator:
@@ -59,6 +59,71 @@ class DuplicateValidator:
             
         except Exception as e:
             logging.error(f"Error checking for duplicate data: {str(e)}")
+            return False, f"ERROR: {str(e)}"
+
+    def check_separate_duplicates(self, input_data: Dict[str, Any], wallet_address: str, contributor_email: str) -> Tuple[bool, str]:
+        """
+        Separate duplicate checks for Username, Mail, Wallet, and Timestamp
+        """
+        try:
+            if not self.db_available:
+                logging.warning("Database not available, skipping separate duplicate checks")
+                return False, "DATABASE_UNAVAILABLE"
+            
+            # Extract data from input
+            username = input_data.get('data', {}).get('profile', {}).get('username')
+            account_age_days = input_data.get('data', {}).get('metrics', {}).get('account_age_days')
+            
+            if not username:
+                return True, "MISSING_USERNAME"
+            
+            if account_age_days is None:
+                return True, "MISSING_ACCOUNT_AGE"
+            
+            # Calculate account creation timestamp (current time - account age in days)
+            import time
+            current_timestamp = int(time.time())
+            account_creation_timestamp = current_timestamp - (account_age_days * 24 * 60 * 60)
+            
+            # 1. Username hash control
+            username_hash = hash_username(username)
+            is_username_duplicate, username_reason = self.data_registry.check_username_duplicate(username_hash, wallet_address)
+            if is_username_duplicate:
+                logging.warning(f"Username duplicate detected: {username_reason}")
+                return True, username_reason
+            
+            # 2. Email hash control (already exists but call separately) 
+            email_hash = hash_email(contributor_email)
+            is_email_registered, registered_wallet = self.data_registry.is_email_hash_registered(email_hash)
+            if is_email_registered and registered_wallet != wallet_address:
+                logging.warning(f"Email already registered to different wallet: {registered_wallet}")
+                return True, f"EMAIL_ALREADY_USED_BY_WALLET_{registered_wallet}"
+            
+            # 3. Wallet control (already exists in original system)
+            is_wallet_used, _ = self.data_registry.is_wallet_used(wallet_address)
+            if is_wallet_used:
+                logging.warning(f"Wallet already used: {wallet_address}")
+                return True, "WALLET_ALREADY_USED"
+            
+            # 4. Timestamp control
+            is_timestamp_duplicate, timestamp_reason = self.data_registry.check_timestamp_duplicate(account_creation_timestamp, wallet_address)
+            if is_timestamp_duplicate:
+                logging.warning(f"Timestamp duplicate detected: {timestamp_reason}")
+                return True, timestamp_reason
+            
+            # Cache the hashes for registration
+            self._cached_separate_hashes = {
+                'username_hash': username_hash,
+                'email_hash': email_hash,
+                'wallet_hash': hash_wallet(wallet_address),
+                'timestamp': account_creation_timestamp
+            }
+            
+            logging.info(f"All separate duplicate checks passed for {wallet_address[:10]}...")
+            return False, "ALL_SEPARATE_CHECKS_PASSED"
+            
+        except Exception as e:
+            logging.error(f"Error in separate duplicate checks: {str(e)}")
             return False, f"ERROR: {str(e)}"
 
     def calculate_data_hash(self, input_data: Dict[str, Any]) -> str:
@@ -343,6 +408,63 @@ class DuplicateValidator:
             
         except Exception as e:
             logging.error(f"Error registering valid data: {str(e)}")
+            return False
+
+    def register_separate_valid_data(self, input_data: Dict[str, Any], wallet_address: str, contributor_email: str) -> bool:
+        """
+        Register separate hashes for Username, Email, Wallet, and Timestamp
+        """
+        try:
+            if not self.db_available:
+                logging.warning("Database not available, skipping separate data registration")
+                return False
+            
+            # Use cached separate hashes
+            if hasattr(self, '_cached_separate_hashes') and self._cached_separate_hashes:
+                username_hash = self._cached_separate_hashes['username_hash']
+                email_hash = self._cached_separate_hashes['email_hash']
+                wallet_hash = self._cached_separate_hashes['wallet_hash']
+                timestamp = self._cached_separate_hashes['timestamp']
+                logging.info("Using cached separate hashes for registration")
+            else:
+                # Fallback - recalculate if no cache
+                logging.warning("No cached separate hashes found, recalculating...")
+                username = input_data.get('data', {}).get('profile', {}).get('username')
+                account_age_days = input_data.get('data', {}).get('metrics', {}).get('account_age_days')
+                
+                if not username or account_age_days is None:
+                    logging.error("Missing username or account_age for separate registration")
+                    return False
+                
+                username_hash = hash_username(username)
+                email_hash = hash_email(contributor_email)
+                wallet_hash = hash_wallet(wallet_address)
+                
+                import time
+                current_timestamp = int(time.time())
+                timestamp = current_timestamp - (account_age_days * 24 * 60 * 60)
+            
+            # Register each hash separately
+            username_success = self.data_registry.register_username_hash(username_hash, wallet_address)
+            email_success = self.data_registry.register_email_hash(email_hash, wallet_address)
+            timestamp_success = self.data_registry.register_timestamp(timestamp, wallet_address)
+            
+            # Also register the original data (call original register_valid_data)
+            original_data_success = self.register_valid_data(input_data, wallet_address, contributor_email)
+            
+            # Clear cache
+            if hasattr(self, '_cached_separate_hashes'):
+                delattr(self, '_cached_separate_hashes')
+            
+            if username_success and email_success and timestamp_success and original_data_success:
+                logging.info(f"Successfully registered all separate hashes for {wallet_address[:10]}...")
+                return True
+            else:
+                logging.error(f"Failed to register some separate hashes for {wallet_address[:10]}... (username: {username_success}, email: {email_success}, timestamp: {timestamp_success}, original: {original_data_success})")
+                return False
+            
+        except Exception as e:
+            logging.error(f"Error registering separate valid data: {str(e)}")
             return False
 
     def validate_raw_export_data(self, input_data: Dict[str, Any]) -> tuple:

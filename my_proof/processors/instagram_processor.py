@@ -7,6 +7,7 @@ from my_proof.models.proof_response import ProofResponse
 from my_proof.scorers.instagram_scorer import InstagramScorer
 from my_proof.utils.ai_detector import AIDetector
 from my_proof.validators.email_validator import EmailValidator
+from my_proof.validators.duplicate_validator import DuplicateValidator
 
 class InstagramProcessor(BaseProcessor):
     
@@ -15,6 +16,7 @@ class InstagramProcessor(BaseProcessor):
         self.scorer = InstagramScorer()
         self.ai_detector = AIDetector()
         self.email_validator = EmailValidator()
+        self.duplicate_validator = DuplicateValidator()
     
     def process_data(self, input_data: Dict[str, Any], schema_matches: bool, google_user: Optional[Any], errors: List[str]) -> None:
         try:
@@ -67,8 +69,34 @@ class InstagramProcessor(BaseProcessor):
                 })
             
             if contributor_email and wallet_address and len(errors) == 0:
-                logging.info(f"Registering email to database: {contributor_email[:10]}...")
-                self.email_validator.register_email_to_database(contributor_email, wallet_address)
+                # Perform separate duplicate checks (Username, Email, Wallet, Timestamp)
+                is_separate_duplicate, separate_reason = self.duplicate_validator.check_separate_duplicates(
+                    input_data, wallet_address, contributor_email
+                )
+                
+                if is_separate_duplicate:
+                    errors.append(f"SEPARATE_DUPLICATE_DETECTED: {separate_reason}")
+                    logging.error(f"Separate duplicate detected: {separate_reason}")
+                else:
+                    # Register all separate hashes if no duplicates found
+                    logging.info(f"Registering separate hashes for: {contributor_email[:10]}...")
+                    registration_success = self.duplicate_validator.register_separate_valid_data(
+                        input_data, wallet_address, contributor_email
+                    )
+                    
+                    if not registration_success:
+                        errors.append("SEPARATE_REGISTRATION_FAILED")
+                        logging.error("Failed to register separate hashes")
+                    else:
+                        logging.info("Successfully registered all separate hashes")
+                
+                # Add separate validation info to attributes
+                self.proof_response.attributes.update({
+                    "separate_validation": {
+                        "separate_duplicate_check": not is_separate_duplicate,
+                        "separate_duplicate_reason": separate_reason if is_separate_duplicate else "ALL_SEPARATE_CHECKS_PASSED"
+                    }
+                })
 
         except Exception as e:
             errors.append("INSTAGRAM_DATA_PROCESSING_ERROR")

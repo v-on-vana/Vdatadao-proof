@@ -44,6 +44,17 @@ class Settings(BaseSettings):
         min_length=20,
     )
 
+    # Database Configuration
+    DB_PATH: str = Field(
+        default="data/registry.db",
+        description="Path to the SQLite database file for duplicate detection",
+    )
+
+    DOCKER_CONTAINER: bool = Field(
+        default=False,
+        description="Whether running inside Docker container",
+    )
+
     class Config:
         env_file = ".env"
         case_sensitive = True

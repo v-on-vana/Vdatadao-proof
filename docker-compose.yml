@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  vdatadao-proof:
+    build: .
+    container_name: vdatadao-proof-app
+    volumes:
+      # CRITICAL: Mount host directory to persist database
+      - ./data:/app/data:rw
+      # Mount input/output directories
+      - ./demo/input:/app/input:ro
+      - ./output:/app/output:rw
+    environment:
+      - DOCKER_CONTAINER=true
+      - DB_PATH=/app/data/registry.db
+      - INPUT_DIR=/app/input
+      - OUTPUT_DIR=/app/output
+      - GOOGLE_TOKEN=${GOOGLE_TOKEN:-}
+      - DLP_ID=${DLP_ID:-143}
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    working_dir: /app
+    
+    # Health check to verify database connectivity
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sqlite3; sqlite3.connect('/app/data/registry.db').execute('SELECT 1')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# Named volume for database persistence
+volumes:
+  vdatadao_data:
+    driver: local
+

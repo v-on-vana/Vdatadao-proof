@@ -1,0 +1,2 @@
+# This file ensures the data directory is included in git
+# Database files are excluded via .gitignore but directory structure is preserved
