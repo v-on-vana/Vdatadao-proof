@@ -54,10 +54,10 @@ class PhoneRegistry(Base):
 
 class UsernameRegistry(Base):
     """
-    Kullanıcı adı kayıt tablosu - duplicate detection için.
+    Username registry table - for duplicate detection.
     
-    NEDEN EKLENDİ: Aynı Instagram hesabının farklı wallet'larla 
-    gönderilmesini engellemek için kullanıcı adlarını ayrı ayrı kontrol eder.
+    WHY ADDED: Prevents the same Instagram account from being sent
+    with different wallets by checking usernames separately.
     """
     __tablename__ = 'username_registry'
     
@@ -72,10 +72,10 @@ class UsernameRegistry(Base):
 
 class TimestampRegistry(Base):
     """
-    Hesap oluşturma zamanı kayıt tablosu - duplicate detection için.
+    Account creation timestamp registry table - for duplicate detection.
     
-    NEDEN EKLENDİ: Aynı Instagram hesabının farklı wallet'larla 
-    gönderilmesini engellemek için hesap oluşturma zamanını kontrol eder.
+    WHY ADDED: Prevents the same Instagram account from being sent
+    with different wallets by checking account creation timestamp.
     """
     __tablename__ = 'timestamp_registry'
     
@@ -466,14 +466,14 @@ class DataRegistry:
 
     def check_timestamp_duplicate(self, timestamp: int, wallet_address: str) -> Tuple[bool, str]:
         """
-        Hesap oluşturma zamanı duplicate kontrolü.
+        Account creation timestamp duplicate check.
         
-        NEDEN EKLENDİ: Aynı Instagram hesabının farklı wallet'larla 
-        gönderilmesini engellemek için hesap oluşturma zamanını kontrol eder.
+        WHY ADDED: Prevents the same Instagram account from being sent
+        with different wallets by checking account creation timestamp.
         """
         try:
             with self.get_session() as session:
-                # Timestamp registry'de ara
+                # Search in timestamp registry
                 result = session.query(TimestampRegistry).filter_by(timestamp=timestamp).first()
                 if result and result.wallet_address != wallet_address:
                     logging.warning(f"Found timestamp {timestamp} already used by wallet {result.wallet_address}")
@@ -486,10 +486,10 @@ class DataRegistry:
 
     def check_phone_duplicate(self, phone_hash: str, wallet_address: str) -> Tuple[bool, str]:
         """
-        Telefon numarası duplicate kontrolü.
+        Phone number duplicate check.
         
-        NEDEN EKLENDİ: Aynı telefon numarasının farklı wallet'larla 
-        gönderilmesini engellemek için telefon numaralarını kontrol eder.
+        WHY ADDED: Prevents the same phone number from being sent
+        with different wallets by checking phone numbers.
         """
         try:
             with self.get_session() as session:
@@ -503,10 +503,10 @@ class DataRegistry:
 
     def check_username_duplicate(self, username_hash: str, wallet_address: str) -> Tuple[bool, str]:
         """
-        Kullanıcı adı duplicate kontrolü.
+        Username duplicate check.
         
-        NEDEN EKLENDİ: Aynı kullanıcı adının farklı wallet'larla 
-        gönderilmesini engellemek için kullanıcı adlarını kontrol eder.
+        WHY ADDED: Prevents the same username from being sent
+        with different wallets by checking usernames.
         """
         try:
             with self.get_session() as session:

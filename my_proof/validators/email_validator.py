@@ -25,12 +25,12 @@ class EmailValidator:
         
         if not google_user:
             validation_result["warnings"].append("NO_GOOGLE_USER")
-            # Google user olmasa da contributor vs instagram email kontrolü yap
+            # Check contributor vs instagram email even if no Google user
         
         contributor_email = input_data.get('contributor', {}).get('email')
         instagram_profile_email = input_data.get('data', {}).get('profile', {}).get('email')
         
-        # Google user varsa Google email kontrolü
+        # If Google user exists, check Google email
         if google_user:
             google_email = google_user.email
             
@@ -44,7 +44,7 @@ class EmailValidator:
                 validation_result["errors"].append("GOOGLE_INSTAGRAM_EMAIL_MISMATCH")
                 logging.error(f"Google email {google_email} does not match Instagram profile email {instagram_profile_email}")
         
-        # TEMEL KONTROL: Contributor vs Instagram email (Google user olsun ya da olmasın)
+        # BASIC CHECK: Contributor vs Instagram email (with or without Google user)
         if contributor_email != instagram_profile_email:
             validation_result["is_valid"] = False
             validation_result["errors"].append("CONTRIBUTOR_INSTAGRAM_EMAIL_MISMATCH")

@@ -7,10 +7,10 @@ from my_proof.utils.db import DataRegistry, hash_email
 from my_proof.config import settings
 
 class DuplicateValidator:
-    # Bu class sahte/tekrar veri tespiti yapıyor - en önemli güvenlik kısmı
+    # This class performs fake/duplicate data detection - the most important security component
     
     def __init__(self):
-        # Database bağlantısı kuruyoruz, yoksa çalışmaz
+        # Establish database connection, otherwise it won't work
         try:
             self.data_registry = DataRegistry()
             self.db_available = True
@@ -18,31 +18,31 @@ class DuplicateValidator:
             logging.error(f"Data registry initialization failed: {str(e)}")
             self.db_available = False
         
-        # Hash cache - performance için aynı hash'leri tekrar hesaplamayız
+        # Hash cache - for performance, we don't recalculate the same hashes
         self._cached_hashes = None
     
     def check_for_duplicate_data(self, input_data: Dict[str, Any], wallet_address: str, contributor_email: str) -> Tuple[bool, str]:                                                                             
-        # YENİ SİSTEM: Her field'i ayrı ayrı kontrol et - daha güvenilir duplicate detection
+        # NEW SYSTEM: Check each field separately - more reliable duplicate detection
         try:
             if not self.db_available:
                 logging.warning("Database not available, skipping duplicate data check")
                 return False, "DATABASE_UNAVAILABLE"
             
-            # Immutable field'leri extract et
+            # Extract immutable fields
             immutable_data = self.extract_immutable_fields(input_data)
             
             if not immutable_data:
                 logging.warning("No immutable data found for duplicate check")
                 return False, "NO_IMMUTABLE_DATA"
             
-            # 1. ÖNCE AYRı AYRı FIELD KONTROLLERİ
+            # 1. FIRST: INDIVIDUAL FIELD CHECKS
             is_duplicate, reason = self.check_individual_duplicates(immutable_data, wallet_address)
             
             if is_duplicate:
                 logging.warning(f"Individual field duplicate detected for {wallet_address[:10]}...: {reason}")
                 return True, reason
             
-            # 2. SONRA GENEL DATA HASH KONTROLÜ
+            # 2. THEN: GENERAL DATA HASH CHECK
             data_hash = self.calculate_data_hash(input_data)
             fingerprint = self._generate_core_data_fingerprint(input_data)
             email_hash = hash_email(contributor_email)
@@ -51,14 +51,14 @@ class DuplicateValidator:
                 logging.error("Failed to generate data hash or fingerprint")
                 return False, "HASH_GENERATION_ERROR"
             
-            # Hash'leri cache'liyoruz - register_valid_data'da tekrar kullanmak için
+            # Cache hashes - to reuse in register_valid_data
             self._cached_hashes = {
                 'data_hash': data_hash,
                 'fingerprint': fingerprint,
                 'email_hash': email_hash
             }
             
-            # Genel data hash kontrolü
+            # General data hash check
             is_duplicate, reason = self.data_registry.check_data_duplicate(
                 data_hash, fingerprint, wallet_address, email_hash
             )
@@ -76,17 +76,17 @@ class DuplicateValidator:
 
     def extract_immutable_fields(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Instagram verisinden değişmez alanları çıkarır.
+        Extracts immutable fields from Instagram data.
         
-        NEDEN EKLENDİ: Duplicate detection için sadece değişmez alanları 
-        (timestamp, email, phone, username) kullanarak daha güvenilir kontrol sağlar.
+        WHY ADDED: Provides more reliable control by using only immutable fields 
+        (timestamp, email, phone, username) for duplicate detection.
         """
         immutable_data = {}
         
-        # Raw export data'dan güvenilir verileri çıkar
+        # Extract reliable data from raw export data
         raw_export_data = input_data.get('data', {}).get('raw_export_data', {})
         if raw_export_data:
-            # Her kategorinin content'ini parse et
+            # Parse content of each category
             for category_name, category_data in raw_export_data.items():
                 if isinstance(category_data, dict) and 'content' in category_data:
                     content = category_data['content']
@@ -94,41 +94,41 @@ class DuplicateValidator:
                         import json
                         content_json = json.loads(content)
 
-                        # Account creation timestamp (signup_details.json) - HİÇ DEĞİŞMEZ
+                        # Account creation timestamp (signup_details.json) - NEVER CHANGES
                         if 'account_creation_timestamp' in content_json:
                             timestamp = content_json['account_creation_timestamp']
-                            # Milisaniye hassasiyetinde olduğundan emin ol
+                            # Ensure millisecond precision
                             if isinstance(timestamp, (int, float)):
-                                # Saniye cinsindeyse milisaniyeye çevir
-                                if timestamp < 10000000000:  # 10 milyar'dan küçükse saniye cinsinden
+                                # Convert to milliseconds if in seconds
+                                if timestamp < 10000000000:  # If less than 10 billion, it's in seconds
                                     timestamp = int(timestamp * 1000)
                                 immutable_data['account_creation_timestamp'] = timestamp
 
-                        # Email (personal_information.json) - KİŞİYE ÖZEL
+                        # Email (personal_information.json) - PERSONAL
                         if 'email' in content_json:
                             immutable_data['email'] = content_json['email']
 
-                        # Phone number (personal_information.json) - KİŞİYE ÖZEL
+                        # Phone number (personal_information.json) - PERSONAL
                         if 'phone_number' in content_json:
                             immutable_data['phone_number'] = content_json['phone_number']
 
-                        # Username (personal_information.json) - KİŞİYE ÖZEL
+                        # Username (personal_information.json) - PERSONAL
                         if 'username' in content_json:
                             immutable_data['username'] = content_json['username']
                             
                     except:
                         pass
         
-        # Boş değerleri temizle
+        # Clean empty values
         immutable_data = {k: v for k, v in immutable_data.items() if v != '' and v is not None}
         return immutable_data
 
     def check_individual_duplicates(self, immutable_data: Dict[str, Any], wallet_address: str) -> Tuple[bool, str]:                                                                                              
         """
-        Her değişmez alanı ayrı ayrı duplicate kontrol eder.
+        Checks each immutable field separately for duplicates.
         
-        NEDEN EKLENDİ: Tek hash yerine her alanı ayrı ayrı kontrol ederek 
-        daha hassas duplicate detection sağlar.
+        WHY ADDED: Provides more sensitive duplicate detection by checking 
+        each field separately instead of using a single hash.
         
         Returns:
             Tuple[bool, str]: (is_duplicate, reason)
@@ -138,27 +138,27 @@ class DuplicateValidator:
                 logging.warning("Database not available, skipping individual duplicate checks")
                 return False, "NO_DUPLICATE"
             
-            # 1. Account creation timestamp kontrolü - EN ÖNEMLİ
+            # 1. Account creation timestamp check - MOST IMPORTANT
             if 'account_creation_timestamp' in immutable_data:
                 timestamp = immutable_data['account_creation_timestamp']
-                # Data registry üzerinden kontrol et
+                # Check through data registry
                 is_duplicate, reason = self.data_registry.check_timestamp_duplicate(timestamp, wallet_address)
                 if is_duplicate:
                     logging.warning(f"Same Instagram account (timestamp: {timestamp}) already used: {reason}")
                     return True, reason
             
-            # 2. Email kontrolü - mevcut sistem
+            # 2. Email check - existing system
             if 'email' in immutable_data:
                 email = immutable_data['email']
                 email_hash = hashlib.sha256(email.lower().encode('utf-8')).hexdigest()
                 
-                # Mevcut email registry kontrolü
+                # Existing email registry check
                 is_registered, registered_wallet = self.data_registry.is_email_hash_registered(email_hash)
                 if is_registered and registered_wallet != wallet_address:
                     logging.warning(f"Email {email} already used by wallet {registered_wallet}")
                     return True, f"EMAIL_ALREADY_USED_BY_WALLET_{registered_wallet}"
             
-            # 3. Phone kontrolü - yeni sistem
+            # 3. Phone check - new system
             if 'phone_number' in immutable_data:
                 phone = immutable_data['phone_number']
                 phone_hash = hashlib.sha256(phone.encode('utf-8')).hexdigest()
@@ -168,7 +168,7 @@ class DuplicateValidator:
                     logging.warning(f"Phone {phone} already used: {reason}")
                     return True, reason
             
-            # 4. Username kontrolü - yeni sistem
+            # 4. Username check - new system
             if 'username' in immutable_data:
                 username = immutable_data['username']
                 username_hash = hashlib.sha256(username.lower().encode('utf-8')).hexdigest()
@@ -197,7 +197,7 @@ class DuplicateValidator:
             logging.info(f"Extracting immutable data for hash (size: {data_size} chars)")
             logging.info(f"Immutable data: {list(immutable_data.keys())}")
 
-            # JSON'u normalize edip SHA256 hash alıyoruz
+            # Normalize JSON and get SHA256 hash
             normalized_json = json.dumps(immutable_data, sort_keys=True, separators=(',', ':'))
             data_hash = hashlib.sha256(normalized_json.encode('utf-8')).hexdigest()
 
@@ -240,68 +240,68 @@ class DuplicateValidator:
             return False
 
     def _generate_core_data_fingerprint(self, input_data: Dict[str, Any]) -> str:
-        # EN ÖNEMLİ FONKSİYON! Sahte veri tespiti burada yapılıyor
-        # Following, post, beğeni aktivitelerine bakıyoruz - profil bilgisi değil
+        # MOST IMPORTANT FUNCTION! Fake data detection is performed here
+        # We look at following, post, like activities - not profile information
         try:
             data_section = input_data.get('data', {})
             activities = data_section.get('activities', {})
             
-            # Aktivite bazlı parmak izi - profil bağımsız
+            # Activity-based fingerprint - profile independent
             activity_fingerprint = {}
             
-            # Takip listesi imzası - sahte takip listelerini engelliyor
+            # Following list signature - prevents fake following lists
             following_list = activities.get('following_list', [])
             if following_list and len(following_list) >= 3:
-                # TÜM takip edilenlerin imzasını alıyoruz - güçlü tespit için
+                # Get signature of ALL followed users - for strong detection
                 following_signature = []
-                for follow in following_list:  # tüm following verisini dahil et
+                for follow in following_list:  # include all following data
                     if follow.get('username') and follow.get('followed_at'):
                         following_signature.append({
-                            'username': follow.get('username'),  # kimi takip etmiş
-                            'followed_at': follow.get('followed_at')  # ne zaman takip etmiş
+                            'username': follow.get('username'),  # who they followed
+                            'followed_at': follow.get('followed_at')  # when they followed
                         })
                 activity_fingerprint['following_signature'] = following_signature
             
-            # Post imzası - sahte post verilerini engelliyor
+            # Post signature - prevents fake post data
             posts_created = activities.get('posts_created', [])
             if posts_created:
                 posts_signature = []
-                for post in posts_created:  # tüm postları al
+                for post in posts_created:  # get all posts
                     if post.get('creation_timestamp'):
                         posts_signature.append({
-                            'creation_timestamp': post.get('creation_timestamp'),  # post zamanı
-                            'title': post.get('title', ''),  # post başlığı
-                            'source_app': post.get('source_app'),  # hangi uygulamadan
-                            'has_photo': post.get('has_photo'),  # fotoğraf varmı
-                            'has_camera_metadata': post.get('has_camera_metadata')  # kamera bilgisi
+                            'creation_timestamp': post.get('creation_timestamp'),  # post time
+                            'title': post.get('title', ''),  # post title
+                            'source_app': post.get('source_app'),  # which app
+                            'has_photo': post.get('has_photo'),  # has photo
+                            'has_camera_metadata': post.get('has_camera_metadata')  # camera info
                         })
                 activity_fingerprint['posts_signature'] = posts_signature
             
-            # Beğeni imzası - sahte beğeni verilerini engelliyor
+            # Like signature - prevents fake like data
             likes_given = activities.get('likes_given', [])
             if likes_given:
                 likes_signature = []
                 for like in likes_given:
                     likes_signature.append({
-                        'target_username': like.get('target_username'),  # kimi beğenmiş
-                        'count': like.get('count'),  # kaç kez
-                        'last_activity': like.get('last_activity')  # son aktivite
+                        'target_username': like.get('target_username'),  # who they liked
+                        'count': like.get('count'),  # how many times
+                        'last_activity': like.get('last_activity')  # last activity
                     })
                 activity_fingerprint['likes_signature'] = likes_signature
             
-            # Yorum imzası - sahte yorum tespiti
+            # Comment signature - fake comment detection
             comments_made = activities.get('comments_made', [])
             if comments_made:
                 comments_signature = []
                 for comment in comments_made:
                     if comment.get('timestamp'):
                         comments_signature.append({
-                            'timestamp': comment.get('timestamp'),  # yorum zamanı
-                            'content': comment.get('content', '')[:20]  # ilk 20 karakter
+                            'timestamp': comment.get('timestamp'),  # comment time
+                            'content': comment.get('content', '')[:20]  # first 20 characters
                         })
                 activity_fingerprint['comments_signature'] = comments_signature
             
-            # Eğer önemli aktivite yoksa temel profili kullan
+            # If no important activity, use basic profile
             if not activity_fingerprint:
                 profile = data_section.get('profile', {})
                 activity_fingerprint = {
@@ -309,7 +309,7 @@ class DuplicateValidator:
                     'account_type': profile.get('account_type')
                 }
             
-            # Aktivite parmak izini hash'e çevir
+            # Convert activity fingerprint to hash
             fingerprint_json = json.dumps(activity_fingerprint, sort_keys=True, separators=(',', ':'))
             fingerprint_hash = hashlib.sha256(fingerprint_json.encode('utf-8')).hexdigest()
             
@@ -410,21 +410,21 @@ class DuplicateValidator:
             return False
 
     def register_valid_data(self, input_data: Dict[str, Any], wallet_address: str, contributor_email: str) -> bool:
-        # Başarılı geçen veriyi database'e kayıt ediyoruz
-        # Wallet + veri hash + parmak izi hepsini saklıyoruz ki sonra kontrol edebilelim
+        # Register successfully validated data to database
+        # We store wallet + data hash + fingerprint so we can check later
         try:
             if not self.db_available:
                 logging.warning("Database not available, skipping data registration")
                 return False
             
-            # Cache'den hash'leri al - tekrar hesaplamak yerine (PERFORMANCE İYİLEŞTİRMESİ!)
+            # Get hashes from cache - instead of recalculating (PERFORMANCE OPTIMIZATION!)
             if hasattr(self, '_cached_hashes') and self._cached_hashes:
                 data_hash = self._cached_hashes['data_hash']
                 fingerprint = self._cached_hashes['fingerprint']
                 email_hash = self._cached_hashes['email_hash']
                 logging.info("Using cached hashes for registration (performance optimization)")
             else:
-                # Cache yoksa tekrar hesapla (fallback)
+                # If no cache, recalculate (fallback)
                 logging.warning("No cached hashes found, recalculating...")
                 data_hash = self.calculate_data_hash(input_data)
                 fingerprint = self._generate_core_data_fingerprint(input_data)
@@ -437,40 +437,40 @@ class DuplicateValidator:
             contribution_id = input_data.get('contribution_id')
             platform = input_data.get('data', {}).get('platform', 'instagram')
             
-            # Önce wallet'ı kaydet (bu wallet'ın ilk submission'ı olduğu için)
+            # First register wallet (since this is the first submission for this wallet)
             wallet_success = self.data_registry.register_wallet(
                 wallet_address, email_hash, data_hash, platform
             )
             
-            # Sonra veri hash'ini kaydet
+            # Then register data hash
             data_success = self.data_registry.register_data_hash(
                 data_hash, fingerprint, wallet_address, email_hash, contribution_id, platform
             )
             
-            # Phone ve Username kayıtlarını da ekle
+            # Also add Phone and Username registrations
             immutable_data = self.extract_immutable_fields(input_data)
             
-            # Phone kaydı
+            # Phone registration
             if 'phone_number' in immutable_data:
                 phone = immutable_data['phone_number']
                 phone_hash = hashlib.sha256(phone.encode('utf-8')).hexdigest()
                 self.data_registry.register_phone_hash(phone_hash, wallet_address)
                 logging.info(f"Phone hash registered for wallet {wallet_address[:10]}...")
             
-            # Username kaydı
+            # Username registration
             if 'username' in immutable_data:
                 username = immutable_data['username']
                 username_hash = hashlib.sha256(username.lower().encode('utf-8')).hexdigest()
                 self.data_registry.register_username_hash(username_hash, wallet_address)
                 logging.info(f"Username hash registered for wallet {wallet_address[:10]}...")
             
-            # Timestamp kaydı
+            # Timestamp registration
             if 'account_creation_timestamp' in immutable_data:
                 timestamp = immutable_data['account_creation_timestamp']
                 self.data_registry.register_timestamp(timestamp, wallet_address)
                 logging.info(f"Timestamp {timestamp} registered for wallet {wallet_address[:10]}...")
             
-            # Cache'i temizle - bir sonraki submission için
+            # Clear cache - for next submission
             if hasattr(self, '_cached_hashes'):
                 delattr(self, '_cached_hashes')
             

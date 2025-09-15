@@ -14,34 +14,34 @@ from my_proof.validators.email_validator import EmailValidator
 from my_proof.config import settings
 
 class Proof:
-    # Ana proof class'ı - tüm validation işlemleri burada yapılıyor
+    # Main proof class - all validation operations are performed here
     
     def __init__(self):
-        # Başlangıç ayarları - response objesi ve validator'ları hazırlıyoruz
+        # Initial settings - preparing response object and validators
         self.proof_response = ProofResponse(dlp_id=settings.DLP_ID)
-        self.duplicate_validator = DuplicateValidator()  # sahte veri kontrol edici
-        self.email_validator = EmailValidator()  # email kontrol edici
+        self.duplicate_validator = DuplicateValidator()  # fake data checker
+        self.email_validator = EmailValidator()  # email checker
         
     def generate(self) -> ProofResponse:
-        # ANA FONKSİYON - Burda tüm validation süreci işliyor
-        # 6 aşamalı kontrol sistemi ile çalışıyor
+        # MAIN FUNCTION - All validation process runs here
+        # Works with 6-stage control system
         logging.info("Starting proof generation for vdatadao with improved validation flow")
         errors = []
 
-        # Google kullanıcı doğrulaması (opsiyonel)
+        # Google user verification (optional)
         google_user = self._get_google_user(errors)
 
-        # Input klasöründeki JSON dosyalarını tek tek işle
+        # Process JSON files in input folder one by one
         for input_filename in os.listdir(settings.INPUT_DIR):
             input_file = os.path.join(settings.INPUT_DIR, input_filename)
 
             if os.path.splitext(input_file)[1].lower() == ".json":
-                # Dosyayı yükle ve parse et
+                # Load and parse file
                 input_data = self._load_and_validate_file(input_file, errors)
                 if not input_data:
                     continue
                 
-                # Temel bilgileri çıkar - bunlar olmadan işlem yapamayız
+                # Extract basic information - we can't process without these
                 contributor_email = input_data.get('contributor', {}).get('email')
                 wallet_address = input_data.get('contributor', {}).get('wallet_address')
                 
@@ -50,17 +50,17 @@ class Proof:
                     logging.error("Missing contributor email or wallet address")
                     break
                 
-                # AŞAMA 1: ŞEMA KONTROLÜ - veri yapısı doğru mu?
+                # STAGE 1: SCHEMA VALIDATION - is data structure correct?
                 logging.info("Step 1: Schema validation")
                 schema_type, schema_matches = validate_schema(input_data)
-                # Schema validation aktif - gerçek veri testi için
+                # Schema validation active - for real data testing
                 if not schema_matches:
                     errors.append("INVALID_SCHEMA")
                     logging.error(f"Schema validation failed for {schema_type}")
                     break
 
-                # AŞAMA 2: DUPLICATE DATA KONTROLÜ - en kritik kısım!
-                # Wallet, email, veri hash, aktivite parmak izi hepsi kontrol ediliyor
+                # STAGE 2: DUPLICATE DATA CHECK - most critical part!
+                # Wallet, email, data hash, activity fingerprint all checked
                 logging.info("Step 2: Duplicate data validation")
                 is_duplicate, duplicate_reason = self.duplicate_validator.check_for_duplicate_data(
                     input_data, wallet_address, contributor_email
@@ -70,8 +70,8 @@ class Proof:
                     logging.error(f"Duplicate data detected: {duplicate_reason}")
                     break
 
-                # AŞAMA 3: EMAIL UYUMLULUK KONTROLÜ
-                # Contributor email ile Instagram email aynımı?
+                # STAGE 3: EMAIL CONSISTENCY CHECK
+                # Is contributor email same as Instagram email?
                 logging.info("Step 3: Email consistency validation")
                 email_validation_result = self.email_validator.validate_email_consistency(google_user, input_data)
                 if not email_validation_result["is_valid"]:
@@ -79,22 +79,22 @@ class Proof:
                     logging.error(f"Email validation failed: {email_validation_result['errors']}")
                     break
                 
-                # Not: Email duplication artık duplicate data validation içinde kontrol ediliyor
+                # Note: Email duplication is now checked within duplicate data validation
                 
-                # AŞAMA 4: HAM VERİ KONTROLÜ
-                # Raw export data yeterli mi? boyutu uygun mu?
+                # STAGE 4: RAW DATA CHECK
+                # Is raw export data sufficient? Is size appropriate?
                 logging.info("Step 4: Raw data validation")
                 if not self._validate_raw_export_data_simple(input_data, errors):
                     logging.error("Raw data validation failed")
                     break
 
-                # AŞAMA 5: VERİ İŞLEME VE SKORLAMA
-                # Instagram/Google işlemcisi ile veriler analiz ediliyor
+                # STAGE 5: DATA PROCESSING AND SCORING
+                # Data is analyzed with Instagram/Google processor
                 logging.info("Step 5: Processing data and calculating scores")
                 self._process_data_by_type(input_data, schema_type, schema_matches, google_user, errors)
                 
-                # AŞAMA 6: DATABASE'E KAYDETME (sadece hata yoksa)
-                # Geçerli veriyi kalıcı olarak saklıyoruz
+                # STAGE 6: SAVE TO DATABASE (only if no errors)
+                # Permanently store valid data
                 if len(errors) == 0:
                     logging.info("Step 6: Saving valid data to database")
                     data_saved = self.duplicate_validator.register_valid_data(input_data, wallet_address, contributor_email)
@@ -147,50 +147,50 @@ class Proof:
 
 
     def _validate_raw_export_data_simple(self, input_data, errors):
-        # Ham Instagram/Google export verisinin yeterli olup olmadığını kontrol ediyor
-        # Sahte minimal verilerle gelen submission'ları engellemek için
+        # Checks if raw Instagram/Google export data is sufficient
+        # To prevent submissions with fake minimal data
         try:
             data_section = input_data.get('data', {})
             profile = data_section.get('profile', {})
             
-            # 1. Profil temel kontrolü - username ve email olmadan olmaz
+            # 1. Basic profile check - can't work without username and email
             if not profile.get('username') or not profile.get('email'):
                 errors.append("MISSING_BASIC_PROFILE_DATA")
                 return False
                 
-            # 2. Raw export data varlık kontrolü - asıl veriler burada
+            # 2. Raw export data existence check - actual data is here
             raw_export_data = data_section.get('raw_export_data', {})
             if not raw_export_data:
                 errors.append("MISSING_RAW_EXPORT_DATA")
                 return False
                 
-            # 3. Kategori sayısı kontrolü - çok az kategori varsa şüpheli
+            # 3. Category count check - suspicious if too few categories
             category_count = len(raw_export_data)
             if category_count < 3:
                 errors.append("INSUFFICIENT_RAW_DATA_CATEGORIES")
                 logging.warning(f"Raw data has only {category_count} categories, minimum 3 required")
                 return False
                 
-            # 4. İçerik boyutu hesaplama
+            # 4. Content size calculation
             total_content_size = 0
             categories_with_content = 0
             
             for category_name, category_data in raw_export_data.items():
                 if isinstance(category_data, dict) and 'content' in category_data:
                     content = category_data['content']
-                    if content:  # İçerik boş değilse say
+                    if content:  # Count if content is not empty
                         content_size = len(str(content))
                         total_content_size += content_size
                         categories_with_content += 1
                         
-            # 5. Minimum boyut kontrolü - çok küçük data sahte olabilir
+            # 5. Minimum size check - very small data might be fake
             min_required_size = 10000  # 10KB minimum
             if total_content_size < min_required_size:
                 errors.append("INSUFFICIENT_RAW_DATA_SIZE")
                 logging.warning(f"Raw data size {total_content_size} bytes, minimum {min_required_size} required")
                 return False
                 
-            # 6. İçerikli kategori kontrolü - en az 2 kategori dolu olmalı
+            # 6. Content category check - at least 2 categories must be filled
             if categories_with_content < 2:
                 errors.append("INSUFFICIENT_CONTENT_CATEGORIES")
                 logging.warning(f"Only {categories_with_content} categories have content, minimum 2 required")
@@ -205,12 +205,12 @@ class Proof:
             return False
 
     def _process_data_by_type(self, input_data, schema_type, schema_matches, google_user, errors):
-        # Veri tipine göre doğru işlemciyi seç - Instagram vs Google
-        # Her platform'un kendine özel analiz yöntemi var
+        # Select correct processor based on data type - Instagram vs Google
+        # Each platform has its own specific analysis method
         if schema_type == "instagram-meta-export.json":
-            processor = InstagramProcessor(self.proof_response)  # Instagram verisi
+            processor = InstagramProcessor(self.proof_response)  # Instagram data
             processor.process_data(input_data, schema_matches, google_user, errors)
         else:
-            processor = GoogleProcessor(self.proof_response)  # Google verisi
+            processor = GoogleProcessor(self.proof_response)  # Google data
             processor.process_data(input_data, schema_matches, google_user, errors)
 
