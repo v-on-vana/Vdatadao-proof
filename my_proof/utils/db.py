@@ -86,8 +86,19 @@ class DataRegistry:
         Initialize the data registry with SQLAlchemy.
         
         Args:
-            db_path: Path to the SQLite database file
+            db_path: Path to the SQLite database file (ignored if using PostgreSQL)
         """
+        import os
+        from my_proof.config import settings
+        
+        # Check database type and initialize accordingly
+        if settings.DB_TYPE == "postgresql":
+            self._init_postgresql()
+        else:
+            self._init_sqlite(db_path)
+    
+    def _init_sqlite(self, db_path: str = None):
+        """Initialize SQLite database connection."""
         import os
         from my_proof.config import settings
         
@@ -141,7 +152,40 @@ class DataRegistry:
         self.SessionLocal = sessionmaker(bind=self.engine)
         
         # Enhanced database initialization logging
-        logging.info(f"Data registry initialized: {db_path}")
+        logging.info(f"SQLite data registry initialized: {db_path}")
+        
+        # Verify persistence by checking table existence and record counts
+        self._verify_database_persistence()
+    
+    def _init_postgresql(self):
+        """Initialize PostgreSQL database connection."""
+        from my_proof.config import settings
+        
+        # Build database URL
+        if settings.DATABASE_URL:
+            database_url = settings.DATABASE_URL
+        else:
+            database_url = (
+                f"postgresql://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}"
+                f"@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
+            )
+        
+        logging.info(f"PostgreSQL connection URL: {database_url.replace(settings.POSTGRES_PASSWORD, '***')}")
+        
+        # Create engine with PostgreSQL-specific settings
+        self.engine = create_engine(
+            database_url,
+            echo=False,
+            pool_pre_ping=True,
+            pool_size=10,
+            max_overflow=20
+        )
+        
+        # Create all tables
+        Base.metadata.create_all(self.engine)
+        self.SessionLocal = sessionmaker(bind=self.engine)
+        
+        logging.info("PostgreSQL data registry initialized successfully")
         
         # Verify persistence by checking table existence and record counts
         self._verify_database_persistence()

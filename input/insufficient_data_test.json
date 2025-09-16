@@ -1,0 +1,73 @@
+{
+  "contribution_id": "meta_export_006",
+  "contributor": {
+    "wallet_address": "0x7777777777777777777777777777777777777777",
+    "email": "insufficient@vdatadao.com",
+    "name": "Insufficient Data User",
+    "locale": "en"
+  },
+  "data": {
+    "platform": "instagram",
+    "source_type": "meta_export",
+    "extraction_method": "google_drive_api",
+    "profile": {
+      "username": "insufficient_user",
+      "display_name": "Insufficient Data User",
+      "email": "insufficient@vdatadao.com",
+      "account_type": "Public",
+      "date_of_birth": "1995-06-15",
+      "phone_confirmed": false,
+      "private_account": false
+    },
+    "metrics": {
+      "posts_count": 5,
+      "following_count": 10,
+      "follower_count": 20,
+      "likes_given_count": 50,
+      "comments_count": 5,
+      "account_age_days": 30,
+      "total_interactions": 55,
+      "has_story_activity": false
+    },
+    "activities": {
+      "following_list": [],
+      "likes_given": [],
+      "posts_created": [],
+      "comments_made": []
+    },
+    "security": {
+      "last_login": 1704300000,
+      "contact_syncing": false,
+      "has_shared_live_video": false
+    },
+    "raw_export_data": {
+      "minimal_data": {
+        "content": "very_little_data",
+        "size": 100
+      }
+    }
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "schema_version": "vana_datadao_v1",
+    "source": "insufficient_data_test",
+    "collection_date": "2024-01-06T00:00:00Z",
+    "data_type": "instagram_meta_export",
+    "processing_timestamp": 1704499200,
+    "extraction_completeness": 20.0,
+    "folder_structure": {
+      "metaFolderId": "test_meta_folder_6",
+      "instagramFolderId": "test_instagram_folder_6",
+      "instagramFolderName": "Instagram Data 6"
+    },
+    "privacy_settings": {
+      "contains_pii": true,
+      "anonymization_level": "partial",
+      "retention_policy": "user_controlled"
+    },
+    "quality_score": 30.0,
+    "data_freshness": 95.0
+  },
+  "created_at": "2024-01-06T00:00:00Z",
+  "updated_at": "2024-01-06T00:00:00Z"
+}

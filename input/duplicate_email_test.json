@@ -1,0 +1,125 @@
+{
+  "contribution_id": "meta_export_003",
+  "contributor": {
+    "wallet_address": "0x9876543210987654321098765432109876543210",
+    "email": "test@vdatadao.com",
+    "name": "Same Email User",
+    "locale": "en"
+  },
+  "data": {
+    "platform": "instagram",
+    "source_type": "meta_export",
+    "extraction_method": "google_drive_api",
+    "profile": {
+      "username": "same_email_user",
+      "display_name": "Same Email User",
+      "email": "test@vdatadao.com",
+      "account_type": "Public",
+      "date_of_birth": "1992-03-20",
+      "phone_confirmed": true,
+      "private_account": false
+    },
+    "metrics": {
+      "posts_count": 100,
+      "following_count": 1200,
+      "follower_count": 3000,
+      "likes_given_count": 5000,
+      "comments_count": 300,
+      "account_age_days": 1500,
+      "total_interactions": 5300,
+      "has_story_activity": true
+    },
+    "activities": {
+      "following_list": [
+        {
+          "username": "friend4",
+          "followed_at": 1700000000
+        },
+        {
+          "username": "friend5",
+          "followed_at": 1700001000
+        }
+      ],
+      "likes_given": [
+        {
+          "target_username": "friend4",
+          "count": 25,
+          "last_activity": 1700002000
+        },
+        {
+          "target_username": "friend5",
+          "count": 15,
+          "last_activity": 1700003000
+        }
+      ],
+      "posts_created": [
+        {
+          "creation_timestamp": 1704100000,
+          "title": "Same email user post",
+          "source_app": "instagram",
+          "has_photo": true,
+          "has_camera_metadata": true
+        },
+        {
+          "creation_timestamp": 1704090000,
+          "title": "Another same email post",
+          "source_app": "instagram",
+          "has_photo": false,
+          "has_camera_metadata": false
+        }
+      ],
+      "comments_made": [
+        {
+          "timestamp": 1704100000,
+          "target_username": "friend4"
+        }
+      ]
+    },
+    "security": {
+      "last_login": 1704100000,
+      "contact_syncing": false,
+      "has_shared_live_video": true
+    },
+    "raw_export_data": {
+      "profile_data": {
+        "content": "same_email_user_encrypted_profile_data_with_sufficient_content_to_pass_validation_requirements_for_vdatadao_testing_purposes_this_represents_a_different_user_with_same_email_address_to_test_duplicate_detection_mechanisms_in_the_proof_system_this_data_should_be_rejected_due_to_email_duplication_but_different_wallet_address_to_verify_that_the_system_properly_identifies_email_reuse_attempts_and_prevents_fraudulent_contributions_while_maintaining_data_integrity_and_security_standards_required_by_the_vana_datadao_platform",
+        "size": 2000
+      },
+      "posts_data": {
+        "content": "same_email_user_encrypted_posts_data_with_sufficient_content_to_pass_validation_requirements_for_vdatadao_testing_purposes_this_represents_different_user_posts_with_same_email_address_to_test_duplicate_detection_mechanisms_in_the_proof_system_this_data_should_be_rejected_due_to_email_duplication_but_different_wallet_address_to_verify_that_the_system_properly_identifies_email_reuse_attempts_and_prevents_fraudulent_contributions_while_maintaining_data_integrity_and_security_standards_required_by_the_vana_datadao_platform",
+        "size": 3000
+      },
+      "stories_data": {
+        "content": "same_email_user_encrypted_stories_data_with_sufficient_content_to_pass_validation_requirements_for_vdatadao_testing_purposes_this_represents_different_user_stories_with_same_email_address_to_test_duplicate_detection_mechanisms_in_the_proof_system_this_data_should_be_rejected_due_to_email_duplication_but_different_wallet_address_to_verify_that_the_system_properly_identifies_email_reuse_attempts_and_prevents_fraudulent_contributions_while_maintaining_data_integrity_and_security_standards_required_by_the_vana_datadao_platform",
+        "size": 1500
+      },
+      "messages_data": {
+        "content": "same_email_user_encrypted_messages_data_with_sufficient_content_to_pass_validation_requirements_for_vdatadao_testing_purposes_this_represents_different_user_messages_with_same_email_address_to_test_duplicate_detection_mechanisms_in_the_proof_system_this_data_should_be_rejected_due_to_email_duplication_but_different_wallet_address_to_verify_that_the_system_properly_identifies_email_reuse_attempts_and_prevents_fraudulent_contributions_while_maintaining_data_integrity_and_security_standards_required_by_the_vana_datadao_platform",
+        "size": 2500
+      }
+    }
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "schema_version": "vana_datadao_v1",
+    "source": "duplicate_email_test",
+    "collection_date": "2024-01-03T00:00:00Z",
+    "data_type": "instagram_meta_export",
+    "processing_timestamp": 1704240000,
+    "extraction_completeness": 92.0,
+    "folder_structure": {
+      "metaFolderId": "test_meta_folder_3",
+      "instagramFolderId": "test_instagram_folder_3",
+      "instagramFolderName": "Instagram Data 3"
+    },
+    "privacy_settings": {
+      "contains_pii": true,
+      "anonymization_level": "partial",
+      "retention_policy": "user_controlled"
+    },
+    "quality_score": 88.0,
+    "data_freshness": 92.0
+  },
+  "created_at": "2024-01-03T00:00:00Z",
+  "updated_at": "2024-01-03T00:00:00Z"
+}

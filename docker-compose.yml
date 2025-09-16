@@ -1,20 +1,47 @@
 version: '3.8'
 
 services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: vdatadao-postgres
+    environment:
+      - POSTGRES_DB=vdatadao
+      - POSTGRES_USER=vdatadao_user
+      - POSTGRES_PASSWORD=vdatadao_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vdatadao_user -d vdatadao"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Vdatadao Proof Application
   vdatadao-proof:
     build: .
     container_name: vdatadao-proof-app
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
-      # CRITICAL: Mount host directory to persist database
-      - ./data:/app/data:rw
       # Mount input/output directories for LOCAL TESTING (TEE production uses /input directly)
       - ./demo/input:/input:ro
       - ./output:/output:rw
     environment:
       - DOCKER_CONTAINER=true
-      - DB_PATH=/app/data/registry.db
+      - DB_TYPE=postgresql
+      - DATABASE_URL=postgresql://vdatadao_user:vdatadao_password@postgres:5432/vdatadao
+      # Alternative: Use individual PostgreSQL settings
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=vdatadao
+      - POSTGRES_USER=vdatadao_user
+      - POSTGRES_PASSWORD=vdatadao_password
       # INPUT_DIR and OUTPUT_DIR use defaults from config.py (/input, /output)
-      # This matches TEE production environment
       - GOOGLE_TOKEN=${GOOGLE_TOKEN:-}
       - DLP_ID=${DLP_ID:-143}
       - PYTHONUNBUFFERED=1
@@ -23,14 +50,16 @@ services:
     
     # Health check to verify database connectivity
     healthcheck:
-      test: ["CMD", "python", "-c", "import sqlite3; sqlite3.connect('/app/data/registry.db').execute('SELECT 1')"]
+      test: ["CMD", "python", "-c", "import psycopg2; psycopg2.connect('postgresql://vdatadao_user:vdatadao_password@postgres:5432/vdatadao').execute('SELECT 1')"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
 
-# Named volume for database persistence
+# Named volumes for data persistence
 volumes:
+  postgres_data:
+    driver: local
   vdatadao_data:
     driver: local
 

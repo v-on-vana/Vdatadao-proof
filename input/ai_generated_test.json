@@ -1,0 +1,104 @@
+{
+  "contribution_id": "meta_export_005",
+  "contributor": {
+    "wallet_address": "0x6666666666666666666666666666666666666666",
+    "email": "ai@vdatadao.com",
+    "name": "AI Generated User",
+    "locale": "en"
+  },
+  "data": {
+    "platform": "instagram",
+    "source_type": "meta_export",
+    "extraction_method": "google_drive_api",
+    "profile": {
+      "username": "ai_generated_user",
+      "display_name": "AI Generated User",
+      "email": "ai@vdatadao.com",
+      "account_type": "Public",
+      "date_of_birth": "1990-01-01",
+      "phone_confirmed": false,
+      "private_account": false
+    },
+    "metrics": {
+      "posts_count": 50,
+      "following_count": 1000,
+      "follower_count": 2500,
+      "likes_given_count": 2500,
+      "comments_count": 100,
+      "account_age_days": 1000,
+      "total_interactions": 2600,
+      "has_story_activity": true
+    },
+    "activities": {
+      "following_list": [
+        {
+          "username": "ai_friend1",
+          "followed_at": 1700000000
+        }
+      ],
+      "likes_given": [
+        {
+          "target_username": "ai_friend1",
+          "count": 10,
+          "last_activity": 1700002000
+        }
+      ],
+      "posts_created": [
+        {
+          "creation_timestamp": 1704200000,
+          "title": "Perfect AI generated content with optimal engagement metrics",
+          "source_app": "instagram",
+          "has_photo": true,
+          "has_camera_metadata": true
+        }
+      ],
+      "comments_made": []
+    },
+    "security": {
+      "last_login": 1704200000,
+      "contact_syncing": false,
+      "has_shared_live_video": false
+    },
+    "raw_export_data": {
+      "profile_data": {
+        "content": "ai_generated_perfect_profile_data_with_optimal_metrics_and_engagement_patterns_that_appear_too_good_to_be_true_this_content_has_been_generated_by_artificial_intelligence_to_test_ai_detection_mechanisms_in_the_proof_system_this_data_should_be_flagged_as_ai_generated_due_to_perfect_metrics_unrealistic_engagement_patterns_and_lack_of_human_imperfections_that_are_typically_found_in_authentic_social_media_data",
+        "size": 2000
+      },
+      "posts_data": {
+        "content": "ai_generated_perfect_posts_data_with_optimal_metrics_and_engagement_patterns_that_appear_too_good_to_be_true_this_content_has_been_generated_by_artificial_intelligence_to_test_ai_detection_mechanisms_in_the_proof_system_this_data_should_be_flagged_as_ai_generated_due_to_perfect_metrics_unrealistic_engagement_patterns_and_lack_of_human_imperfections_that_are_typically_found_in_authentic_social_media_data",
+        "size": 3000
+      },
+      "stories_data": {
+        "content": "ai_generated_perfect_stories_data_with_optimal_metrics_and_engagement_patterns_that_appear_too_good_to_be_true_this_content_has_been_generated_by_artificial_intelligence_to_test_ai_detection_mechanisms_in_the_proof_system_this_data_should_be_flagged_as_ai_generated_due_to_perfect_metrics_unrealistic_engagement_patterns_and_lack_of_human_imperfections_that_are_typically_found_in_authentic_social_media_data",
+        "size": 1500
+      },
+      "messages_data": {
+        "content": "ai_generated_perfect_messages_data_with_optimal_metrics_and_engagement_patterns_that_appear_too_good_to_be_true_this_content_has_been_generated_by_artificial_intelligence_to_test_ai_detection_mechanisms_in_the_proof_system_this_data_should_be_flagged_as_ai_generated_due_to_perfect_metrics_unrealistic_engagement_patterns_and_lack_of_human_imperfections_that_are_typically_found_in_authentic_social_media_data",
+        "size": 2500
+      }
+    }
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "schema_version": "vana_datadao_v1",
+    "source": "ai_generated_test",
+    "collection_date": "2024-01-05T00:00:00Z",
+    "data_type": "instagram_meta_export",
+    "processing_timestamp": 1704412800,
+    "extraction_completeness": 100.0,
+    "folder_structure": {
+      "metaFolderId": "test_meta_folder_5",
+      "instagramFolderId": "test_instagram_folder_5",
+      "instagramFolderName": "Instagram Data 5"
+    },
+    "privacy_settings": {
+      "contains_pii": true,
+      "anonymization_level": "partial",
+      "retention_policy": "user_controlled"
+    },
+    "quality_score": 100.0,
+    "data_freshness": 100.0
+  },
+  "created_at": "2024-01-05T00:00:00Z",
+  "updated_at": "2024-01-05T00:00:00Z"
+}

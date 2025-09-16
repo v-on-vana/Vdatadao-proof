@@ -8,7 +8,7 @@
   "uniqueness": 0.0,
   "attributes": {
     "errors": [
-      "DUPLICATE_DATA: WALLET_ALREADY_USED"
+      "INSUFFICIENT_RAW_DATA_CATEGORIES"
     ]
   },
   "metadata": {}
