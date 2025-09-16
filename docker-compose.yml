@@ -5,32 +5,29 @@ services:
     build: .
     container_name: vdatadao-proof-app
     volumes:
-      # CRITICAL: Mount host directory to persist database
-      - ./data:/app/data:rw
       # Mount input/output directories for LOCAL TESTING (TEE production uses /input directly)
       - ./demo/input:/input:ro
       - ./output:/output:rw
     environment:
       - DOCKER_CONTAINER=true
-      - DB_PATH=/app/data/registry.db
-      # INPUT_DIR and OUTPUT_DIR use defaults from config.py (/input, /output)
-      # This matches TEE production environment
+      # PostgreSQL Configuration
+      - DATABASE_URL=${DATABASE_URL:-}
+      - DB_HOST=${DB_HOST:-localhost}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_NAME=${DB_NAME:-vdatadao_proof}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-}
+      # Application Configuration
       - GOOGLE_TOKEN=${GOOGLE_TOKEN:-}
       - DLP_ID=${DLP_ID:-143}
       - PYTHONUNBUFFERED=1
     restart: unless-stopped
     working_dir: /app
     
-    # Health check to verify database connectivity
+    # Health check to verify PostgreSQL connectivity
     healthcheck:
-      test: ["CMD", "python", "-c", "import sqlite3; sqlite3.connect('/app/data/registry.db').execute('SELECT 1')"]
+      test: ["CMD", "python", "-c", "from my_proof.utils.db import DataRegistry; DataRegistry()"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-
-# Named volume for database persistence
-volumes:
-  vdatadao_data:
-    driver: local
-

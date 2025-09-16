@@ -44,10 +44,36 @@ class Settings(BaseSettings):
         min_length=20,
     )
 
-    # Database Configuration
-    DB_PATH: str = Field(
-        default="data/registry.db",
-        description="Path to the SQLite database file for duplicate detection",
+
+    # PostgreSQL Configuration
+    DATABASE_URL: Optional[str] = Field(
+        default=None,
+        description="PostgreSQL connection URL (postgresql://user:password@host:port/database)",
+    )
+
+    DB_HOST: str = Field(
+        default="localhost",
+        description="PostgreSQL host",
+    )
+
+    DB_PORT: int = Field(
+        default=5432,
+        description="PostgreSQL port",
+    )
+
+    DB_NAME: str = Field(
+        default="vdatadao_proof",
+        description="PostgreSQL database name",
+    )
+
+    DB_USER: str = Field(
+        default="postgres",
+        description="PostgreSQL username",
+    )
+
+    DB_PASSWORD: str = Field(
+        default="",
+        description="PostgreSQL password",
     )
 
     DOCKER_CONTAINER: bool = Field(
