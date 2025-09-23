@@ -10,7 +10,6 @@ from my_proof.utils.schema import validate_schema
 from my_proof.processors.instagram_processor import InstagramProcessor
 from my_proof.processors.google_processor import GoogleProcessor
 from my_proof.validators.duplicate_validator import DuplicateValidator
-from my_proof.validators.email_validator import EmailValidator
 from my_proof.config import settings
 
 class Proof:
@@ -20,11 +19,10 @@ class Proof:
         # Başlangıç ayarları - response objesi ve validator'ları hazırlıyoruz
         self.proof_response = ProofResponse(dlp_id=settings.DLP_ID)
         self.duplicate_validator = DuplicateValidator()  # sahte veri kontrol edici
-        self.email_validator = EmailValidator()  # email kontrol edici
         
     def generate(self) -> ProofResponse:
         # ANA FONKSİYON - Burda tüm validation süreci işliyor
-        # 6 aşamalı kontrol sistemi ile çalışıyor
+        # 5 aşamalı kontrol sistemi ile çalışıyor
         logging.info("Starting proof generation for vdatadao with improved validation flow")
         errors = []
 
@@ -69,44 +67,30 @@ class Proof:
                     logging.error(f"Duplicate data detected: {duplicate_reason}")
                     break
 
-                # AŞAMA 3: EMAIL UYUMLULUK KONTROLÜ
-                # Contributor email ile Instagram email aynımı?
-                logging.info("Step 3: Email consistency validation")
-                email_validation_result = self.email_validator.validate_email_consistency(google_user, input_data)
-                if not email_validation_result["is_valid"]:
-                    errors.extend(email_validation_result["errors"])
-                    logging.error(f"Email validation failed: {email_validation_result['errors']}")
-                    break
-                
-                # Not: Email duplication artık duplicate data validation içinde kontrol ediliyor
-                
-                # AŞAMA 4: HAM VERİ KONTROLÜ
+                # AŞAMA 3: HAM VERİ KONTROLÜ
                 # Raw export data yeterli mi? boyutu uygun mu?
-                logging.info("Step 4: Raw data validation")
+                logging.info("Step 3: Raw data validation")
                 if not self._validate_raw_export_data_simple(input_data, errors):
                     logging.error("Raw data validation failed")
                     break
 
-                # AŞAMA 5: VERİ İŞLEME VE SKORLAMA
+                # AŞAMA 4: VERİ İŞLEME VE SKORLAMA
                 # Instagram/Google işlemcisi ile veriler analiz ediliyor
-                logging.info("Step 5: Processing data and calculating scores")
+                logging.info("Step 4: Processing data and calculating scores")
                 self._process_data_by_type(input_data, schema_type, schema_matches, google_user, errors)
                 
-                # AŞAMA 6: DATABASE'E KAYDETME (sadece hata yoksa)
+                # AŞAMA 5: DATABASE'E KAYDETME (sadece hata yoksa)
                 # Geçerli veriyi kalıcı olarak saklıyoruz
                 if len(errors) == 0:
-                    logging.info("Step 6: Saving valid data to database")
+                    logging.info("Step 5: Saving valid data to database")
                     data_saved = self.duplicate_validator.register_valid_data(input_data, wallet_address, contributor_email)
-                    email_saved = self.email_validator.register_email_to_database(contributor_email, wallet_address)
                     
                     if not data_saved:
                         logging.warning("Failed to save data to database")
-                    if not email_saved:
-                        logging.warning("Failed to save email to database")
 
                 self.proof_response.metadata = {
                     "schema_type": schema_type,
-                    "validation_steps_completed": 6,
+                    "validation_steps_completed": 5,
                     "duplicate_check_reason": duplicate_reason if is_duplicate else "NO_DUPLICATE"
                 }
 
