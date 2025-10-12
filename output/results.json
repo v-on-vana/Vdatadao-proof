@@ -1,15 +1,50 @@
 {
   "dlp_id": 143,
   "valid": false,
-  "score": 0.0,
-  "authenticity": 0.0,
+  "score": 0.533625,
+  "authenticity": 0.52,
   "ownership": 0.0,
-  "quality": 0.0,
-  "uniqueness": 0.0,
+  "quality": 0.82625,
+  "uniqueness": 0.415,
   "attributes": {
+    "schema_type": "instagram-meta-export.json",
+    "platform": "instagram",
+    "contributor_email": "vdatadao@gmail.com",
+    "contributor_wallet": "0x0AeA6B11278f30A5c326F85892cFF86f588480ec",
+    "instagram_username": "vdatadao",
+    "account_type": "Public",
+    "posts_count": 1,
+    "followers_count": 0,
+    "account_age_days": 11017,
+    "extraction_completeness": 100.0,
+    "quality_score": 100.0,
+    "data_freshness": 60.0,
+    "verified_with_oauth": false,
+    "phone_confirmed": false,
+    "private_account": false,
+    "ai_detection": {
+      "is_ai_generated": false,
+      "confidence": 0.3,
+      "indicators": [
+        "LOW_DIVERSITY"
+      ],
+      "authenticity_impact": 0.7
+    },
+    "email_validation": {
+      "email_registered_to_database": false,
+      "email_hash": "c2f9f29924838942..."
+    },
+    "separate_validation": {
+      "separate_duplicate_check": true,
+      "separate_duplicate_reason": "ALL_SEPARATE_CHECKS_PASSED"
+    },
     "errors": [
-      "DUPLICATE_DATA: WALLET_ALREADY_USED"
+      "SEPARATE_REGISTRATION_FAILED"
     ]
   },
-  "metadata": {}
+  "metadata": {
+    "schema_type": "instagram-meta-export.json",
+    "validation_steps_completed": 5,
+    "duplicate_check_reason": "NO_DUPLICATE"
+  }
 }

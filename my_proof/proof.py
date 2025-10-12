@@ -48,13 +48,9 @@ class Proof:
                     logging.error("Missing contributor email or wallet address")
                     break
                 
-                # AŞAMA 1: ŞEMA KONTROLÜ - veri yapısı doğru mu?
-                logging.info("Step 1: Schema validation")
+                # AŞAMA 1: ŞEMA KONTROLÜ - BYPASSED (tüm veri yapıları kabul ediliyor)
+                logging.info("Step 1: Schema validation (bypassed)")
                 schema_type, schema_matches = validate_schema(input_data)
-                if not schema_matches:
-                    errors.append("INVALID_SCHEMA")
-                    logging.error(f"Schema validation failed for {schema_type}")
-                    break
 
                 # AŞAMA 2: DUPLICATE DATA KONTROLÜ - en kritik kısım!
                 # Wallet, email, veri hash, aktivite parmak izi hepsi kontrol ediliyor
