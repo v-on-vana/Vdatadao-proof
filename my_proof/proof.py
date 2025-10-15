@@ -5,7 +5,6 @@ import os
 from datetime import datetime, timezone
 
 from my_proof.models.proof_response import ProofResponse
-from my_proof.utils.google import get_google_user
 from my_proof.utils.schema import validate_schema
 from my_proof.processors.instagram_processor import InstagramProcessor
 from my_proof.processors.google_processor import GoogleProcessor
@@ -25,9 +24,6 @@ class Proof:
         # 5 aşamalı kontrol sistemi ile çalışıyor
         logging.info("Starting proof generation for vdatadao with improved validation flow")
         errors = []
-
-        # Google kullanıcı doğrulaması (opsiyonel)
-        google_user = self._get_google_user(errors)
 
         # Input klasöründeki JSON dosyalarını tek tek işle
         for input_filename in os.listdir(settings.INPUT_DIR):
@@ -73,7 +69,7 @@ class Proof:
                 # AŞAMA 4: VERİ İŞLEME VE SKORLAMA
                 # Instagram/Google işlemcisi ile veriler analiz ediliyor
                 logging.info("Step 4: Processing data and calculating scores")
-                self._process_data_by_type(input_data, schema_type, schema_matches, google_user, errors)
+                self._process_data_by_type(input_data, schema_type, schema_matches, errors)
                 
                 # AŞAMA 5: DATABASE'E KAYDETME (sadece hata yoksa)
                 # Geçerli veriyi kalıcı olarak saklıyoruz
@@ -98,19 +94,6 @@ class Proof:
             logging.error(f"Proof generation failed with errors: {errors}")
 
         return self.proof_response
-
-    def _get_google_user(self, errors):
-        google_user = None
-        if settings.GOOGLE_TOKEN:
-            google_user = get_google_user()
-            if google_user:
-                if not google_user.verified_email:
-                    errors.append("UNVERIFIED_STORAGE_EMAIL")
-            else:
-                errors.append("UNVERIFIED_STORAGE_USER")
-        else:
-            logging.info("GOOGLE_TOKEN not set, skipping user verification")
-        return google_user
 
     def _load_and_validate_file(self, input_file, errors):
         try:
@@ -163,7 +146,7 @@ class Proof:
                         categories_with_content += 1
                         
             # 5. Minimum boyut kontrolü - çok küçük data sahte olabilir
-            min_required_size = 10000  # 10KB minimum
+            min_required_size = 500  # 10KB minimum
             if total_content_size < min_required_size:
                 errors.append("INSUFFICIENT_RAW_DATA_SIZE")
                 logging.warning(f"Raw data size {total_content_size} bytes, minimum {min_required_size} required")
@@ -183,13 +166,13 @@ class Proof:
             errors.append("RAW_EXPORT_VALIDATION_ERROR")
             return False
 
-    def _process_data_by_type(self, input_data, schema_type, schema_matches, google_user, errors):
+    def _process_data_by_type(self, input_data, schema_type, schema_matches, errors):
         # Veri tipine göre doğru işlemciyi seç - Instagram vs Google
         # Her platform'un kendine özel analiz yöntemi var
         if schema_type == "instagram-meta-export.json":
-            processor = InstagramProcessor(self.proof_response)  # Instagram verisi
-            processor.process_data(input_data, schema_matches, google_user, errors)
+            processor = InstagramProcessor(self.proof_response)
+            processor.process_data(input_data, schema_matches, errors)
         else:
-            processor = GoogleProcessor(self.proof_response)  # Google verisi
-            processor.process_data(input_data, schema_matches, google_user, errors)
+            processor = GoogleProcessor(self.proof_response)
+            processor.process_data(input_data, schema_matches, errors)
 

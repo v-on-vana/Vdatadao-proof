@@ -9,7 +9,14 @@ class GoogleScorer(BaseScorer):
         return 1.0
     
     def calculate_authenticity_score(self, input_data: Dict[str, Any], google_user: Optional[Any] = None) -> float:
-        return 1.0 if google_user else 0.0
+        score = 0.0
+        if input_data.get("email"):
+            score += 0.4
+        if input_data.get("userId"):
+            score += 0.3
+        if input_data.get("profile", {}).get("name"):
+            score += 0.3
+        return min(score, 1.0)
     
     def calculate_uniqueness_score(self, input_data: Dict[str, Any]) -> float:
         return 1.0
@@ -25,11 +32,10 @@ class GoogleScorer(BaseScorer):
             + ownership * 0.1
         )
     
-    def build_attributes(self, input_data: Dict[str, Any], google_user: Optional[Any] = None, ai_result: Optional[Dict] = None) -> Dict[str, Any]:
+    def build_attributes(self, input_data: Dict[str, Any], ai_result: Optional[Dict] = None) -> Dict[str, Any]:
         return {
             "schema_type": "google-profile.json",
             "user_email": input_data.get("email"),
             "user_id": input_data.get("userId"),
             "profile_name": input_data.get("profile", {}).get("name"),
-            "verified_with_oauth": google_user is not None,
         }

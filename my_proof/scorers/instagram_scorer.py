@@ -137,27 +137,21 @@ class InstagramScorer(BaseScorer):
     def calculate_authenticity_score(self, instagram_data: InstagramContribution, google_user: Optional[Any] = None) -> float:
         score = 0.0
 
-        if google_user:
-            score += 0.30
-
         if instagram_data.data.profile.phone_confirmed:
-            score += 0.15
+            score += 0.20
         if instagram_data.data.profile.email:
-            score += 0.10
+            score += 0.15
 
         metrics = instagram_data.data.metrics
         if metrics.total_interactions == (
             metrics.likes_given_count + metrics.comments_count
         ):
-            score += 0.10
-        if metrics.account_age_days > 0:
-            score += 0.10
-
-        if (
-            instagram_data.data.source_type == "meta_export"
-            and instagram_data.data.extraction_method == "google_drive_api"
-        ):
             score += 0.15
+        if metrics.account_age_days > 0:
+            score += 0.15
+
+        if instagram_data.data.source_type == "meta_export":
+            score += 0.25
 
         try:
             ai_result = self.ai_detector.detect_ai_content(instagram_data.dict())
@@ -327,7 +321,7 @@ class InstagramScorer(BaseScorer):
             + ownership * 0.10
         )
 
-    def build_attributes(self, instagram_data: InstagramContribution, google_user: Optional[Any] = None, ai_result: Optional[Dict] = None) -> Dict[str, Any]:
+    def build_attributes(self, instagram_data: InstagramContribution, ai_result: Optional[Dict] = None) -> Dict[str, Any]:
         attributes = {
             "schema_type": "instagram-meta-export.json",
             "platform": "instagram",
@@ -341,7 +335,6 @@ class InstagramScorer(BaseScorer):
             "extraction_completeness": instagram_data.metadata.extraction_completeness,
             "quality_score": instagram_data.metadata.quality_score,
             "data_freshness": instagram_data.metadata.data_freshness,
-            "verified_with_oauth": google_user is not None,
             "phone_confirmed": instagram_data.data.profile.phone_confirmed,
             "private_account": instagram_data.data.profile.private_account,
         }

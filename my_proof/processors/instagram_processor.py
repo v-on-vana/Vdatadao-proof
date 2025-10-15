@@ -18,7 +18,7 @@ class InstagramProcessor(BaseProcessor):
         self.email_validator = EmailValidator()
         self.duplicate_validator = DuplicateValidator()
     
-    def process_data(self, input_data: Dict[str, Any], schema_matches: bool, google_user: Optional[Any], errors: List[str]) -> None:
+    def process_data(self, input_data: Dict[str, Any], schema_matches: bool, errors: List[str]) -> None:
         try:
             contributor_email = input_data.get('contributor', {}).get('email')
             wallet_address = input_data.get('contributor', {}).get('wallet_address')
@@ -36,7 +36,7 @@ class InstagramProcessor(BaseProcessor):
             instagram_data = InstagramContribution(**input_data)
 
             quality_score = self.scorer.calculate_quality_score(instagram_data)
-            authenticity_score = self.scorer.calculate_authenticity_score(instagram_data, google_user)
+            authenticity_score = self.scorer.calculate_authenticity_score(instagram_data)
             uniqueness_score = self.scorer.calculate_uniqueness_score(instagram_data)
             ownership_score = self.scorer.calculate_ownership_score()
 
@@ -56,7 +56,7 @@ class InstagramProcessor(BaseProcessor):
                 logging.error(f"AI detection for attributes failed: {str(e)}")
 
             self.proof_response.attributes = self.scorer.build_attributes(
-                instagram_data, google_user, ai_result
+                instagram_data, ai_result
             )
             
             if contributor_email:
@@ -111,7 +111,6 @@ class InstagramProcessor(BaseProcessor):
             self.proof_response.attributes = {
                 "schema_type": "instagram-meta-export.json",
                 "processing_error": str(e),
-                "verified_with_oauth": google_user is not None,
             }
 
     def verify_profile_match(self, google_user: Any, input_data: Dict[str, Any]) -> bool:

@@ -13,18 +13,12 @@ class GoogleProcessor(BaseProcessor):
         self.scorer = GoogleScorer()
         self.email_validator = EmailValidator()
     
-    def process_data(self, input_data: Dict[str, Any], schema_matches: bool, google_user: Optional[Any], errors: List[str]) -> None:
+    def process_data(self, input_data: Dict[str, Any], schema_matches: bool, errors: List[str]) -> None:
         contributor_email = input_data.get('contributor', {}).get('email')
         wallet_address = input_data.get('contributor', {}).get('wallet_address')
 
-        if google_user:
-            profile_matches = self.verify_profile_match(google_user, input_data)
-            if not profile_matches:
-                errors.append("PROFILE_MISMATCH")
-                logging.error(f"Input profile data does not match Google profile")
-
         quality_score = self.scorer.calculate_quality_score(input_data)
-        authenticity_score = self.scorer.calculate_authenticity_score(input_data, google_user)
+        authenticity_score = self.scorer.calculate_authenticity_score(input_data)
         uniqueness_score = self.scorer.calculate_uniqueness_score(input_data)
         ownership_score = self.scorer.calculate_ownership_score()
 
@@ -37,7 +31,7 @@ class GoogleProcessor(BaseProcessor):
             quality_score, authenticity_score, uniqueness_score, ownership_score
         )
 
-        self.proof_response.attributes = self.scorer.build_attributes(input_data, google_user)
+        self.proof_response.attributes = self.scorer.build_attributes(input_data)
         
         if contributor_email:
             email_info = self.email_validator.get_email_registration_info(contributor_email)

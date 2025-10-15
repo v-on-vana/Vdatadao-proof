@@ -6,10 +6,10 @@ from typing import Optional
 class Settings(BaseSettings):
     """Global settings configuration using environment variables"""
 
-    DLP_ID: int = Field(default=143, description="Data Liquidity Pool ID")
+    DLP_ID: int = Field(default=42, description="Data Liquidity Pool ID")
 
     DLP_CONTRACT_ADDRESS: str = Field(
-        default="0xaA45d51168BB94CC7b7402bb051159276b6279b2",
+        default="0xdD29F495C058C7f13A7eb07428De3a46462E1909",
         description="Ethereum address of the DLP contract",
         pattern="^0x[a-fA-F0-9]{40}$",
     )
@@ -25,8 +25,8 @@ class Settings(BaseSettings):
     )
 
     RPC_URL: str = Field(
-        default="https://rpc.moksha.vana.org",
-        description="Ethereum RPC endpoint URL",
+        default="https://rpc.vana.org",
+        description="Vana RPC endpoint URL",
         pattern="^https?://.*$",
     )
 
@@ -37,13 +37,6 @@ class Settings(BaseSettings):
     OUTPUT_DIR: str = Field(
         default="/output", description="Directory where output files will be written"
     )
-
-    GOOGLE_TOKEN: Optional[str] = Field(
-        default=None,
-        description="Google OAuth2 access token for user authentication",
-        min_length=20,
-    )
-
 
     # PostgreSQL Configuration
     DATABASE_URL: Optional[str] = Field(
