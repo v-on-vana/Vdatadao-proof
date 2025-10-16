@@ -99,8 +99,36 @@ def extract_input() -> None:
                 with open(input_file, 'rb') as f:
                     header = f.read(20)
                     logging.warning(f"[DEBUG] File header: {header.hex()}")
+                    logging.warning(f"[DEBUG] File header (ASCII): {header.decode('utf-8', errors='ignore')}")
+                
+                logging.info(f"[DEBUG] Attempting to treat as JSON (IPFS content-type issue)")
+                try:
+                    with open(input_file, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                        json_data = json.loads(content)
+                        logging.info(f"[DEBUG] Successfully parsed as JSON!")
+                        logging.info(f"[DEBUG] JSON keys: {list(json_data.keys())}")
+                    
+                    new_filename = input_filename.replace('.zip', '.json')
+                    new_filepath = os.path.join(settings.INPUT_DIR, new_filename)
+                    
+                    with open(new_filepath, 'w', encoding='utf-8') as f:
+                        json.dump(json_data, f, indent=2, ensure_ascii=False)
+                    
+                    logging.info(f"[DEBUG] Renamed to: {new_filename}")
+                    
+                    os.remove(input_file)
+                    logging.info(f"[DEBUG] Removed original .zip file")
+                    
+                except json.JSONDecodeError as e:
+                    logging.error(f"[DEBUG] Failed to parse as JSON: {str(e)}")
+                except Exception as e:
+                    logging.error(f"[DEBUG] Failed to handle file: {str(e)}")
     
     logging.info(f"[DEBUG] ZIP extraction process completed")
+    
+    final_files = os.listdir(settings.INPUT_DIR)
+    logging.info(f"[DEBUG] Final files in input directory: {final_files}")
 
 
 if __name__ == "__main__":
