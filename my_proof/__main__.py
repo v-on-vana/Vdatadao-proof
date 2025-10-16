@@ -13,7 +13,8 @@ logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 def run() -> None:
     """Generate proofs for all input files."""
-    settings.DLP_ID = 143
+    if not settings.DLP_ID or settings.DLP_ID == 0:
+        settings.DLP_ID = 42
 
     input_files_exist = os.path.isdir(settings.INPUT_DIR) and bool(
         os.listdir(settings.INPUT_DIR)
@@ -21,6 +22,10 @@ def run() -> None:
 
     if not input_files_exist:
         raise FileNotFoundError(f"No input files found in {settings.INPUT_DIR}")
+    
+    logging.info(f"Input directory: {settings.INPUT_DIR}")
+    logging.info(f"Files found: {os.listdir(settings.INPUT_DIR)}")
+    
     extract_input()
 
     proof = Proof()
