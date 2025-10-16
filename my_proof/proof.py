@@ -22,7 +22,7 @@ class Proof:
     def generate(self) -> ProofResponse:
         # ANA FONKSİYON - Burda tüm validation süreci işliyor
         # 5 aşamalı kontrol sistemi ile çalışıyor
-        logging.info("Starting proof generation for vdatadao with improved validation flow")
+        logging.info("Starting proof generation for vdatadao with improved validation flow [DEBUG_ON]")
         errors = []
         
         all_files = os.listdir(settings.INPUT_DIR)
