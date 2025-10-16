@@ -6,7 +6,7 @@ from typing import Optional
 class Settings(BaseSettings):
     """Global settings configuration using environment variables"""
 
-    DLP_ID: int = Field(default=42, description="Data Liquidity Pool ID")
+    DLP_ID: int = Field(default=42, description="Data Liquidity Pool ID", ge=1)
 
     DLP_CONTRACT_ADDRESS: str = Field(
         default="0xdD29F495C058C7f13A7eb07428De3a46462E1909",

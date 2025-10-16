@@ -24,16 +24,34 @@ class Proof:
         # 5 aşamalı kontrol sistemi ile çalışıyor
         logging.info("Starting proof generation for vdatadao with improved validation flow")
         errors = []
+        
+        all_files = os.listdir(settings.INPUT_DIR)
+        logging.info(f"Found {len(all_files)} files in input directory: {all_files}")
+        
+        json_files = [f for f in all_files if f.lower().endswith('.json')]
+        logging.info(f"Found {len(json_files)} JSON files: {json_files}")
+        
+        if len(json_files) == 0:
+            logging.error("No JSON files found in input directory!")
+            errors.append("NO_JSON_FILES_FOUND")
+            self.proof_response.attributes["errors"] = errors
+            self.proof_response.valid = False
+            return self.proof_response
 
         # Input klasöründeki JSON dosyalarını tek tek işle
-        for input_filename in os.listdir(settings.INPUT_DIR):
+        for input_filename in all_files:
             input_file = os.path.join(settings.INPUT_DIR, input_filename)
 
             if os.path.splitext(input_file)[1].lower() == ".json":
+                logging.info(f"Processing JSON file: {input_filename}")
+                
                 # Dosyayı yükle ve parse et
                 input_data = self._load_and_validate_file(input_file, errors)
                 if not input_data:
+                    logging.error(f"Failed to load data from {input_filename}")
                     continue
+                
+                logging.info(f"Successfully loaded JSON data from {input_filename}")
                 
                 # Temel bilgileri çıkar - bunlar olmadan işlem yapamayız
                 contributor_email = input_data.get('contributor', {}).get('email')
@@ -146,7 +164,7 @@ class Proof:
                         categories_with_content += 1
                         
             # 5. Minimum boyut kontrolü - çok küçük data sahte olabilir
-            min_required_size = 500  # 10KB minimum
+            min_required_size = 500
             if total_content_size < min_required_size:
                 errors.append("INSUFFICIENT_RAW_DATA_SIZE")
                 logging.warning(f"Raw data size {total_content_size} bytes, minimum {min_required_size} required")
