@@ -39,12 +39,29 @@ def run() -> None:
 
 def extract_input() -> None:
     """If the input directory contains any zip files, extract them"""
+    logging.info("[DEBUG] Starting ZIP extraction process")
+    
     for input_filename in os.listdir(settings.INPUT_DIR):
         input_file = os.path.join(settings.INPUT_DIR, input_filename)
+        logging.info(f"[DEBUG] Checking file: {input_filename}")
 
         if zipfile.is_zipfile(input_file):
-            with zipfile.ZipFile(input_file, "r") as zip_ref:
-                zip_ref.extractall(settings.INPUT_DIR)
+            logging.info(f"[DEBUG] ✅ Found ZIP file: {input_filename}")
+            try:
+                with zipfile.ZipFile(input_file, "r") as zip_ref:
+                    file_list = zip_ref.namelist()
+                    logging.info(f"[DEBUG] ZIP contains {len(file_list)} files")
+                    logging.info(f"[DEBUG] First 10 files: {file_list[:10]}")
+                    
+                    zip_ref.extractall(settings.INPUT_DIR)
+                    logging.info(f"[DEBUG] ✅ Extracted to: {settings.INPUT_DIR}")
+                    
+                    extracted_files = os.listdir(settings.INPUT_DIR)
+                    logging.info(f"[DEBUG] After extraction, directory contains: {extracted_files}")
+            except Exception as e:
+                logging.error(f"[DEBUG] ❌ Failed to extract {input_filename}: {str(e)}")
+        else:
+            logging.info(f"[DEBUG] Not a ZIP file: {input_filename}")
 
 
 if __name__ == "__main__":
