@@ -32,7 +32,21 @@ class Proof:
         logging.info(f"Found {len(json_files)} JSON files: {json_files}")
         
         if len(json_files) == 0:
-            logging.error("No JSON files found in input directory!")
+            logging.error("[DEBUG] ❌ No JSON files found in root input directory!")
+            logging.info("[DEBUG] Checking subdirectories...")
+            
+            for item in all_files:
+                item_path = os.path.join(settings.INPUT_DIR, item)
+                if os.path.isdir(item_path):
+                    logging.info(f"[DEBUG] Found subdirectory: {item}")
+                    subdir_files = os.listdir(item_path)
+                    logging.info(f"[DEBUG]   Contents: {subdir_files}")
+                    
+                    subdir_json = [f for f in subdir_files if f.lower().endswith('.json')]
+                    if subdir_json:
+                        logging.info(f"[DEBUG]   ✅ Found {len(subdir_json)} JSON files in subdirectory")
+                        logging.info(f"[DEBUG]   Hint: JSON files are nested in '{item}/' folder")
+            
             errors.append("NO_JSON_FILES_FOUND")
             self.proof_response.attributes["errors"] = errors
             self.proof_response.valid = False
